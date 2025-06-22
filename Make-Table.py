@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-from _library import Tools as myTools
+from _library import Terminal  as myTerminal
 
-input_string = input(f"{myTools.BLUE}Enter comma-separated words for the table header:{myTools.RESET} ")
+input_string = input(f"{myTerminal.BLUE}Enter comma-separated words for the table header:{myTerminal.RESET} ")
 if not input_string:
     input_string = "Status, Name, Description, Date"
     
