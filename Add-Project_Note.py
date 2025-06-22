@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import re
 from datetime import datetime
 
 #my stuff
@@ -51,37 +50,9 @@ def main():
     with open(selectedTemplatePath, 'r', encoding='utf-8') as f:
         templateBody  = f.read()
     
-    note_Content = templateBody.strip()
-    templateTags = re.findall(r"\[(.*?)\]", note_Content)
-    templateTags = set(templateTags)  # remove duplicates
-    for templateTag in templateTags:
-        templateTagValue = ""
-        if "[" in templateTag:
-            pass  # skip malformed tags and images
-        if templateTag.strip() == "":
-            pass
-        elif templateTag.upper() == "YYYYMMDDHHMMSS":
-            templateTagValue = timestamp_id
-        elif templateTag.upper() == "YYYY-MM-DD HH:MM:SS":
-            templateTagValue = timestamp_full
-        elif templateTag.upper() in ("YYYY-MM-DD","DATE"):
-            templateTagValue = timestamp_date
-        elif templateTag in ("Project Name","ProjectName","Project"):
-            templateTagValue = selectedProjectName
-        elif templateTag in ("Current User","User","Username"):
-            templateTagValue = os.getlogin()
-        elif templateTag in ["tags","Tags","TAGS"]:
-            templateTagValue = input(f"{myTerminal.INPUTPROMPT}Enter tags (comma-separated) or leave blank for none: {myTerminal.RESET}").strip()
-            tags = ""
-            for tag in templateTagValue.split(","):
-                tag = tag.strip()
-                tags += f"#{tag} "
-            templateTagValue = tags
-        else:
-            templateTagValue = input(f"{myTerminal.INPUTPROMPT}Enter value for [{templateTag}]: {myTerminal.RESET}").strip()
-
-        note_Content = note_Content.replace(f"[{templateTag}]", templateTagValue)
-    
+    note_Content = myInputs.get_templateMerge_Values_From_User(timestamp_id,timestamp_date,
+                                                               timestamp_full,selectedProjectName,
+                                                               templateBody)
     # Construct the output filename and path
     output_filename = f"{timestamp_id}_{noteType}.md"
     output_path = os.path.join(newNote_directory, output_filename)
