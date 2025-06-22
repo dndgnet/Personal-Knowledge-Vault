@@ -2,7 +2,7 @@ import os
 import sys 
 import json
 
-from _library import Terminal as myTerminal
+from . import Terminal as myTerminal
 
 myTerminal.clearTerminal()
 
