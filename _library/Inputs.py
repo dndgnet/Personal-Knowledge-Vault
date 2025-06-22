@@ -2,8 +2,8 @@
 Collect inputs from users for specific tasks.
 """
 
-from . import libPreferences as myPreferences
-from . import libTools as myTools
+from . import Preferences as myPreferences
+from . import Tools as myTools
 
 import os
 from datetime import datetime
