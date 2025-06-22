@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from _library import libTools as myTools
+from _library import Tools as myTools
 
 input_string = input(f"{myTools.BLUE}Enter comma-separated words for the table header:{myTools.RESET} ")
 if not input_string:
