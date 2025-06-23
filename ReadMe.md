@@ -33,12 +33,20 @@ Use `chmod +x *.py` to make the Python scripts in the root folder executable if 
 
 | Command | Description |
 | --- | --- |
+| |<i><b>Vault Commands</b></i> |
 | Open-PKV | Opens the personal knowledge vault in the default editor|
 | Get-VaultDetails | Displays a summary of the vault preferences and vault details.|
 | Edit-Preferences | Opens the personal knowledge vault preferences in the default editor|
+| |<i><b>Follow-up Commands</b></i> |
+|Get-INCOMPLETE| Returns a list of notes that contain an #INCOMPLETE tag|
+|Get-TODO| Returns a list of notes that contain an #TODO tag|
+|Get-ActionItems| Returns a list of notes that contain one or more action [ ] items|
+| |<i><b>Add Content Commands</b></i> |
 | Add-ScreenCapture  | Selects a recent screen capture to be moved to the PKV or Project attachment.  |
 | Add-Attachment  | Selects a recent attachment to be moved to the PKV or Project attachment.  |
 | Add-Project_Note  | Asks for a project and template before preparing a blank project note based on the selected template.  |
+| Add-PKV_Note  | Asks for a project and template before preparing a blank note based on the selected template. If a project name is provided the name is saved in the note front matter, project name doe <b>not</b> change note location  |
+| |<i><b>Helpers</b></i> |
 | Make-Table  | Asks for the column headings and then produces a blank markdown table that can be copied and used in a note.  |
 |   |   |
 
