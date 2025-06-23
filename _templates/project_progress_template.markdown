@@ -10,17 +10,17 @@ author: [Current User]
 ---
 # [Project Name]: Progress Update [Date]
 
-**Status**:
+## Status:
 Summary of progress, e.g., Completed workflow design phase.
 
-**Achievements**:
+## Achievements:
 - Key milestones or deliverables.
 
-**Issues**:
+## Issues and Impediments:
 - Challenges or blockers encountered.
 
-**Actionable**:
+## Action Items:
 - [ ] Next steps, e.g., Test workflow with team, linked to ID
 
-**Related**:
+### Related:
  

@@ -1,5 +1,5 @@
 ---
-title: [Project Name] - Risk [Description]
+title: [Project Name] - Risk [Brief Description]
 id: [YYYYMMDDHHMMSS]
 type: project-risk
 created: [YYYY-MM-DD HH:MM:SS] 
@@ -12,12 +12,13 @@ author: [Current User]
 
 ## Risk:
 **Impact**: [Impact (High/Medium/Low)]
+
 **Likelihood**: [Likelihood (High/Medium/Low)]
 
 ## Mitigation:
 
 
-**Actionable**:
+## Action Items
 - [ ] 
 
-**Related**:
+### Related:

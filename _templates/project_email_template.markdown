@@ -7,17 +7,24 @@ modified: [YYYY-MM-DD HH:MM:SS]
 tags: [tags]
 project: [Project Name]
 ---
-# [Project Name]: Email Summary [Date or Subject]
+
+# Email Summary []
+
+**Project**: [Project Name]
 
 **From**: [Sender]
+
 **To**: [Recipient(s)]
+
 **Date**: [YYYY-MM-DD]
+
 **Subject**: [Email subject]
 
-**Summary**:
+## Summary:
 
 
 ## Action Items
+
 - [ ] 
 
 ### Related
