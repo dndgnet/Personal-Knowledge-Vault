@@ -129,8 +129,9 @@ try:
         _documents_path = _preferences["documents_path"]
         if _documents_path == "os default":
             _documents_path = os_documents_Path
-        _attachmentPickUp_path = _preferences["attachmentPickUp_path"]
         
+        
+        _attachmentPickUp_path = _preferences["attachmentPickUp_path"]
         if _attachmentPickUp_path in ("os default",""):
             if sys.platform in ('linux', 'linux2', 'darwin'):
                 _attachmentPickUp_path = os.path.expanduser('~/Downloads')
@@ -142,7 +143,8 @@ try:
         if not os.path.exists(_attachmentPickUp_path):
             print(f"""{myTerminal.ERROR}Attachment pickup path '{_attachmentPickUp_path}' does not exist, 
                   consider creating it or editing your preferences.{myTerminal.RESET} """)
-            
+
+        _screenCaptures_path = _preferences["screenCapture_path"]
         if _screenCaptures_path in ("os default",""):
             if sys.platform in ('linux', 'linux2', 'darwin'):
                 _screenCaptures_path = os.path.expanduser('~/Pictures/ScreenShots')
