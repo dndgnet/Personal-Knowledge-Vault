@@ -15,7 +15,7 @@ template_pathRoot = os.path.join(os.getcwd(),"_templates")
 
 def main():
     projects, selectedProjectName, selectedProjectIndex = myInputs.get_project_name()
-    templates, selectedTemplateName, selectedTemplateIndex = myInputs.get_template()
+    templates, selectedTemplateName, selectedTemplateIndex = myInputs.get_template("pkv")
 
     #based on the selected template, figure out which ouptut folder to use
     selectedTemplatePath = os.path.join(template_pathRoot, selectedTemplateName)
@@ -24,7 +24,7 @@ def main():
     #templates should have a prefix that tells what group of template they belong to
     # and a suffix that shows they are a template
     noteType = selectedTemplateName 
-    templateNamePartsToReplace = ["project_", "_template.markdown", "_template.md"]
+    templateNamePartsToReplace = ["pkv_","PKV_", "_template.markdown", "_template.md"]
     for part in templateNamePartsToReplace:
         noteType = noteType.replace(part, "")
 
@@ -45,11 +45,11 @@ def main():
     timestamp_id = selectedDateTime.strftime(myPreferences.timestamp_id_format())
     timestamp_date = selectedDateTime.strftime(myPreferences.date_format())
     timestamp_full = selectedDateTime.strftime(myPreferences.datetime_format())
-
+    
     uniqueIdentifier = f"{timestamp_id}_{noteType}"
     while not myTools.is_NewNote_identifier_unique(uniqueIdentifier):
         #Convert timestamp_id back to a datetime object and add a second to it
-        print (f"\t{myTerminal.WARNING}Note identifier '{uniqueIdentifier}' already exists. Generating a new one...{myTerminal.RESET}")
+        print (f"{myTerminal.WARNING}Note identifier '{uniqueIdentifier}' already exists. Generating a new one...{myTerminal.RESET}")
         selectedDateTime = datetime.strptime(timestamp_id, myPreferences.timestamp_id_format())
         timestamp_id = (selectedDateTime + timedelta(seconds=1)).strftime(myPreferences.timestamp_id_format())
         uniqueIdentifier = f"{timestamp_id}_{noteType}"
