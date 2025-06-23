@@ -49,7 +49,7 @@ def main():
     uniqueIdentifier = f"{timestamp_id}_{noteType}"
     while not myTools.is_NewNote_identifier_unique(uniqueIdentifier):
         #Convert timestamp_id back to a datetime object and add a second to it
-        print (f"{myTerminal.WARNING}Note identifier '{uniqueIdentifier}' already exists. Generating a new one...{myTerminal.RESET}")
+        print (f"\t{myTerminal.WARNING}Note identifier '{uniqueIdentifier}' already exists. Generating a new one...{myTerminal.RESET}")
         selectedDateTime = datetime.strptime(timestamp_id, myPreferences.timestamp_id_format())
         timestamp_id = (selectedDateTime + timedelta(seconds=1)).strftime(myPreferences.timestamp_id_format())
         uniqueIdentifier = f"{timestamp_id}_{noteType}"
