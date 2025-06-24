@@ -28,25 +28,18 @@ def main():
     #templates should have a prefix that tells what group of template they belong to
     # and a suffix that shows they are a template
     noteType = selectedTemplateName 
-    templateNamePartsToReplace = ["project_", "_template.markdown", "_template.md"]
+    templateNamePartsToReplace = ["PKV_","project_", "_template.markdown", "_template.md"]
     for part in templateNamePartsToReplace:
         noteType = noteType.replace(part, "")
 
-    #originally all templates got their own subfolder, in practice this is messy
-    #so now only some special templates get their own subfolder
-    templatesThatNeedSubFolder = ["meeting","status"]
-    if noteType not in templatesThatNeedSubFolder:    
-        noteSubFolder = ""
-    else:
-        noteSubFolder = f"{noteType}s"
-    
     #make sure the new note directory directory exists
     if selectedProjectName == "" or selectedProjectName is None:
-        #project not selected, save in the root of the PKV            
-        newNote_directory = os.path.join(myPreferences.root_pkv(), selectedProjectName, noteSubFolder)
-    else:
         #project selected, save in the project folder
-        newNote_directory = os.path.join(myPreferences.root_projects(), noteSubFolder)
+        newNote_directory = myPreferences.root_pkv()
+    else:
+        #project not selected, save in the root of the PKV            
+        newNote_directory = os.path.join(myPreferences.root_projects(), selectedProjectName)
+        
     os.makedirs(newNote_directory, exist_ok=True)
 
    #collect information that should be seeded into the note fields
