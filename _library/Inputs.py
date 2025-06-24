@@ -113,6 +113,25 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
     note_Content = note_Content.strip()
     templateTags = re.findall(r"\[(.*?)\]", note_Content)
     templateTags = set(templateTags)  # remove duplicates
+    
+    
+    #get title and tags captured first
+    if "Title" in templateTags:
+        templateTagValue = input(f"{myTerminal.INPUTPROMPT}Enter the title: {myTerminal.RESET}").strip()
+        note_Content = note_Content.replace("[Title]", templateTagValue)
+        templateTags.remove("Title")
+    
+    if "tags" in templateTags:
+        templateTagValue = input(f"{myTerminal.INPUTPROMPT}Enter tags (comma-separated) or leave blank for none: {myTerminal.RESET}").strip()
+        tags = ""
+        for tag in templateTagValue.split(","):
+            tag = tag.strip().replace(" ","_")
+            tags += f"#{tag} "
+        templateTagValue = tags
+        note_Content = note_Content.replace("[tags]", templateTagValue)
+        templateTags.remove("tags")
+    
+    #capture the rest of the tags in the template
     for templateTag in templateTags:
         templateTagValue = ""
         if "[" in templateTag:
