@@ -46,7 +46,7 @@ def main():
         newNote_directory = os.path.join(myPreferences.root_pkv(), selectedProjectName, noteSubFolder)
     else:
         #project selected, save in the project folder
-        newNote_directory = os.path.join(myPreferences.root_projects(), selectedProjectName, noteSubFolder)
+        newNote_directory = os.path.join(myPreferences.root_projects(), noteSubFolder)
     os.makedirs(newNote_directory, exist_ok=True)
 
    #collect information that should be seeded into the note fields
@@ -55,7 +55,7 @@ def main():
     timestamp_date = selectedDateTime.strftime(myPreferences.date_format())
     timestamp_full = selectedDateTime.strftime(myPreferences.datetime_format())
     
-    titleLettersAndNumbers = re.sub(r'[^A-Za-z0-9_\-\s]', '', title)
+    titleLettersAndNumbers = re.sub(r'[^A-Za-z0-9_\-\s]', '', title)[:200]  # Limit to 200 characters and remove special characters
     uniqueIdentifier = f"{timestamp_id}_{noteType}_{titleLettersAndNumbers}"
     while not myTools.is_NewNote_identifier_unique(uniqueIdentifier):
         #Convert timestamp_id back to a datetime object and add a second to it
