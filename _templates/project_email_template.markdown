@@ -1,5 +1,5 @@
 ---
-title: [Project Name] - Email [Description]
+title: Email [Title]
 id: [YYYYMMDDHHMMSS]
 type: project-email
 created: [YYYY-MM-DD HH:MM:SS] 
@@ -8,7 +8,7 @@ tags: [tags]
 project: [Project Name]
 ---
 
-# Email Summary []
+# Email Summary
 
 **Project**: [Project Name]
 
@@ -18,14 +18,12 @@ project: [Project Name]
 
 **Date**: [YYYY-MM-DD]
 
-**Subject**: [Email subject]
+**Subject**: [Title]
 
 ## Summary:
 
+#INCOMPLETE
 
 ## Action Items
 
-- [ ] 
-
-### Related
 

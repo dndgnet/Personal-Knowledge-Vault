@@ -1,5 +1,5 @@
 ---
-title: [Meeting Title]
+title: [Title]
 id: [YYYYMMDDHHMMSS] 
 type: project-meeting
 created: [YYYY-MM-DD HH:MM:SS] 
@@ -9,7 +9,7 @@ project: [Project Name]
 author: [Current User]
 ---
 
-# Meeting [Meeting Title]
+# Meeting [Title]
 
 ## Meeting logistics:
 
@@ -20,16 +20,13 @@ author: [Current User]
 
 ## Agenda 
 
-
 ## Notes
-- 
 
 ## Discussion Summary
 
+#INCOMPLETE
 
 ### Action Items and Decisions
 - [ ]
 
-#### Related:
-- 
 

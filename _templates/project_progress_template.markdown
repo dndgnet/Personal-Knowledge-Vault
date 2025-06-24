@@ -1,5 +1,5 @@
 ---
-title: [Project Name] - Progress Update [Description]
+title: Progress Update [Title]
 id: [YYYYMMDDHHMMSS] 
 type: project-progress
 created: [YYYY-MM-DD HH:MM:SS] 
@@ -8,10 +8,12 @@ tags: [tags]
 project: [Project Name]
 author: [Current User]
 ---
+
 # [Project Name]: Progress Update [Date]
 
 ## Status:
-Summary of progress, e.g., Completed workflow design phase.
+
+#INCOMPLETE
 
 ## Achievements:
 - Key milestones or deliverables.
@@ -20,7 +22,4 @@ Summary of progress, e.g., Completed workflow design phase.
 - Challenges or blockers encountered.
 
 ## Action Items:
-- [ ] Next steps, e.g., Test workflow with team, linked to ID
-
-### Related:
- 
+- 

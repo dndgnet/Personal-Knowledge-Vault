@@ -1,5 +1,5 @@
 ---
-title: [Project Name] - Idea [Email Description]
+title: Idea [Title]
 id: [YYYYMMDDHHMMSS] 
 type: project-idea
 created: [YYYY-MM-DD HH:MM:SS] 
@@ -7,12 +7,9 @@ modified: [YYYY-MM-DD HH:MM:SS]
 tags: [tags]
 project: [Project Name]
 ---
-# [Project Name]: Idea [Email Description]
 
-## Content:
+# Idea: [Title]
+
+#INCOMPLETE
 
 
-## Action Items:
-- [ ] 
-
-### Related:
