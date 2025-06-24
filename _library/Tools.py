@@ -5,10 +5,11 @@ import re
 from . import Preferences as myPreferences
 
 _datetime_formats = (
-    "%Y-%m-%d %H:%M:%S",  # Full datetime with seconds
-    "%Y %m %d %H %M %S",  # Full datetime with seconds spaces
-    "%Y-%m-%d %H:%M:%S",  # Full datetime
-    "%Y-%m-%d",           # Date only
+    "%Y-%m-%d %H:%M:%S",    # Full datetime with seconds
+    "%Y-%m-%d %H:%M",       # Full datetime without seconds
+    "%Y %m %d %H %M %S",    # Full datetime with seconds spaces
+    "%Y-%m-%d %H %M",       # Full datetime without seconds and spaces
+    "%Y-%m-%d",             # Date only
 )
 
 def clearTerminal() -> None:
