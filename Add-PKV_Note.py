@@ -8,6 +8,7 @@ from _library import Preferences as myPreferences
 from _library import Inputs as myInputs
 from _library import Terminal as myTerminal
 from _library import Tools as myTools
+import re
 
 # Define the template and output paths
 template_pathRoot = os.path.join(os.getcwd(),"_templates")
@@ -41,18 +42,19 @@ def main():
     os.makedirs(newNote_directory, exist_ok=True)
 
     #collect information that should be seeded into the note fields
-    selectedDateTime = myInputs.get_datetime_from_user("Enter the date and time for the note (or leave blank for system default):",datetime.now())
+    selectedDateTime, title = myInputs.get_datetime_and_title_from_user("Enter the date and time for the note (or leave blank for system default):",datetime.now())
     timestamp_id = selectedDateTime.strftime(myPreferences.timestamp_id_format())
     timestamp_date = selectedDateTime.strftime(myPreferences.date_format())
     timestamp_full = selectedDateTime.strftime(myPreferences.datetime_format())
     
-    uniqueIdentifier = f"{timestamp_id}_{noteType}"
+    titleLettersAndNumbers = re.sub(r'[^A-Za-z0-9_\-\s]', '', title)
+    uniqueIdentifier = f"{timestamp_id}_{noteType}_{titleLettersAndNumbers}"
     while not myTools.is_NewNote_identifier_unique(uniqueIdentifier):
         #Convert timestamp_id back to a datetime object and add a second to it
         print (f"\t{myTerminal.WARNING}Note identifier '{uniqueIdentifier}' already exists. Generating a new one...{myTerminal.RESET}")
         selectedDateTime = datetime.strptime(timestamp_id, myPreferences.timestamp_id_format())
         timestamp_id = (selectedDateTime + timedelta(seconds=1)).strftime(myPreferences.timestamp_id_format())
-        uniqueIdentifier = f"{timestamp_id}_{noteType}"
+        uniqueIdentifier = f"{timestamp_id}_{noteType}_{titleLettersAndNumbers}"
 
     # Read the template content
     with open(selectedTemplatePath, 'r', encoding='utf-8') as f:
@@ -60,6 +62,7 @@ def main():
     
     note_Content = myInputs.get_templateMerge_Values_From_User(timestamp_id,timestamp_date,
                                                                timestamp_full,selectedProjectName,
+                                                               title,
                                                                templateBody)
     # Construct the output filename and path
     output_filename = f"{uniqueIdentifier}.md"

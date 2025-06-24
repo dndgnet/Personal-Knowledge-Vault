@@ -13,19 +13,26 @@ from datetime import datetime
 # Define the template and output paths
 template_pathRoot = os.path.join(os.getcwd(),"_templates")
 
-def get_datetime_from_user(prompt = "enter a date time", defaultIfNone = datetime.now()) -> datetime:
+def get_datetime_and_title_from_user(datePrompt = "enter a date time", defaultIfNone = datetime.now(), 
+                                     titlePrompt = "enter note title", titleDefault = "untitled" ) -> tuple[datetime,str]:
     """
     Get a datetime from the user.
     returns the default datetime if the user doesn't provide a valid datetime
     for example, if the user enters an empty string
     """
-    inputDate = input(f"{myTerminal.INPUTPROMPT}{prompt}{myTerminal.RESET}").strip()
+    inputDate = input(f"{myTerminal.INPUTPROMPT}{datePrompt}{myTerminal.RESET}").strip()
     isDateTime, d = myTools.datetime_fromString(inputDate)
     if not isDateTime:
         print(f"\t{myTerminal.YELLOW}Using default: {defaultIfNone.strftime(myPreferences.datetime_format())}{myTerminal.RESET}")
-        return defaultIfNone
-    else:
-        return d 
+        d = defaultIfNone
+        
+    title = input(f"{myTerminal.INPUTPROMPT}{titlePrompt}: {myTerminal.RESET}").strip()
+    
+    if not title:
+        title = titleDefault
+        print(f"\t{myTerminal.YELLOW}Using default title: {title}{myTerminal.RESET}")
+    
+    return d, title
     
 def get_project_name() -> tuple[dict,str, int]:
     """Get the project name from the user.
@@ -104,7 +111,7 @@ def get_template(templateType = "All") -> tuple[dict,str, int]:
 
     return templates, templates[int(selectedTemplate)], int(selectedTemplate)
 
-def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_full,selectedProjectName,note_Content: str) -> str:
+def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_full,selectedProjectName,title,note_Content: str) -> str:
     """
     Get the template merge values from the user.
     Returns the populated note content with user inputs replacing template tags.
@@ -117,8 +124,7 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
     
     #get title and tags captured first
     if "Title" in templateTags:
-        templateTagValue = input(f"{myTerminal.INPUTPROMPT}Enter the title: {myTerminal.RESET}").strip()
-        note_Content = note_Content.replace("[Title]", templateTagValue)
+        note_Content = note_Content.replace("[Title]", title)
         templateTags.remove("Title")
     
     if "tags" in templateTags:
