@@ -86,7 +86,13 @@ def get_template(templateType = "All") -> tuple[dict,str, int]:
     print(f"{myTerminal.INPUTPROMPT}Available templates:{myTerminal.RESET}")
     for filename in os.listdir(template_pathRoot):
         if filename.upper().startswith(f"{templateType.upper()}_") or templateType.upper() in ("ALL",""):
-            print(f"""\t{templateIndex}. {filename.replace(f"{templateType}_",f"{templateType} ")}""")
+            
+            if templateType.upper() == "ALL" or templateType =="":
+                print(f"""\t{templateIndex}. {filename.replace("_template.markdown","")}""")
+            else:
+                #don't show the template type in the list if it's not "All"
+                print(f"""\t{templateIndex}. {filename.replace(f"{templateType}_","").replace("_template.markdown","")}""")
+                
             templates[templateIndex] = filename
             templateIndex += 1
         

@@ -15,7 +15,7 @@ template_pathRoot = os.path.join(os.getcwd(),"_templates")
 
 def main():
     projects, selectedProjectName, selectedProjectIndex = myInputs.get_project_name()
-    templates, selectedTemplateName, selectedTemplateIndex = myInputs.get_template()
+    templates, selectedTemplateName, selectedTemplateIndex = myInputs.get_template("project")
 
     #based on the selected template, figure out which ouptut folder to use
     selectedTemplatePath = os.path.join(template_pathRoot, selectedTemplateName)
