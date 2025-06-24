@@ -16,7 +16,10 @@ template_pathRoot = os.path.join(os.getcwd(),"_templates")
 
 def main():
     projects, selectedProjectName, selectedProjectIndex = myInputs.get_project_name()
-    templates, selectedTemplateName, selectedTemplateIndex = myInputs.get_template("project")
+    if selectedProjectName is None or selectedProjectName == "":
+        templates, selectedTemplateName, selectedTemplateIndex = myInputs.get_template("pkv")
+    else:
+        templates, selectedTemplateName, selectedTemplateIndex = myInputs.get_template("project")
 
     #based on the selected template, figure out which ouptut folder to use
     selectedTemplatePath = os.path.join(template_pathRoot, selectedTemplateName)
@@ -37,8 +40,13 @@ def main():
     else:
         noteSubFolder = f"{noteType}s"
     
-    #make sure the new note directory directory exists            
-    newNote_directory = os.path.join(myPreferences.root_projects(), selectedProjectName, noteSubFolder)
+    #make sure the new note directory directory exists
+    if selectedProjectName == "" or selectedProjectName is None:
+        #project not selected, save in the root of the PKV            
+        newNote_directory = os.path.join(myPreferences.root_pkv(), selectedProjectName, noteSubFolder)
+    else:
+        #project selected, save in the project folder
+        newNote_directory = os.path.join(myPreferences.root_projects(), selectedProjectName, noteSubFolder)
     os.makedirs(newNote_directory, exist_ok=True)
 
    #collect information that should be seeded into the note fields
