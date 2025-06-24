@@ -81,6 +81,27 @@ When adding a new note the user will automatically be prompted for *Project Name
 
 Square brackets containing other square brackets or no text will be ignored.
 
+### Event Templates
+
+Event templates are **super** short and designed to be used from the terminal without additional time spent in the text editor.
+
+Consider 
+```zsh
+Available templates:
+	1. email
+	2. chat
+	3. meeting
+	4. event
+Select a template (1-4): 4
+Enter the date and time for the note (or leave blank for system default):
+	Using default: 2025-06-23 19:24:09
+Enter value for [Title]: alarm
+Enter value for [Event Description]: Rec. alarm about server overheating
+Enter tags (comma-separated) or leave blank for none:   
+Note created: /Users/david/Documents/PKV/_Projects/250623192409_event.md
+Done!
+```
+
 
 ## Attachments and Screen Captures
 
