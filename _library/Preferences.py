@@ -19,13 +19,14 @@ _exampleEmptyPreferences = {
     "attachments_root":"_Attachments", #name of the folder in the PKV where attachments are stored
     "projects_root":"_Projects", #name of the folder in the PKV where projects are stored
     "archive_root":".Archive", #name of where soft deleted projects will be sent
-    "timestamp_id_format":"%y%m%d%H%M%S", #format for note unique identifiers
+    "timestamp_id_format":"%Y%m%d%H%M%S", #format for note unique identifiers
     "date_format":"%Y-%m-%d", #format for displaying dates in notes
     "datetime_format":"%Y-%m-%d %H:%M:%S", #format for displaying date and time in notes
     "documents_path": "os default", #where documents are stored, use 'os default' to let the OS decide
     "attachmentPickUp_path": "os default", #where we can look for new attachment, use 'os default' to let the OS return the downloads folder
     "screenCapture_path": "os default", #where we can look for new screen captures, use 'os default' to let the OS return the screenshots folder
-    "default_editor": "code" #default editor to use for opening files, can be 'code' for VS Code, 'zed' for Zed, or any other editor command
+    "default_editor": "code", #default editor to use for opening files, can be 'code' for VS Code, 'zed' for Zed, or any other editor command
+    "show_tag_prompt": "False", #set to true if the add new note commands should prompt for front matter tags when creating a new note, set to false if the author will provide front matter tags manually
     }
 
 _preferences = {}
@@ -54,6 +55,7 @@ _date_format = ""
 _documents_path = ""
 _attachmentPickUp_path = ""
 _screenCaptures_path = ""
+_show_tag_prompt = False
 
 def root_pkv() -> str:
     """Returns the documents subfolder for the pkv."""
@@ -99,6 +101,10 @@ def default_editor() -> str:
     """Returns the default editor to use for opening files."""
     return _preferences.get("default_editor", "code")  # Default to 'code' if not set
 
+def show_tag_prompt() -> bool:
+    """Returns whether to show the tag prompt when creating a new note."""
+    return _show_tag_prompt
+
 def preferences() -> dict:
     """Returns the loaded preferences."""
     return _preferences
@@ -112,9 +118,13 @@ if not os.path.exists(preferences_Path):
     os.makedirs(preferences_Path)
 
 if not os.path.exists(preferences_File_Path):
-    print(f"\tCreating preferences file in: {preferences_Path}")
+    print (f"{myTerminal.WARNING}Preferences file not found, creating a new one at: {preferences_File_Path}{myTerminal.RESET}")
     with open(os.path.join(preferences_Path,preferences_File), 'w') as file:
         json.dump(_exampleEmptyPreferences, file, indent=4)
+    
+    print(f"Default preferences file created. Please edit it to suit your needs with the {myTerminal.INFORMATION}Edit-Preferences{myTerminal.RESET} command.")
+    for key, value in _exampleEmptyPreferences.items():
+        print(f"\t\t{key}: {value}")
 
 try:
     with open(preferences_File_Path, 'r') as file:
@@ -127,6 +137,8 @@ try:
         _datetime_format = _preferences["datetime_format"]
         _date_format = _preferences["date_format"]
         _documents_path = _preferences["documents_path"]
+        _show_tag_prompt = _preferences.get("show_tag_prompt", "False").upper() == "TRUE"
+        
         if _documents_path == "os default":
             _documents_path = os_documents_Path
         
