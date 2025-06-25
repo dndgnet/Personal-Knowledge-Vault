@@ -186,12 +186,18 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
         templateTags.remove("Title")
     
     if "tags" in templateTags:
-        templateTagValue = input(f"{myTerminal.INPUTPROMPT}Enter tags (comma-separated) or leave blank for none: {myTerminal.RESET}").strip()
-        tags = ""
-        for tag in templateTagValue.split(","):
-            tag = tag.strip().replace(" ","_")
-            tags += f"#{tag} "
-        templateTagValue = tags
+        if myPreferences.show_tag_prompt():
+             #ask the user for tags
+            tags = ""
+            templateTagValue = input(f"{myTerminal.INPUTPROMPT}Enter tags (comma-separated) or leave blank for none: {myTerminal.RESET}").strip()
+            for tag in templateTagValue.split(","):
+                tag = tag.strip().replace(" ","_")
+                tags += f"#{tag} "
+            templateTagValue = tags
+        else:
+            #skip tags if the user doesn't want to be prompted
+            templateTagValue = ""
+                
         note_Content = note_Content.replace("[tags]", templateTagValue)
         templateTags.remove("tags")
     
@@ -202,9 +208,9 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
             pass  # skip malformed tags and images
         if templateTag.strip() == "":
             pass
-        elif templateTag.upper() == "YYYYMMDDHHMMSS":
+        elif templateTag.upper() in ("YYYYMMDDHHMMSS", "TIMESTAMP_ID"):
             templateTagValue = timestamp_id
-        elif templateTag.upper() == "YYYY-MM-DD HH:MM:SS":
+        elif templateTag.upper() in ("YYYY-MM-DD HH:MM:SS","DATETIME"):
             templateTagValue = timestamp_full
         elif templateTag.upper() in ("YYYY-MM-DD","DATE"):
             templateTagValue = timestamp_date
@@ -213,12 +219,17 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
         elif templateTag in ("Current User","User","Username"):
             templateTagValue = os.getlogin()
         elif templateTag in ["tags","Tags","TAGS"]:
-            templateTagValue = input(f"{myTerminal.INPUTPROMPT}Enter tags (comma-separated) or leave blank for none: {myTerminal.RESET}").strip()
-            tags = ""
-            for tag in templateTagValue.split(","):
-                tag = tag.strip().replace(" ","_")
-                tags += f"#{tag} "
-            templateTagValue = tags
+            if myPreferences.show_tag_prompt():
+                #ask the user for tags
+                templateTagValue = input(f"{myTerminal.INPUTPROMPT}Enter tags (comma-separated) or leave blank for none: {myTerminal.RESET}").strip()
+                tags = ""
+                for tag in templateTagValue.split(","):
+                    tag = tag.strip().replace(" ","_")
+                    tags += f"#{tag} "
+                templateTagValue = tags
+            else:
+                #skip tags if the user doesn't want to be prompted
+                templateTagValue = ""
         else:
             templateTagValue = input(f"{myTerminal.INPUTPROMPT}Enter value for [{templateTag}]: {myTerminal.RESET}").strip()
 

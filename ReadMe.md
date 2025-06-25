@@ -74,8 +74,8 @@ Use `chmod +x *.py` to make the Python scripts in the root folder executable if 
 | |<i><b>Add Content Commands</b></i> |
 | Add-ScreenCapture  | Selects a recent screen capture to be moved to the PKV or Project attachment.  |
 | Add-Attachment  | Selects a recent attachment to be moved to the PKV or Project attachment.  |
-| Add-Project_Note  | Asks for a project and template before preparing a blank project note based on the selected template.  |
-| Add-PKV_Note  | Asks for a project and template before preparing a blank note based on the selected template. If a project name is provided the name is saved in the note front matter, project name doe <b>not</b> change note location  |
+| Add-Note  | Asks for a project and attachments before preparing note based on the selected template. <br/> 
+Note: if a project name is provided the note is saved in the note front matter and the note is created in the project sub directory.  |
 | |<i><b>Helpers</b></i> |
 | Make-Table  | Asks for the column headings and then produces a blank markdown table that can be copied and used in a note.  |
 |   |   |
@@ -95,11 +95,11 @@ wiki_comment_template.markdown
 The first two templates are used for project email and meetings.
 The third template is used to record a wiki comment.
 
-### Template Merge Tags
+### Template Merge Values
 
 When creating a new note from a template, a prompt will be given to provide values for each merge tag in a template.
 
-Merge tags are denoted as text surrounded by a square brackets in a template file fore matter or body.
+Merge values are denoted as text surrounded by a square brackets in a template file front matter or body.
 
 Example
 
@@ -110,6 +110,21 @@ Note Subject: [Subject]
 When adding a new note the user will automatically be prompted for *Project Name* and *Subject*.
 
 Square brackets containing other square brackets or no text will be ignored.
+
+#### Special Merge Values
+
+`["YYYYMMDDHHMMSS]` and `[timestamp_id]` will be populated with the timestamp_id which is prepared using the note date time.
+
+`["YYYY-MM-DD HH:MM:SS"]` and `[DateTime]` will be populated as the full date and time as provided when starting a note.
+
+`[YYYY-MM-DD`] and `[DATE]` will be populated with the date collected when starting a note.
+
+`[Project Name]`, `[ProjectName]` and `[Project]` will be populated with the project name collected when starting a note.
+
+`[Current User]`,`[User`], `[Username`], and `[Author]` will be populated with user identity returned by the OS.
+
+`[tags]`,`[Tags]` and `[TAGS]`: will be populated with the values collecting when starting a note **if** the preferences `show_tag_prompt` value is `True`.  If *show_tag_prompt* is False the tag value will be left for the user to manually provide when they edit the note.
+
 
 ### Event Templates
 
