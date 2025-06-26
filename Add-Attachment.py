@@ -67,5 +67,5 @@ if input_string.isdigit() and 1 <= int(input_string) <= fileIndex:
     
     os.rename(sourcefile_path, destination_path)
     #print(f"{myTools.GREEN}File '{selected_file}' moved to attachments.{myTerminal.RESET}")
-    print(f"\t{myTerminal.SUCCESS}moved file to PKV, use  \n \t\t[[{selected_file}]] \n\tas a back link in notes.{myTerminal.RESET}")
+    print(f"\t{myTerminal.SUCCESS}moved file to PKV, use  \n \t\t[{selected_file}]({selected_file}) \n\tas a back link in notes.{myTerminal.RESET}")
     

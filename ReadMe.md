@@ -69,7 +69,7 @@ TODO: explain why projects get their own folders
 
 ## Commands
 
-Use `chmod +x *.py` to make the Python scripts in the root folder executable if using Linux or mac OS.
+Consider `chmod +x *.py` to make the Python scripts in the root folder executable if using Linux or mac OS.
 
 | Command | Description |
 | --- | --- |
@@ -99,10 +99,12 @@ Example
 ```zsh
 project_email_template.markdown
 project_meeting_template.markdown
-wiki_comment_template.markdown
+pkv_event_template.markdown
 ```
 The first two templates are used for project email and meetings.
-The third template is used to record a wiki comment.
+The third template is used to record a event comment.
+
+The `Add-Note` command will prompt for the project.  If you select a project, you will be presented with templates specifically intended for projects.  if you select 'no project', you will be presented with the generic PKV templates.
 
 ### Template Merge Values
 
@@ -157,6 +159,10 @@ Note created: /Users/david/Documents/PKV/_Projects/250623192409_event.md
 Done!
 ```
 
+### Your own Templates
+
+If you want to use your own templates, use the `Edit-Preferences` command to open your preferences and provide the location of your templates in the `template_path` property.
+
 
 ## Attachments and Screen Captures
 
@@ -164,3 +170,19 @@ Attachments and screen captures can be added to the PKV root or to the root of a
 
 These commands will brows the default attachment and screen capture pick up locations and then move the selected file to the appropriate attachment folder.  You can then use the double square bracket `[[filename.txt]]` syntax in your note to include a link or web standard links `[display value](url)`
 
+
+
+# Finding stuff
+
+
+Find all files in the PKV that contain the word "banana"
+
+Example mac OS or Linux
+```zsh
+grep -r "banana"
+```
+
+Windows
+```powershell
+Get-ChildItem -Recurse | Select-String "banana"
+```
