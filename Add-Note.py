@@ -74,7 +74,8 @@ def main():
         f.write(note_Content)
 
     print(f"{myTerminal.SUCCESS}Note created:{myTerminal.RESET} {output_path}")
-    os.system(f'{myPreferences.default_editor()} "{output_path}"')
+    if noteType != "event" or myPreferences.automatically_open_event_notes():
+        os.system(f'{myPreferences.default_editor()} "{output_path}"')
 
 if __name__ == "__main__":
     main()

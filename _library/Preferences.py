@@ -66,6 +66,7 @@ _documents_path = ""
 _attachmentPickUp_path = ""
 _screenCaptures_path = ""
 _show_tag_prompt = False
+_automatically_open_event_notes = False
 _author_name = ""
 
 def root_pkv() -> str:
@@ -118,6 +119,10 @@ def default_editor() -> str:
 def show_tag_prompt() -> bool:
     """Returns whether to show the tag prompt when creating a new note."""
     return _show_tag_prompt
+
+def automatically_open_event_notes() -> bool:
+    """Returns whether to automatically open event notes in the default editor."""
+    return _automatically_open_event_notes
 
 def author_name() -> str:
     """Returns the author name to use in notes."""
@@ -175,6 +180,7 @@ try:
             exit(1)
             
         _show_tag_prompt = _preferences.get("show_tag_prompt", "False").upper() == "TRUE"
+        _automatically_open_event_notes = _preferences.get("automatically_open_event_notes", "False").upper() == "TRUE"
         
         _attachmentPickUp_path = _preferences["attachmentPickUp_path"]
         if _attachmentPickUp_path in ("default",""):
