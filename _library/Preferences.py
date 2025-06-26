@@ -15,23 +15,27 @@ preferences_File = "Personal-Knowledge-Vault.json"
 
 #empty preferences file
 _exampleEmptyPreferences = {
-    "pkv_root":"PKV", #root folder name of the personal knowledge vault
-    "attachments_root":"_Attachments", #name of the folder in the PKV where attachments are stored
-    "projects_root":"_Projects", #name of the folder in the PKV where projects are stored
-    "archive_root":".Archive", #name of where soft deleted projects will be sent
     
     "timestamp_id_format":"%Y%m%d%H%M%S", #format for note unique identifiers
     "date_format":"%Y-%m-%d", #format for displaying dates in notes
     "datetime_format":"%Y-%m-%d %H:%M:%S", #format for displaying date and time in notes
     
-    "documents_path": "os default", #where documents are stored, use 'os default' to let the OS decide
-    "attachmentPickUp_path": "os default", #where we can look for new attachment, use 'os default' to let the OS return the downloads folder
-    "screenCapture_path": "os default", #where we can look for new screen captures, use 'os default' to let the OS return the screenshots folder
+    "pkv_root":"PKV", #root folder name of the personal knowledge vault
+    "attachments_root":"_Attachments", #name of the folder in the PKV where attachments are stored
+    "projects_root":"_Projects", #name of the folder in the PKV where projects are stored
+    "archive_root":".Archive", #name of where soft deleted projects will be sent
+    
+    "documents_path": "default", #where documents are stored, use 'default' to let the OS decide
+    "attachmentPickUp_path": "default", #where we can look for new attachment, use 'default' to let the OS return the downloads folder
+    "screenCapture_path": "default", #where we can look for new screen captures, use 'default' to let the OS return the screenshots folder
     "template_path": "default", #path to the templates, use 'default' to use the system templates, provide a different path if you have your own templates
     
     "default_editor": "code", #default editor to use for opening files, can be 'code' for VS Code, 'zed' for Zed, or any other editor command
     "show_tag_prompt": "False", #set to true if the add new note commands should prompt for front matter tags when creating a new note, set to false if the author will provide front matter tags manually
     "automatically_open_event_notes": "False", #set to true if the add new note commands should automatically open the created note in the default editor, set to false if the author will open it manually
+    
+    "author_name": "default", #use default to use the system username, or provide a custom name to be used in notes
+    
     }
 
 _preferences = {}
@@ -146,7 +150,7 @@ try:
         _datetime_format = _preferences["datetime_format"]
         _date_format = _preferences["date_format"]
         _documents_path = _preferences["documents_path"]
-        if _documents_path == "os default":
+        if _documents_path == "default":
             _documents_path = os_documents_Path
         
         _template_path = os.path.join(os.getcwd(),"_templates") if _preferences.get("template_path", "default") == "default" else _preferences["template_path"]
@@ -160,7 +164,7 @@ try:
         _show_tag_prompt = _preferences.get("show_tag_prompt", "False").upper() == "TRUE"
         
         _attachmentPickUp_path = _preferences["attachmentPickUp_path"]
-        if _attachmentPickUp_path in ("os default",""):
+        if _attachmentPickUp_path in ("default",""):
             if sys.platform in ('linux', 'linux2', 'darwin'):
                 _attachmentPickUp_path = os.path.expanduser('~/Downloads')
             elif sys.platform in ('win32', 'windows'):
@@ -173,7 +177,7 @@ try:
                   consider creating it or editing your preferences.{myTerminal.RESET} """)
 
         _screenCaptures_path = _preferences["screenCapture_path"]
-        if _screenCaptures_path in ("os default",""):
+        if _screenCaptures_path in ("default",""):
             if sys.platform in ('linux', 'linux2', 'darwin'):
                 _screenCaptures_path = os.path.expanduser('~/Pictures/ScreenShots')
             elif sys.platform in ('win32', 'windows'):
