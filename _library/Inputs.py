@@ -216,8 +216,8 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
             templateTagValue = timestamp_date
         elif templateTag in ("Project Name","ProjectName","Project"):
             templateTagValue = selectedProjectName
-        elif templateTag in ("Current User","User","Username"):
-            templateTagValue = os.getlogin()
+        elif templateTag in ("Current User","User","Username","Author","author"):
+            templateTagValue = myPreferences.author_name()
         elif templateTag in ["tags","Tags","TAGS"]:
             if myPreferences.show_tag_prompt():
                 #ask the user for tags

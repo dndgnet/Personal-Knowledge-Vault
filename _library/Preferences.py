@@ -66,6 +66,7 @@ _documents_path = ""
 _attachmentPickUp_path = ""
 _screenCaptures_path = ""
 _show_tag_prompt = False
+_author_name = ""
 
 def root_pkv() -> str:
     """Returns the documents subfolder for the pkv."""
@@ -118,10 +119,13 @@ def show_tag_prompt() -> bool:
     """Returns whether to show the tag prompt when creating a new note."""
     return _show_tag_prompt
 
+def author_name() -> str:
+    """Returns the author name to use in notes."""
+    return _author_name
+
 def preferences() -> dict:
     """Returns the loaded preferences."""
     return _preferences
-
     
 preferences_Path = os.path.join(preferences_Path, applicationNameRoot)
 preferences_File_Path = os.path.join(preferences_Path, preferences_File)
@@ -152,6 +156,15 @@ try:
         _documents_path = _preferences["documents_path"]
         if _documents_path == "default":
             _documents_path = os_documents_Path
+        
+        _author_name = _preferences.get("author_name", "default")
+        if _author_name == "default":
+            if sys.platform in ('linux', 'linux2', 'darwin'):
+                _author_name = os.getenv("USER", "default")
+            elif sys.platform in ('win32', 'windows'):
+                _author_name = os.getenv("USERNAME", "default")
+            else:
+                _author_name = "default"
         
         _template_path = os.path.join(os.getcwd(),"_templates") if _preferences.get("template_path", "default") == "default" else _preferences["template_path"]
         if not os.path.exists(_template_path):
