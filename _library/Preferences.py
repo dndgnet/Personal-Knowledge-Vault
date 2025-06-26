@@ -19,14 +19,19 @@ _exampleEmptyPreferences = {
     "attachments_root":"_Attachments", #name of the folder in the PKV where attachments are stored
     "projects_root":"_Projects", #name of the folder in the PKV where projects are stored
     "archive_root":".Archive", #name of where soft deleted projects will be sent
+    
     "timestamp_id_format":"%Y%m%d%H%M%S", #format for note unique identifiers
     "date_format":"%Y-%m-%d", #format for displaying dates in notes
     "datetime_format":"%Y-%m-%d %H:%M:%S", #format for displaying date and time in notes
+    
     "documents_path": "os default", #where documents are stored, use 'os default' to let the OS decide
     "attachmentPickUp_path": "os default", #where we can look for new attachment, use 'os default' to let the OS return the downloads folder
     "screenCapture_path": "os default", #where we can look for new screen captures, use 'os default' to let the OS return the screenshots folder
+    "template_path": "default", #path to the templates, use 'default' to use the system templates, provide a different path if you have your own templates
+    
     "default_editor": "code", #default editor to use for opening files, can be 'code' for VS Code, 'zed' for Zed, or any other editor command
     "show_tag_prompt": "False", #set to true if the add new note commands should prompt for front matter tags when creating a new note, set to false if the author will provide front matter tags manually
+    "automatically_open_event_notes": "False", #set to true if the add new note commands should automatically open the created note in the default editor, set to false if the author will open it manually
     }
 
 _preferences = {}
@@ -49,6 +54,7 @@ _pkv_baseFolderName = ""
 _attachment_root = ""
 _projects_root = ""
 _archive_root = ""
+_template_path = ""
 _timestamp_id_format = ""
 _datetime_format = ""
 _date_format = ""
@@ -72,6 +78,9 @@ def root_archive() -> str:
 def root_projects() -> str:
     """Returns the projects root."""
     return os.path.join(root_pkv(), _projects_root)
+def root_templates() -> str:
+    """Returns the templates root."""
+    return os.path.join(_template_path)
 
 def timestamp_id_format() -> str:
     """Returns the timestamp format for IDs."""
@@ -137,11 +146,18 @@ try:
         _datetime_format = _preferences["datetime_format"]
         _date_format = _preferences["date_format"]
         _documents_path = _preferences["documents_path"]
-        _show_tag_prompt = _preferences.get("show_tag_prompt", "False").upper() == "TRUE"
-        
         if _documents_path == "os default":
             _documents_path = os_documents_Path
         
+        _template_path = os.path.join(os.getcwd(),"_templates") if _preferences.get("template_path", "default") == "default" else _preferences["template_path"]
+        if not os.path.exists(_template_path):
+            #if template path does not exist there is very little that these scripts can do
+            #so print an error message and exit
+            print(f"""{myTerminal.ERROR}Template path '{_template_path}' does not exist, 
+                  consider creating it or editing your preferences.{myTerminal.RESET} """)
+            exit(1)
+            
+        _show_tag_prompt = _preferences.get("show_tag_prompt", "False").upper() == "TRUE"
         
         _attachmentPickUp_path = _preferences["attachmentPickUp_path"]
         if _attachmentPickUp_path in ("os default",""):

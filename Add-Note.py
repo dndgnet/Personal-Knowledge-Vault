@@ -11,7 +11,7 @@ from _library import Terminal as myTerminal
 from _library import Tools as myTools
 
 # Define the template and output paths
-template_pathRoot = os.path.join(os.getcwd(),"_templates")
+template_pathRoot = myPreferences.root_templates()
 
 
 def main():

@@ -5,21 +5,22 @@ Tools to help manage a Personal Knowledge Vault
 ## Directory Structure
 ```zsh
 root/
-├── Attachments/
-├── Projects/
+├── _Attachments/
+├── _Projects/
     ├── Project One
-    |   └── Attachments/
-    │       └── image1.svg
-    │   └── file2.txt
-    │   └── file3.txt     
+    |   └── _Attachments/
+    │       └── 20250601070742_screen capture image.svg
+    │       └── 20250401030202_requirements.doc
+    │   └── 20250601070742_meeting kickoff.md
+    │   └── 20250401030202_meeting_review_draft_requirements.md     
     ├── Project Two
     |   └── attachments/
-    │   └── file4.txt
-    │   └── file5.txt       
-├── file1.txt
-├── file7.txt
-├── file8.txt
-└── file9.txt       
+    │   └── 20250201020200_email_stakeholder_introduction.md
+    │   └── 20250201030200_chat_budget_discussion.md 
+├── 20250601070742_event_server_room_temperature_alarm.md
+├── 20250601071003_email_feedback_from_accounting.md
+├── 20250601141022_email_staff_vacation_request.md
+└── 20250601141022_meeting_weekly_stakeholder_meeting.md
 ```
 
 ## Preferences
@@ -74,8 +75,7 @@ Use `chmod +x *.py` to make the Python scripts in the root folder executable if 
 | |<i><b>Add Content Commands</b></i> |
 | Add-ScreenCapture  | Selects a recent screen capture to be moved to the PKV or Project attachment.  |
 | Add-Attachment  | Selects a recent attachment to be moved to the PKV or Project attachment.  |
-| Add-Note  | Asks for a project and attachments before preparing note based on the selected template. <br/> 
-Note: if a project name is provided the note is saved in the note front matter and the note is created in the project sub directory.  |
+| Add-Note  | Asks for a project and attachments before preparing note based on the selected template. <br/> Note: if a project name is provided the note is saved in the note front matter and the note is created in the project sub directory.  |
 | |<i><b>Helpers</b></i> |
 | Make-Table  | Asks for the column headings and then produces a blank markdown table that can be copied and used in a note.  |
 |   |   |
@@ -126,9 +126,10 @@ Square brackets containing other square brackets or no text will be ignored.
 `[tags]`,`[Tags]` and `[TAGS]`: will be populated with the values collecting when starting a note **if** the preferences `show_tag_prompt` value is `True`.  If *show_tag_prompt* is False the tag value will be left for the user to manually provide when they edit the note.
 
 
-### Event Templates
+#### Event Templates
 
-Event templates are **super** short and designed to be used from the terminal without additional time spent in the text editor.
+Event templates are **super** short and designed to be used from the terminal without additional time spent in the text editor.  Event templates are intended to be a replacement for the things that you would scribble in the margins of your day book.
+
 
 Consider 
 ```zsh
