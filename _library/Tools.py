@@ -91,7 +91,7 @@ def get_pkv_attachments() -> dict:
     
     return _attachments
 
-def get_note_tags(noteFileNameAndPath: str) -> tuple [str,set]:
+def get_note_tags(noteFileNameAndPath: str) -> tuple [str,list]:
     """
     Extracts tags from a note file.
     
@@ -106,12 +106,28 @@ def get_note_tags(noteFileNameAndPath: str) -> tuple [str,set]:
     filename =  noteFileNameAndPath.split("/")[-1]
     
     if not filename.endswith(".md"):
-        return filename, set()  # return empty set if not a markdown file
+        return filename, list()  # return empty set if not a markdown file
     
     # Read the template content
     with open(noteFileNameAndPath, 'r', encoding='utf-8') as f:
         note  = f.read()
 
+    allTags = get_tags_from_noteText(note)
+    
+    return filename, allTags
+
+def get_tags_from_noteText(note: str) -> list:
+    """
+    Extracts tags from a note content.
+    
+    Args:
+        note (str): the note content as a string
+        
+    Returns:
+        filename: The name of the note file.
+        set: A set of unique tags found in the note file.
+    """
+    
     allTags = set()
     #get front matter tags
     frontMatterTags_match = re.search(r'tags:\s*(.*)', note)
@@ -119,7 +135,7 @@ def get_note_tags(noteFileNameAndPath: str) -> tuple [str,set]:
     frontMatterTagsString = frontMatterTagsString.replace('#', ',')
     for tag in frontMatterTagsString.split(','):
         tag = tag.strip()
-        if tag != "":
+        if tag != "" and  ":" not in tag:
             allTags.add(tag)  
 
     #get other tags
@@ -130,7 +146,7 @@ def get_note_tags(noteFileNameAndPath: str) -> tuple [str,set]:
             tag = tag[1:]  # Remove the leading hash if present
         allTags.add(tag)
 
-    return filename, allTags
+    return list(allTags)  # Convert set to list for consistency
 
 def get_project_tags(projectName: str) -> dict:
     """
@@ -178,6 +194,56 @@ def get_NoteFiles_withTags_dict(target_dir: str) -> dict:
                 uniqueIdentifier = file.split(".")[0]
                 if file.endswith('.md'):
                     files_dict[uniqueIdentifier] = [file, os.path.join(root, file), get_note_tags(os.path.join(root, file))]
+                    
+    return files_dict
+
+def get_NoteFiles_as_dict(target_dir: str) -> dict:
+    files_dict = {}
+    for root, dirs, files in os.walk(target_dir, topdown=True):
+        for file in files:
+            if not file.startswith('.') and file.endswith('.md'):  # Skip hidden files and non markdown files
+                
+                with open(os.path.join(root, file), 'r', encoding='utf-8') as f:
+                    noteContent = f.read()
+                    
+                frontMatter = get_note_frontMatter(noteContent)
+                
+                uniqueIdentifier = file.split(".")[0]
+                osFileDateTime = datetime.datetime.fromtimestamp(os.path.getmtime(os.path.join(root, file))).strftime("%Y-%m-%d %H:%M:%S")
+                date = get_note_date_from_frontMatter(frontMatter)
+                if date == "":
+                    # If no date in front matter, use the file's last modified date
+                    date = osFileDateTime
+                
+                project = get_stringValue_from_frontMatter("project", frontMatter)
+                title = get_stringValue_from_frontMatter("title", frontMatter)
+                tags = get_tags_from_noteText(noteContent)
+                keywords = get_listValue_from_frontMatter("keywords",frontMatter)
+                retention = get_stringValue_from_frontMatter("retention", frontMatter)
+                author = get_stringValue_from_frontMatter("author", frontMatter)
+            
+                if title == "" or title is None:
+                    title = uniqueIdentifier
+                    
+                body = get_note_body(noteContent)
+                backLinks = get_note_backlinks(noteContent)
+                
+                note = {"fileName": file,
+                        "filePath": os.path.join(root, file),
+                        "date": date,
+                        "osFileDateTime": osFileDateTime,
+                        "title": title,
+                        "project": project,
+                        "tags": tags, 
+                        "keywords": keywords,
+                        "retention": retention,
+                        "author": author,
+                        "frontMatter": frontMatter,
+                        "noteBody": body,
+                        "backLinks": backLinks
+                        } 
+                
+                files_dict[uniqueIdentifier] = note
                     
     return files_dict
 
@@ -250,22 +316,39 @@ def get_note_frontMatter(noteBody: str) -> str:
     
     return ""
 
-def get_note_title_from_frontMatter(frontMatter: str) -> str:
+def get_note_body(noteBody: str) -> str:
     """
-    Extracts the title from the front matter of a note.
+    Extracts the content of a note, excluding the front matter.
     
     Args:
-        frontMatter (str): The front matter of the note.
+        noteBody (str): The content of the note.
         
     Returns:
-        str: The title of the note, if present; otherwise, an empty string.
+        str: The content of the note, excluding the front matter.
+    """
+    body = ""
+    frontMatter = get_note_frontMatter(noteBody)
+    
+    body = noteBody.replace(f"---\n{frontMatter}\n---", "").strip()
+    
+    if "---" in body:
+        body = body.split("---", 1)[-1].strip()
+    
+    return body 
+
+def get_note_backlinks(noteBody: str) -> list:
+    """
+    Extracts backlinks from a note body.
+    
+    Args:
+        noteBody (str): The content of the note.
+        
+    Returns:
+        list: A list of backlinks found in the note.
     """
     
-    title_match = re.search(r'title:\s*(.*)', frontMatter)
-    if title_match:
-        return title_match.group(1).strip()
-    
-    return ""
+    backlinks = re.findall(r'\[\[([^\]]+)\]\]', noteBody)
+    return [backlink.strip() for backlink in backlinks if backlink.strip()]
 
 def get_note_date_from_frontMatter(frontMatter: str) -> str:
     """
@@ -288,6 +371,42 @@ def get_note_date_from_frontMatter(frontMatter: str) -> str:
     
     return ""
 
+def get_listValue_from_frontMatter(valuePrefix:str, frontMatter: str) -> list:
+    """
+    Extracts keywords from the front matter of a note.
+    
+    Args:
+        frontMatter (str): The front matter of the note.
+        
+    Returns:
+        list: A list of keywords found in the front matter.
+    """
+    
+    keywords_match = re.search(r'keywords:[^\n](.*)', frontMatter)
+    if keywords_match:
+        keywords_string = keywords_match.group(1).strip()
+        print(repr(keywords_string))  # Debugging line to see the keywords string
+        return [keyword.strip() for keyword in keywords_string.split(',') if keyword.strip()]
+    
+    return []
+
+def get_stringValue_from_frontMatter(valuePrefix:str,frontMatter: str) -> str:
+    """
+    Extracts value from the front matter of a note based on a given prefix.
+    
+    Args:
+        frontMatter (str): The front matter of the note.
+        
+    Returns:
+        list: A list of keywords found in the front matter.
+    """
+    pattern = rf'{valuePrefix}:[^\n](.*)'
+    match = re.search(pattern, frontMatter)
+    if match:
+        return match.group(1).strip()
+    else:
+        return ""
+     
 def get_pkv_tags() -> dict:
     """
     Extracts tags from all notes in the PKV.

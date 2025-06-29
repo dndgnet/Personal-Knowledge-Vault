@@ -34,23 +34,30 @@ def get_datetime_and_title_from_user(datePrompt = "enter a date time", defaultIf
     
     return d, title
     
-def get_project_name() -> tuple[dict,str, int]:
-    """Get the project name from the user.
-        exits if the user does not select a valid project
+def get_project_name(showNewProjectOption = True) -> tuple[dict,str, int]:
+    """
+    Prompt the user to select a project from a list of available projects.
+    If the user selects "No Project", return an empty string.
+    If the user selects "New Project", prompt for a new project name and create it.
+    returns 
+    projects dictionary, 
+    selected project name, 
+    selected project integer
     """
     projectIndex = 1
     projects = {}
 
     #let hte user pic which project to use
-    print(f"{myTerminal.INPUTPROMPT}Available projects:{myTerminal.RESET}")
+    #print(f"{myTerminal.INPUTPROMPT}Available projects:{myTerminal.RESET}")
     projectIndex = 0
     projects[projectIndex] = "No Project"
     print(f"\t{projectIndex}. {projects.get(1, 'No Project')}")
+    
     projectIndex = 1
-    projects[projectIndex] = "New Project"
-    print(f"\t{projectIndex}. {projects.get(1, 'New Project')}")
-
-
+    if showNewProjectOption:
+        projects[projectIndex] = "New Project"
+        print(f"\t{projectIndex}. {projects.get(1, 'New Project')}")
+    
     for filename in sorted(os.listdir(myPreferences.root_projects())):
         if os.path.isdir(os.path.join(myPreferences.root_projects(), filename)):
             projectIndex += 1
@@ -60,8 +67,9 @@ def get_project_name() -> tuple[dict,str, int]:
     selectedProject = input(f"Select a project (0-{projectIndex}): ")
 
     if not selectedProject.isdigit() or int(selectedProject) not in projects:
-        print(f"{myTerminal.ERROR}Invalid selection. Please select a valid project number.{myTerminal.RESET}")
-        exit(1)
+        # print(f"{myTerminal.ERROR}Invalid selection. Please select a valid project number.{myTerminal.RESET}")
+        # exit(1)
+        return projects, "", 0
 
     if int(selectedProject) == 0:
         # print(f"{myTerminal.ERROR}Not yet implemented, I haven't decided what to do with no project calls. Exiting.{myTerminal.RESET}")

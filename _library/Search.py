@@ -1,0 +1,183 @@
+import datetime 
+import os 
+import re 
+
+from . import Preferences as myPreferences, Inputs as myInputs, Terminal as myTerminal, Tools as myTools
+
+def describe_search_results(searchCriteria, notes:dict) -> None:
+    """
+    Print a description of the search results.
+
+    Args:
+        notes (dict): Dictionary of notes.
+    """
+    print("")
+    
+    if searchCriteria != "":
+        print(f"{myTerminal.INFORMATION}Search {searchCriteria}{myTerminal.RESET}")
+    
+    if not notes:
+        print(f"{myTerminal.WARNING}No notes found matching the search criteria.{myTerminal.RESET}")
+        return
+
+    print(f"\t\tFound {len(notes)} notes matching the search criteria.")
+    print("")
+    
+def search_project(notes:dict) -> tuple[str,dict]:
+    """
+    Search for notes in the given dictionary that match the specified project.
+
+    Args:
+        notes (dict): Dictionary of notes.
+        project (str): The project name to search for.
+
+    Returns:
+        dict: Dictionary containing notes that match the project.
+    """
+    
+    _, selectedProject, _ = myInputs.get_project_name(showNewProjectOption=False)
+    results = {}
+    if selectedProject is None or selectedProject == "":
+        return "none, no project selected",notes
+    else:
+        for note_id, note in notes.items():
+            if note.get("project","") == selectedProject:
+                results[note_id] = note
+        return f"project = {selectedProject}", results
+
+def search_date(notes:dict) -> tuple[str,dict]:
+    """
+    Search for notes in the given dictionary that match the specified date range.
+
+    Args:
+        notes (dict): Dictionary of notes.
+        project (str): The project name to search for.
+
+    Returns:
+        dict: Dictionary containing notes that match the date range.
+    """
+    
+    userInput = input("Enter start date (YYYY-MM-DD) or leave blank for no start date: ")
+    isDate, startDate = myTools.datetime_fromString(userInput)
+    if not isDate:
+        startDate = datetime.datetime(year = 1899,month = 1, day =1)
+        
+    userInput = input("Enter end date (YYYY-MM-DD) or leave blank for no end date: ")
+    isDate, endDate = myTools.datetime_fromString(userInput)
+    if not isDate:
+        endDate = datetime.datetime.now()
+    
+    # truncate startDate to the beginning of the day
+    # and convert to a string
+    startDate = startDate.replace(hour=0, minute=0, second=0, microsecond=0).strftime(myPreferences.datetime_format())  
+    endDate = endDate.replace(hour=23, minute=59, second=59, microsecond=999999).strftime(myPreferences.datetime_format())
+    
+    results = {}
+    for note_id, note in notes.items():
+        noteDate = note.get("date", "")
+        if startDate <= noteDate <= endDate:
+            results[note_id] = note
+            
+    return f"date range from {startDate} to {endDate}", results
+
+def search_title(notes:dict) -> tuple[str,dict]:
+    """
+    Search for notes in the given dictionary that match the specified title.
+
+    Args:
+        notes (dict): Dictionary of notes.
+        project (str): The project name to search for.
+
+    Returns:
+        dict: Dictionary containing notes that match the title.
+    """
+    
+    titlePart = input("Enter a part of the title to search for (or leave blank for no title search): ").strip()
+    
+    results = {}
+    if titlePart is None or titlePart == "":
+        return "none, no title selected",notes
+    else:
+        for note_id, note in notes.items():
+            if titlePart in note.get("title",""):
+                results[note_id] = note
+        return f"title contains '{titlePart}'", results
+
+def search_body(notes:dict) -> tuple[str,dict]:
+    """
+    Search for notes in the given dictionary that match the specified title.
+
+    Args:
+        notes (dict): Dictionary of notes.
+        project (str): The project name to search for.
+
+    Returns:
+        dict: Dictionary containing notes that match the body.
+    """
+    
+    searchPart = input("Enter a part of the body to search for (or leave blank for no body search): ").strip()
+    
+    results = {}
+    if searchPart is None or searchPart == "":
+        return "none, no search part provided",notes
+    else:
+        for note_id, note in notes.items():
+            if searchPart in note.get("noteBody",""):
+                results[note_id] = note
+        return f"body contains '{searchPart}'", results
+    
+def search_tags(notes:dict) -> tuple[str,dict]:
+    """
+    Search for notes for a given tag.
+
+    Args:
+        notes (dict): Dictionary of notes.
+        project (str): The project name to search for.
+
+    Returns:
+        dict: Dictionary containing notes that match the project.
+    """
+    allTags = {}
+    
+    for note_id, note in notes.items():
+        if "tags" not in note:
+            continue
+        for tag in note.get("tags", []):
+            tag = tag.strip()
+            allTags[tag] = allTags.get(tag, 0) + 1
+
+    tagCount = 0 
+    sortedTags = sorted(allTags.items(), key=lambda x: x[1], reverse=True)
+
+    print("available tags:")
+    
+    column = 0 
+    line = ""
+    for tag, count in sortedTags:
+        tagCount += 1    
+        newTag = f"{tagCount:>3}. {tag} ({count})  "
+        line += f"{newTag:<35}"
+        column += 1
+        
+        if column >2:
+            print(line)
+            column = 0
+            line = ""
+            
+        
+
+    userInput = input(f"Select a tag to search by number (1-{len(sortedTags)}) or 0 for no tag search: ")
+    
+    selectedTag = ""
+    if userInput.isdigit() and 1 <= int(userInput) <= len(sortedTags):
+        selectedTagIndex = int(userInput)
+        selectedTag = sortedTags[selectedTagIndex - 1][0]
+        results = {}
+        for note_id, note in notes.items():
+            noteTags = list(note.get("tags", []))
+            if selectedTag in noteTags:
+                results[note_id] = note
+        return f"note tags include {selectedTag}", results
+    else:
+        return "none, no tag selected",notes
+  
