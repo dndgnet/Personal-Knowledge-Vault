@@ -1,8 +1,27 @@
 # Personal-Knowledge-Vault
 
-Tools to help manage a Personal Knowledge Vault
+## What and Why
 
-## Directory Structure
+todo: explain that this repository is a productivity hack for places where users are not allowed to buy and install software.  Somehow explain that the MS OneNote is not productive and just encourages vendor lock in 
+
+
+In real life, tools like Obsidian, Roam Research, Notion, Zettlr, and many others either support or are designed specifically for Zettelkasten style note-taking. However, in many corporate environments, these tools are often unsupported or outright prohibited.
+
+see [Zettelkasten choosing software](https://zettelkasten.de/introduction/#choosing-software)
+
+While there are ways to bypass corporate IT restrictions to stay productive, one of the simplest approaches is to technically comply with the rules by using native text editors like Notepad, Notepad++, or VS Code. Most organizations are unlikely to restrict these widely accepted tools.  
+
+This repository includes simply Python scripts that extend functionality of any common text editor and make note taking in a corporate environment less onerous.
+
+Scripts in this repository rely on standard Python libraries available in Python 3.0 and later (though only tested with Python 3.9 and above).
+
+Cloud storage and backup are achieved by leveraging existing corporate infrastructure. For example, by placing your vault in the Windows Documents folder, you can utilize corporate OneDrive for seamless integration.
+
+>*Hint* Consider calling `git init` in your value to give yourself local backups and roll back points.
+
+
+
+## Vault Structure
 ```zsh
 root/
 ├── _Attachments/
@@ -61,6 +80,14 @@ _exampleEmptyPreferences = {
 >**WARNING**: consider backing up your preferences file before you make changes and make sure you understand your changes.  For example, if you provide a new `pkv_root` value you will essentially be creating a new vault and if you change the `timestamp_id_format` you will fundamentally alter how new unique ids are generated.
 
 
+## Front Matter
+
+TODO: talk about Zettelkasten basics
+- emphasize the importance of a YYYYMMDD date format 
+- explain tags vs. keywords
+  - tags are bigger, keywords are just sensible things to help as future search criteria when you don't necessarily have the right words
+- explain retention
+  - Short, Medium, and Long: at some point we will need a command to delete notes based on the retention.  The logic is tbd so for now just record the author's intent.
 
 ## Projects
 
@@ -174,6 +201,9 @@ These commands will brows the default attachment and screen capture pick up loca
 
 # Finding stuff
 
+## OS native searches
+
+### Simple Search
 
 Find all files in the PKV that contain the word "banana"
 
@@ -182,7 +212,14 @@ Example mac OS or Linux
 grep -r "banana"
 ```
 
-Windows
+Example Windows
 ```powershell
 Get-ChildItem -Recurse | Select-String "banana"
+```
+
+### Compound Search
+
+Windows
+```powershell
+Get-ChildItem -Recurse -File |Where-Object { ($_ | Select-String "project: TMS") -and ($_ | Select-String "banana")} 
 ```
