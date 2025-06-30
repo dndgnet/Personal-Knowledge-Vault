@@ -319,8 +319,8 @@ def get_templateMerge_Values_From_ExistingData( templateData: dict ,note_Content
         templateTagValue = templateData.get("tags", "")
         for tag in templateTagValue.split(","):
             tag = tag.strip().replace(" ","_")
-            tags += f"#{tag} "
-        templateTagValue = tags
+            tags += f", {tag}"
+        templateTagValue = tags[1:]  # remove the leading comma and space
                  
         note_Content = note_Content.replace("[tags]", templateTagValue)
         templateTags.remove("tags")
