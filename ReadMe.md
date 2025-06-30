@@ -114,7 +114,7 @@ Consider `chmod +x *.py` to make the Python scripts in the root folder executabl
 | Add-Note  | Asks for a project and attachments before preparing note based on the selected template. <br/> Note: if a project name is provided the note is saved in the note front matter and the note is created in the project sub directory.  |
 | |<i><b>Helpers</b></i> |
 | Make-Table  | Asks for the column headings and then produces a blank markdown table that can be copied and used in a note.  |
-|   |   |
+| Search-Notes  | Performs an iterative search by asking for search parameters such as project, tag, date and note body content.  |
 
 ## Templates
 
@@ -200,6 +200,34 @@ These commands will brows the default attachment and screen capture pick up loca
 
 
 # Finding stuff
+
+## Search-Notes
+todo: 
+
+```zsh
+david@Davids-Laptop Personal-Knowledge-Vault % ./Search-Notes.py
+
+40 notes found.
+
+----------------------------------------
+Search options:
+	p) project - Search by project
+	t) tags - Search by tags
+	d) date range - Search by note date
+	i) title - Search by title
+	b) body - Search by body text
+	 --------------------
+Commands:
+	u) undo - undo the last search
+	l) list - list current search results
+	x) export - export results to editor note
+	q) quit - Quit the search
+	 --------------------
+Enter your choice: 
+
+```
+
+
 
 ## OS native searches
 
