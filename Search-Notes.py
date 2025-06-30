@@ -11,15 +11,14 @@ allNotes = myTools.get_NoteFiles_as_dict(myPreferences.root_pkv())
 with open(os.path.join(myPreferences.root_pkv(),"AllNotes.json"), 'w') as file:
     json.dump(allNotes, file, indent=4)
 
-
 #retrieve the dictionary of all notes from AllNotes.json
-allNotes = {}
-allNotesJsonPath = os.path.join(myPreferences.root_pkv(), "AllNotes.json")
-if os.path.exists(allNotesJsonPath):
-    with open(allNotesJsonPath, 'r') as file:
-        allNotes = json.load(file)
+# allNotes = {}
+# allNotesJsonPath = os.path.join(myPreferences.root_pkv(), "AllNotes.json")
+# if os.path.exists(allNotesJsonPath):
+#     with open(allNotesJsonPath, 'r') as file:
+#         allNotes = json.load(file)
 
-print(f"{len(allNotes)} notes loaded, start providing search criteria.")
+print(f"{len(allNotes)} notes found.")
 print("")
 print("-"*40)
 
