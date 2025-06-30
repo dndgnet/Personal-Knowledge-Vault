@@ -11,14 +11,15 @@ allNotes = myTools.get_NoteFiles_as_dict(myPreferences.root_pkv())
 with open(os.path.join(myPreferences.root_pkv(),"AllNotes.json"), 'w') as file:
     json.dump(allNotes, file, indent=4)
 
-#retrieve the dictionary of all notes from AllNotes.json
-# allNotes = {}
-# allNotesJsonPath = os.path.join(myPreferences.root_pkv(), "AllNotes.json")
-# if os.path.exists(allNotesJsonPath):
-#     with open(allNotesJsonPath, 'r') as file:
-#         allNotes = json.load(file)
 
-print(f"{len(allNotes)} notes found.")
+#retrieve the dictionary of all notes from AllNotes.json
+allNotes = {}
+allNotesJsonPath = os.path.join(myPreferences.root_pkv(), "AllNotes.json")
+if os.path.exists(allNotesJsonPath):
+    with open(allNotesJsonPath, 'r') as file:
+        allNotes = json.load(file)
+
+print(f"{len(allNotes)} notes loaded, start providing search criteria.")
 print("")
 print("-"*40)
 
@@ -102,7 +103,7 @@ while continueSearch:
         print(f"\t{myTerminal.INFORMATION}{'Datetime':<20} {'Project':<31} {'Note Title':<31}{myTerminal.RESET}")
         print(f"\t{myTerminal.INFORMATION}{'________':<20} {'_______':<31} {'__________':<31}{myTerminal.RESET}")
         for note_id, note in searchResult.items():
-            print(f"\t{myTerminal.INFORMATION}{note.get('date',""):<20} {note.get('project','')[:30]:<31} {note.get('title', 'No title')[:30]:<31}{myTerminal.RESET}")
+            print(f"\t{myTerminal.INFORMATION}{note.get('date',''):<20} {note.get('project','')[:30]:<31} {note.get('title', 'No title')[:30]:<31}{myTerminal.RESET}")
     
     elif inputChoice == 'x':
         searchResultBody =f"""
@@ -120,10 +121,10 @@ while continueSearch:
             searchResultBody += f"**Date:** {note.get('date', 'No date')}\n"
             searchResultBody += f"**Tags:** {note.get('tags', 'No tags')}\n"
             searchResultBody += "\n\n"
-            searchResultBody += f"{note.get('noteBody', 'No body text').replace("---","")}\n\n"
+            searchResultBody += f"{note.get('noteBody', 'No body text').replace('---','')}\n\n"
         
         searchResultFilePath = os.path.join(myPreferences.root_pkv(), ".SearchResults.md")
-        with open(searchResultFilePath, 'w') as file:
+        with open(searchResultFilePath, 'w',encoding='utf-8') as file:
             file.write(searchResultBody)
         
         continueSearch = False    
