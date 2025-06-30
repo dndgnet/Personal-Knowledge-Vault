@@ -1,7 +1,7 @@
 ---
 title: Event [Title]
 id: [YYYYMMDDHHMMSS] 
-type: project-idea
+type: project-event
 created: [YYYY-MM-DD HH:MM:SS] 
 modified: [YYYY-MM-DD HH:MM:SS] 
 retention: Long

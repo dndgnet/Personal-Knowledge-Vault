@@ -216,6 +216,9 @@ def get_NoteFiles_as_dict(target_dir: str) -> dict:
                     date = osFileDateTime
                 
                 project = get_stringValue_from_frontMatter("project", frontMatter)
+                type = get_stringValue_from_frontMatter("type", frontMatter)
+                if type == "":
+                    type = "unknown"
                 title = get_stringValue_from_frontMatter("title", frontMatter)
                 tags = get_tags_from_noteText(noteContent)
                 keywords = get_listValue_from_frontMatter("keywords",frontMatter)
@@ -232,6 +235,7 @@ def get_NoteFiles_as_dict(target_dir: str) -> dict:
                         "filePath": os.path.join(root, file),
                         "date": date,
                         "osFileDateTime": osFileDateTime,
+                        "type": type,
                         "title": title,
                         "project": project,
                         "tags": tags, 
@@ -385,7 +389,6 @@ def get_listValue_from_frontMatter(valuePrefix:str, frontMatter: str) -> list:
     keywords_match = re.search(r'keywords:[^\n](.*)', frontMatter)
     if keywords_match:
         keywords_string = keywords_match.group(1).strip()
-        print(repr(keywords_string))  # Debugging line to see the keywords string
         return [keyword.strip() for keyword in keywords_string.split(',') if keyword.strip()]
     
     return []

@@ -15,11 +15,11 @@ template_pathRoot = myPreferences.root_templates()
 
 
 def main():
-    projects, selectedProjectName, selectedProjectIndex = myInputs.get_project_name()
+    projects, selectedProjectName, selectedProjectIndex = myInputs.select_project_name()
     if selectedProjectName is None or selectedProjectName == "":
-        templates, selectedTemplateName, selectedTemplateIndex = myInputs.get_template("pkv")
+        templates, selectedTemplateName, selectedTemplateIndex = myInputs.select_template("pkv")
     else:
-        templates, selectedTemplateName, selectedTemplateIndex = myInputs.get_template("project")
+        templates, selectedTemplateName, selectedTemplateIndex = myInputs.select_template("project")
 
     #based on the selected template, figure out which ouptut folder to use
     selectedTemplatePath = os.path.join(template_pathRoot, selectedTemplateName)

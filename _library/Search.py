@@ -35,7 +35,7 @@ def search_project(notes:dict) -> tuple[str,dict]:
         dict: Dictionary containing notes that match the project.
     """
     
-    _, selectedProject, _ = myInputs.get_project_name(showNewProjectOption=False)
+    _, selectedProject, _ = myInputs.select_project_name(showNewProjectOption=False)
     results = {}
     if selectedProject is None or selectedProject == "":
         return "none, no project selected",notes
