@@ -34,7 +34,7 @@ def get_datetime_and_title_from_user(datePrompt = "enter a date time", defaultIf
     
     return d, title
     
-def get_project_name(showNewProjectOption = True) -> tuple[dict,str, int]:
+def select_project_name(showNewProjectOption = True) -> tuple[dict,str, int]:
     """
     Prompt the user to select a project from a list of available projects.
     If the user selects "No Project", return an empty string.
@@ -90,7 +90,7 @@ def get_project_name(showNewProjectOption = True) -> tuple[dict,str, int]:
     print(f"{myTerminal.SUCCESS}Selected project: {projects[int(selectedProject)]}{myTerminal.RESET}\n")
     return projects, projects[int(selectedProject)], int(selectedProject)
 
-def get_template(templateType = "All") -> tuple[dict,str, int]:
+def select_template(templateType = "All") -> tuple[dict,str, int]:
     """ 
         Get the template from the user.
         exits if the user does not select a valid template
@@ -121,7 +121,7 @@ def get_template(templateType = "All") -> tuple[dict,str, int]:
     
     return templates, templates[int(selectedTemplate)], int(selectedTemplate)
 
-def get_attachment_from_user(projectName="", uniqueIdentifier = "") -> tuple[str, str]:
+def select_attachment_from_user(projectName="", uniqueIdentifier = "") -> tuple[str, str]:
     """
     Get the attachment file path from the user.
     Returns the full path to the attachment file.
@@ -140,7 +140,7 @@ def get_attachment_from_user(projectName="", uniqueIdentifier = "") -> tuple[str
     print(f"{myTerminal.INPUTPROMPT}Recent files in attachment pick up folder:{myTerminal.RESET}")
     for file_name in downloads_dict:
         if file_name.startswith('.'):
-            pass  # Skip hidden files
+            continue  # Skip hidden files
         
         fileIndex += 1
         print(f"\t{myTerminal.INPUTPROMPT}{fileIndex}: {file_name}{myTerminal.RESET}")
@@ -153,7 +153,7 @@ def get_attachment_from_user(projectName="", uniqueIdentifier = "") -> tuple[str
         return "",""
 
     #select a file
-    input_string = input(f"{myTerminal.INPUTPROMPT}Select a file (1-{fileIndex}):{myTerminal.RESET} ")
+    input_string = input(f"{myTerminal.INPUTPROMPT}Select a file (1-{fileIndex} or 0 to skip attachment):{myTerminal.RESET} ")
     if input_string.isdigit() and 1 <= int(input_string) <= fileIndex:
         selected_file = list(downloads_dict.keys())[int(input_string) - 1]
         sourcefile_path = os.path.join(downloads_folder, selected_file)
@@ -176,9 +176,38 @@ def get_attachment_from_user(projectName="", uniqueIdentifier = "") -> tuple[str
     os.rename(sourcefile_path, destination_path)
     
     return selected_file,newFileName
-    
 
-def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_full,selectedProjectName,title,note_Content: str) -> str:
+def select_recent_note() -> tuple[str, dict]:
+    """
+    Get the most recent note from the user.
+    Returns the note ID and the note dictionary.
+    """
+    
+    allNotes = myTools.get_NoteFiles_as_dict(myPreferences.root_pkv())
+    sortedNotes = dict(sorted(allNotes.items(), key=lambda item: item[1]["date"], reverse=True))
+    
+    if not sortedNotes:
+        print(f"{myTerminal.ERROR}No notes found.{myTerminal.RESET}")
+        return "", {}
+    
+    print(f"{myTerminal.INPUTPROMPT}Recent notes:{myTerminal.RESET}")
+    noteIndex = 0
+    for noteId, note in sortedNotes.items():
+        noteIndex += 1
+        print(f"\t {noteIndex}) {note.get('date', 'No date')} - {note.get('title', 'No title')}")
+        if noteIndex > 5:
+            break  # Show only the first 5 notes for brevity
+        
+    selectedNoteId = input(f"{myTerminal.INPUTPROMPT}Select a note number or press Enter to skip: {myTerminal.RESET}").strip()
+    
+    if not selectedNoteId.isdigit() or int(selectedNoteId) < 1 or int(selectedNoteId) > noteIndex:
+        return "", {}
+    
+    selectedNote = list(sortedNotes.items())[int(selectedNoteId) - 1]
+    return selectedNoteId, dict(selectedNote[1])
+    
+def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_full,
+                                       selectedProjectName,title,note_Content: str) -> str:
     """
     Get the template merge values from the user.
     Returns the populated note content with user inputs replacing template tags.
@@ -212,7 +241,7 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
     #capture the rest of the tags in the template
     for templateTag in templateTags:
         templateTagValue = ""
-        if "[" in templateTag:
+        if "[" in templateTag or "]" in templateTag:
             pass  # skip malformed tags and images
         if templateTag.strip() == "":
             pass
@@ -248,7 +277,7 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
 
     print("")
     while addAttachment == "Y":
-        selectedFile, attachmentTagValue = get_attachment_from_user(projectName=selectedProjectName, uniqueIdentifier=timestamp_id)
+        selectedFile, attachmentTagValue = select_attachment_from_user(projectName=selectedProjectName, uniqueIdentifier=timestamp_id)
         if attachmentTagValue != "":
             if attachmentCount == 0:
                 note_Content += "\n#### Attachments\n"
@@ -257,5 +286,65 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
             note_Content += f"\n[{selectedFile}](./_Attachments/{attachmentTagValue})\n"
             print(f"\t\t{myTerminal.SUCCESS}Attachment added '{selectedFile}'.{myTerminal.RESET}")
             addAttachment = input(f"{myTerminal.INPUTPROMPT}Add another attachment? (y/n): {myTerminal.RESET}").strip().upper()
+        else:
+            print(f"\t\t{myTerminal.WARNING}No attachment selected.{myTerminal.RESET}")
+            addAttachment = "N"
                
     return note_Content
+
+def get_templateMerge_Values_From_ExistingData( templateData: dict ,note_Content: str) -> tuple[str,str,str]:
+    """
+    Populate a note template using values from an existing templateData source.
+    Returns the populated note content with user inputs replacing template tags.
+    """
+    
+    note_Content = note_Content.strip()
+    templateTags = re.findall(r"\[(.*?)\]", note_Content)
+    templateTags = set(templateTags)  # remove duplicates
+    
+    _,selectedDateTime = myTools.datetime_fromString(templateData.get("date", datetime.now().strftime(myPreferences.datetime_format())))
+    timestamp_id = selectedDateTime.strftime(myPreferences.timestamp_id_format())
+    timestamp_date = selectedDateTime.strftime(myPreferences.date_format())
+    timestamp_full = selectedDateTime.strftime(myPreferences.datetime_format())
+    title = templateData.get("Title", "untitled")
+    selectedProjectName = templateData.get("project", "")
+    
+    #get title and tags captured first
+    if "Title" in templateTags:
+        note_Content = note_Content.replace("[Title]", title)
+        templateTags.remove("Title")
+    
+    if "tags" in templateTags:
+        tags = ""
+        templateTagValue = templateData.get("tags", "")
+        for tag in templateTagValue.split(","):
+            tag = tag.strip().replace(" ","_")
+            tags += f"#{tag} "
+        templateTagValue = tags
+                 
+        note_Content = note_Content.replace("[tags]", templateTagValue)
+        templateTags.remove("tags")
+    
+    #capture the rest of the tags in the template
+    for templateTag in templateTags:
+        templateTagValue = ""
+        if "[" in templateTag or "]" in templateTag:
+            pass  # skip malformed tags and images
+        if templateTag.strip() == "":
+            pass
+        elif templateTag.upper() in ("YYYYMMDDHHMMSS", "TIMESTAMP_ID"):
+            templateTagValue = timestamp_id
+        elif templateTag.upper() in ("YYYY-MM-DD HH:MM:SS","DATETIME"):
+            templateTagValue = timestamp_full
+        elif templateTag.upper() in ("YYYY-MM-DD","DATE"):
+            templateTagValue = timestamp_date
+        elif templateTag in ("Project Name","ProjectName","Project"):
+            templateTagValue = selectedProjectName
+        elif templateTag in ("Current User","User","Username","Author","author"):
+            templateTagValue = myPreferences.author_name()
+        else:
+            templateTagValue = templateData.get(templateTag, "")
+
+        note_Content = note_Content.replace(f"[{templateTag}]", templateTagValue)
+                
+    return timestamp_id, title, note_Content
