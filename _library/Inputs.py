@@ -5,10 +5,12 @@ Collect inputs from users for specific tasks.
 from . import Preferences as myPreferences
 from . import Tools as myTools
 from . import Terminal as myTerminal
+from .Tools import NoteData
 
 import os
 import re
 from datetime import datetime
+from typing import Union
 
 # Define the template and output paths
 template_pathRoot = os.path.join(os.getcwd(),"_templates")
@@ -177,34 +179,34 @@ def select_attachment_from_user(projectName="", uniqueIdentifier = "") -> tuple[
     
     return selected_file,newFileName
 
-def select_recent_note() -> tuple[str, dict]:
+def select_recent_note() -> tuple[str, NoteData]:
     """
     Get the most recent note from the user.
-    Returns the note ID and the note dictionary.
+    Returns the note ID and the NoteData object.
     """
     
-    allNotes = myTools.get_NoteFiles_as_dict(myPreferences.root_pkv())
-    sortedNotes = dict(sorted(allNotes.items(), key=lambda item: item[1]["date"], reverse=True))
+    allNotes = myTools.get_Notes_as_list(myPreferences.root_pkv())
+    sortedNotes = sorted(allNotes, key=lambda note: note.date, reverse=True)
     
     if not sortedNotes:
         print(f"{myTerminal.ERROR}No notes found.{myTerminal.RESET}")
-        return "", {}
+        return "", NoteData("", "", "", "", "", "", "", [], [], "", "", "", "", [])
     
     print(f"{myTerminal.INPUTPROMPT}Recent notes:{myTerminal.RESET}")
     noteIndex = 0
-    for noteId, note in sortedNotes.items():
+    for note in sortedNotes:
         noteIndex += 1
-        print(f"\t {noteIndex}) {note.get('date', 'No date')} - {note.get('title', 'No title')}")
+        print(f"\t {noteIndex}) {note.date} - {note.title}")
         if noteIndex > 5:
             break  # Show only the first 5 notes for brevity
         
     selectedNoteId = input(f"{myTerminal.INPUTPROMPT}Select a note number or press Enter to skip: {myTerminal.RESET}").strip()
     
     if not selectedNoteId.isdigit() or int(selectedNoteId) < 1 or int(selectedNoteId) > noteIndex:
-        return "", {}
+        return "", NoteData("", "", "", "", "", "", "", [], [], "", "", "", "", [])
     
-    selectedNote = list(sortedNotes.items())[int(selectedNoteId) - 1]
-    return selectedNoteId, dict(selectedNote[1])
+    selectedNote = sortedNotes[int(selectedNoteId) - 1]
+    return str(selectedNoteId), selectedNote
     
 def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_full,
                                        selectedProjectName,title,note_Content: str) -> str:
@@ -292,9 +294,9 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
                
     return note_Content
 
-def get_templateMerge_Values_From_ExistingData( templateData: dict ,note_Content: str) -> tuple[str,str,str]:
+def get_templateMerge_Values_From_ExistingData(templateData: Union[NoteData, dict], note_Content: str) -> tuple[str,str,str]:
     """
-    Populate a note template using values from an existing templateData source.
+    Populate a note template using values from an existing NoteData object or dictionary.
     Returns the populated note content with user inputs replacing template tags.
     """
     
@@ -302,12 +304,23 @@ def get_templateMerge_Values_From_ExistingData( templateData: dict ,note_Content
     templateTags = re.findall(r"\[(.*?)\]", note_Content)
     templateTags = set(templateTags)  # remove duplicates
     
-    _,selectedDateTime = myTools.datetime_fromString(templateData.get("date", datetime.now().strftime(myPreferences.datetime_format())))
+    # Handle both NoteData objects and dictionaries
+    if isinstance(templateData, NoteData):
+        date_str = templateData.date
+        title = templateData.title if templateData.title else "untitled"
+        selectedProjectName = templateData.project if templateData.project else ""
+        tags_list = templateData.tags if templateData.tags else []
+    else:  # dictionary
+        date_str = templateData.get("date", datetime.now().strftime(myPreferences.datetime_format()))
+        title = templateData.get("Title", "untitled")
+        selectedProjectName = templateData.get("Project Name", templateData.get("project", ""))
+        tags_str = templateData.get("tags", "")
+        tags_list = [tag.strip() for tag in tags_str.split(",") if tag.strip()] if tags_str else []
+    
+    _,selectedDateTime = myTools.datetime_fromString(date_str)
     timestamp_id = selectedDateTime.strftime(myPreferences.timestamp_id_format())
     timestamp_date = selectedDateTime.strftime(myPreferences.date_format())
     timestamp_full = selectedDateTime.strftime(myPreferences.datetime_format())
-    title = templateData.get("Title", "untitled")
-    selectedProjectName = templateData.get("project", "")
     
     #get title and tags captured first
     if "Title" in templateTags:
@@ -315,12 +328,11 @@ def get_templateMerge_Values_From_ExistingData( templateData: dict ,note_Content
         templateTags.remove("Title")
     
     if "tags" in templateTags:
-        tags = ""
-        templateTagValue = templateData.get("tags", "")
-        for tag in templateTagValue.split(","):
-            tag = tag.strip().replace(" ","_")
-            tags += f", {tag}"
-        templateTagValue = tags[1:]  # remove the leading comma and space
+        if tags_list:
+            # Join tags with commas if they exist
+            templateTagValue = ", ".join(tags_list)
+        else:
+            templateTagValue = ""
                  
         note_Content = note_Content.replace("[tags]", templateTagValue)
         templateTags.remove("tags")
@@ -343,7 +355,13 @@ def get_templateMerge_Values_From_ExistingData( templateData: dict ,note_Content
         elif templateTag in ("Current User","User","Username","Author","author"):
             templateTagValue = myPreferences.author_name()
         else:
-            templateTagValue = templateData.get(templateTag, "")
+            # For other template tags, try to get the value from the data source
+            if isinstance(templateData, NoteData):
+                templateTagValue = getattr(templateData, templateTag, "")
+                if not isinstance(templateTagValue, str):
+                    templateTagValue = str(templateTagValue) if templateTagValue else ""
+            else:  # dictionary
+                templateTagValue = templateData.get(templateTag, "")
 
         note_Content = note_Content.replace(f"[{templateTag}]", templateTagValue)
                 

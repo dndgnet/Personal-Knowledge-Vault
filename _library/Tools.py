@@ -1,8 +1,47 @@
-import datetime 
-import os 
-import re 
-
 from . import Preferences as myPreferences
+from dataclasses import dataclass
+from typing import List
+import json
+import os
+import re
+import datetime
+
+@dataclass
+class NoteData:
+    id: str # Unique identifier for the note, typically a timestamp or unique string
+    fileName: str
+    filePath: str
+    date: str
+    osFileDateTime: str
+    type: str
+    title: str
+    project: str
+    tags: List[str]
+    keywords: List[str]
+    retention: str
+    author: str
+    frontMatter: str
+    noteBody: str
+    backLinks: List[str]
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "fileName": self.fileName,
+            "filePath": self.filePath,
+            "date": self.date,
+            "osFileDateTime": self.osFileDateTime,
+            "type": self.type,
+            "title": self.title,
+            "project": self.project,
+            "tags": self.tags,
+            "keywords": self.keywords,
+            "retention": self.retention,
+            "author": self.author,
+            "frontMatter": self.frontMatter,
+            "noteBody": self.noteBody,
+            "backLinks": self.backLinks,
+        }
 
 _datetime_formats = (
     "%Y-%m-%d %H:%M:%S",    # Full datetime with seconds
@@ -19,7 +58,7 @@ def clearTerminal() -> None:
     This function works on both Windows and Unix-like systems.
     """
     os.system('cls' if os.name == 'nt' else 'clear')
-    
+
 def print_separator(separator: str = "-", length: int = 80) -> None:
     """
     Prints a separator line to the console.
@@ -57,6 +96,67 @@ def datetime_fromString(date_string: str) -> tuple [bool,datetime.datetime]:
             continue
     
     return isDateTime, d
+
+def get_Notes_as_list(target_dir: str) -> list:
+    """
+    Workhorse method to return a list of NoteData objects from the target directory.
+    """
+    noteList = []
+    for root, dirs, files in os.walk(target_dir, topdown=True):
+        for file in files:
+            if not file.startswith('.') and file.endswith('.md'):  # Skip hidden files and non markdown files
+                
+                with open(os.path.join(root, file), 'r', encoding='utf-8') as f:
+                    noteContent = f.read()
+                    
+                frontMatter = get_note_frontMatter(noteContent)
+                
+                uniqueIdentifier = file.split(".")[0]
+                osFileDateTime = datetime.datetime.fromtimestamp(os.path.getmtime(os.path.join(root, file))).strftime("%Y-%m-%d %H:%M:%S")
+                date = get_note_date_from_frontMatter(frontMatter)
+                if date == "":
+                    # If no date in front matter, use the file's last modified date
+                    date = osFileDateTime
+                
+                project = get_stringValue_from_frontMatter("project", frontMatter)
+                type = get_stringValue_from_frontMatter("type", frontMatter)
+                if type == "":
+                    type = "unknown"
+                title = get_stringValue_from_frontMatter("title", frontMatter)
+                tags = get_tags_from_noteText(noteContent)
+                keywords = get_listValue_from_frontMatter("keywords",frontMatter)
+                retention = get_stringValue_from_frontMatter("retention", frontMatter)
+                author = get_stringValue_from_frontMatter("author", frontMatter)
+            
+                if title == "" or title is None:
+                    title = uniqueIdentifier
+                    
+                body = get_note_body(noteContent)
+                backLinks = get_note_backlinks(noteContent)
+                
+
+                # Replace the dictionary with an instance of the Note dataclass
+                note = NoteData(
+                    id=uniqueIdentifier,
+                    fileName=file,
+                    filePath=os.path.join(root, file),
+                    date=date,
+                    osFileDateTime=osFileDateTime,
+                    type=type,
+                    title=title,
+                    project=project,
+                    tags=tags,
+                    keywords=keywords,
+                    retention=retention,
+                    author=author,
+                    frontMatter=frontMatter,
+                    noteBody=body,
+                    backLinks=backLinks
+                )
+                
+                noteList.append(note)
+                    
+    return noteList
 
 def get_pkv_projects() -> dict:
     """
@@ -175,16 +275,16 @@ def get_project_tags(projectName: str) -> dict:
     
     return tags
 
-def get_NoteFiles_dict(target_dir: str) -> dict:
-    files_dict = {}
-    for root, dirs, files in os.walk(target_dir, topdown=True):
-        for file in files:
-            if not file.startswith('.'):  # Skip hidden files
-                uniqueIdentifier = file.split(".")[0]
-                if file.endswith('.md'):
-                    files_dict[uniqueIdentifier] = [file, os.path.join(root, file)]
+# def get_NoteFiles_dict(target_dir: str) -> dict:
+#     files_dict = {}
+#     for root, dirs, files in os.walk(target_dir, topdown=True):
+#         for file in files:
+#             if not file.startswith('.'):  # Skip hidden files
+#                 uniqueIdentifier = file.split(".")[0]
+#                 if file.endswith('.md'):
+#                     files_dict[uniqueIdentifier] = [file, os.path.join(root, file)]
                     
-    return files_dict
+#     return files_dict
 
 def get_NoteFiles_withTags_dict(target_dir: str) -> dict:
     files_dict = {}
@@ -196,96 +296,7 @@ def get_NoteFiles_withTags_dict(target_dir: str) -> dict:
                     files_dict[uniqueIdentifier] = [file, os.path.join(root, file), get_note_tags(os.path.join(root, file))]
                     
     return files_dict
-
-def get_NoteFiles_as_dict(target_dir: str) -> dict:
-    files_dict = {}
-    for root, dirs, files in os.walk(target_dir, topdown=True):
-        for file in files:
-            if not file.startswith('.') and file.endswith('.md'):  # Skip hidden files and non markdown files
-                
-                with open(os.path.join(root, file), 'r', encoding='utf-8') as f:
-                    noteContent = f.read()
-                    
-                frontMatter = get_note_frontMatter(noteContent)
-                
-                uniqueIdentifier = file.split(".")[0]
-                osFileDateTime = datetime.datetime.fromtimestamp(os.path.getmtime(os.path.join(root, file))).strftime("%Y-%m-%d %H:%M:%S")
-                date = get_note_date_from_frontMatter(frontMatter)
-                if date == "":
-                    # If no date in front matter, use the file's last modified date
-                    date = osFileDateTime
-                
-                project = get_stringValue_from_frontMatter("project", frontMatter)
-                type = get_stringValue_from_frontMatter("type", frontMatter)
-                if type == "":
-                    type = "unknown"
-                title = get_stringValue_from_frontMatter("title", frontMatter)
-                tags = get_tags_from_noteText(noteContent)
-                keywords = get_listValue_from_frontMatter("keywords",frontMatter)
-                retention = get_stringValue_from_frontMatter("retention", frontMatter)
-                author = get_stringValue_from_frontMatter("author", frontMatter)
-            
-                if title == "" or title is None:
-                    title = uniqueIdentifier
-                    
-                body = get_note_body(noteContent)
-                backLinks = get_note_backlinks(noteContent)
-                
-                note = {"fileName": file,
-                        "filePath": os.path.join(root, file),
-                        "date": date,
-                        "osFileDateTime": osFileDateTime,
-                        "type": type,
-                        "title": title,
-                        "project": project,
-                        "tags": tags, 
-                        "keywords": keywords,
-                        "retention": retention,
-                        "author": author,
-                        "frontMatter": frontMatter,
-                        "noteBody": body,
-                        "backLinks": backLinks
-                        } 
-                
-                files_dict[uniqueIdentifier] = note
-                    
-    return files_dict
-
-def get_pkv_NoteFiles() -> dict:
-    """
-    Returns a dictionary of all files in the PKV.
-    
-    Returns:
-        dict: A dictionary where keys are filenames and values are their full paths.
-    """
-    
-    pkvPath = myPreferences.root_pkv()
-    if not os.path.isdir(pkvPath):
-        return {}
-    
-    files_dict = get_NoteFiles_dict(pkvPath)
-    
-    return files_dict
-
-def get_project_NoteFiles(projectName: str) -> dict:
-    """
-    Returns a dictionary of all files in a specific project.
-    
-    Args:
-        projectName (str): The name of the project.
-        
-    Returns:
-        dict: A dictionary where keys are filenames and values are their full paths.
-    """
-    
-    projectPath = os.path.join(myPreferences.root_projects(), projectName)
-    if not os.path.isdir(projectPath):
-        return {}
-    
-    files_dict = get_NoteFiles_dict(projectPath)
-    
-    return files_dict
-
+ 
 def is_NewNote_identifier_unique(noteIdentifier) -> bool:
     """
     Checks if a note identifier is unique across all notes in the PKV.
@@ -296,9 +307,10 @@ def is_NewNote_identifier_unique(noteIdentifier) -> bool:
     Returns:
         bool: True if the identifier is unique, False otherwise.
     """
-    pkvFiles = get_pkv_NoteFiles()
+    notes = get_Notes_as_list(myPreferences.root_pkv())
+    uniqueIds = list(map(lambda note: note.id, notes))
     
-    if noteIdentifier in pkvFiles.keys():
+    if noteIdentifier in uniqueIds:
         return False
     else: 
         return True
@@ -433,49 +445,49 @@ def get_pkv_tags() -> dict:
     
     return tags
 
-def get_Note_with_TODO(target_dir: str) -> dict:
+def get_Note_with_TODO(target_dir: str) -> list[NoteData]:
     """
     Returns a dictionary of notes that contain TODO items.
     value dictionary contains keys "notePathAndFile" and "frontMatter".
     """
-    files_dict = {}
-    for root, dirs, files in os.walk(target_dir, topdown=True):
-        for file in files:
-            if not file.startswith('.') and file.endswith(".md"):  # skip hidden files
-                notePathAndFile = os.path.join(root, file)
-                with open(notePathAndFile, 'r', encoding='utf-8') as f:
-                    noteBody  = f.read()
-                    if '#TODO' in noteBody:  
-                        uniqueIdentifier = file.split(".")[0]
-                        files_dict[uniqueIdentifier] = {"notePathAndFile": notePathAndFile,
-                                                        "frontMatter": get_note_frontMatter(noteBody)}
-                    
-    return files_dict
+    filteredNotes = []
+    for note in get_Notes_as_list(target_dir):
+        if "#TODO" in note.noteBody:
+            filteredNotes.append(note)
+    
+    return filteredNotes
 
-def get_Note_with_INCOMPLETE(target_dir: str) -> dict:
+def get_Note_with_INCOMPLETE(target_dir: str) -> list[NoteData]:
     """
     Returns a dictionary of notes that contain INCOMPLETE items.
     value dictionary contains keys "notePathAndFile" and "frontMatter".
     """
-    files_dict = {}
-    for root, dirs, files in os.walk(target_dir, topdown=True):
-        for file in files:
-            if not file.startswith('.') and file.endswith(".md"):  # skip hidden files
-                notePathAndFile = os.path.join(root, file)
-                with open(notePathAndFile, 'r', encoding='utf-8') as f:
-                    noteBody  = f.read()
-                    if '#INCOMPLETE' in noteBody:  
-                        uniqueIdentifier = file.split(".")[0]
-                        files_dict[uniqueIdentifier] = {"notePathAndFile": notePathAndFile,
-                                                        "frontMatter": get_note_frontMatter(noteBody)}
-                    
-    return files_dict
+    filteredNotes = []
+    for note in get_Notes_as_list(target_dir):
+        if "#INCOMPLETE" in note.noteBody:
+            filteredNotes.append(note)
+    
+    return filteredNotes
 
-def get_Note_with_ActionItems(target_dir: str) -> dict:
+def get_Note_with_ActionItems(target_dir: str) -> list[NoteData]:
     """
     Returns a dictionary of notes that contain Action items.
     value dictionary contains keys "notePathAndFile" and "frontMatter".
     """
+    
+    filteredNotes = []
+    for note in get_Notes_as_list(target_dir):
+        if "[ ]" in note.noteBody:
+            filteredNotes.append(note)
+    
+    filteredNotes = sorted(
+            filteredNotes,
+            key=lambda item: item.date,
+            reverse=False
+        )
+    
+    return filteredNotes
+
     files_dict = {}
     for root, dirs, files in os.walk(target_dir, topdown=True):
         for file in files:
@@ -501,3 +513,50 @@ def get_Note_with_ActionItems(target_dir: str) -> dict:
     )
          
     return files_dict
+
+def dump_notes_to_json(notes: List[NoteData], file_path: str, indent: int = 2) -> bool:
+    """
+    Dumps a list of Note objects to a JSON file.
+    
+    Args:
+        notes (List[Note]): List of Note objects to serialize.
+        file_path (str): Path where the JSON file will be saved.
+        indent (int): Number of spaces for JSON indentation. Default is 2.
+        
+    Returns:
+        bool: True if successful, False otherwise.
+    """
+    try:
+        # Convert Note objects to dictionaries
+        notes_data = [note.to_dict() for note in notes]
+        
+        # Write to JSON file
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(notes_data, f, indent=indent, ensure_ascii=False)
+        
+        return True
+    except Exception as e:
+        print(f"Error writing notes to JSON file: {e}")
+        return False
+    
+def load_notes_from_json(file_path: str) -> List[NoteData]:
+    """
+    Loads Note objects from a JSON file.
+    
+    Args:
+        file_path (str): Path to the JSON file to load.
+        
+    Returns:
+        List[Note]: List of Note objects loaded from the file.
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            notes_data = json.load(f)
+        
+        # Convert dictionaries back to Note objects
+        notes = [NoteData(**note_dict) for note_dict in notes_data]
+        
+        return notes
+    except Exception as e:
+        print(f"Error loading notes from JSON file: {e}")
+        return []

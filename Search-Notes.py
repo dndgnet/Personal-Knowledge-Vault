@@ -1,23 +1,20 @@
 #!/usr/bin/env python3
 import datetime 
 import os 
-import json
 
 from _library import Preferences as myPreferences, Tools as myTools, Terminal as myTerminal
 from _library import Search as mySearch
 
 # build a dictionary of all notes in the root_pkv directory
-allNotes = myTools.get_NoteFiles_as_dict(myPreferences.root_pkv())
-with open(os.path.join(myPreferences.root_pkv(),"AllNotes.json"), 'w') as file:
-    json.dump(allNotes, file, indent=4)
+allNotes = myTools.get_Notes_as_list(myPreferences.root_pkv())
+if not myTools.dump_notes_to_json(notes=allNotes, file_path=os.path.join(myPreferences.root_pkv(), "AllNotes.json"), indent=4):
+    print(f"{myTerminal.ERROR}Failed to create AllNotes.json.{myTerminal.RESET}")
+    exit(-1)
 
 
 #retrieve the dictionary of all notes from AllNotes.json
-allNotes = {}
-allNotesJsonPath = os.path.join(myPreferences.root_pkv(), "AllNotes.json")
-if os.path.exists(allNotesJsonPath):
-    with open(allNotesJsonPath, 'r') as file:
-        allNotes = json.load(file)
+allNotes = []
+allNotes = myTools.load_notes_from_json(file_path = os.path.join(myPreferences.root_pkv(), "AllNotes.json"))
 
 print(f"{len(allNotes)} notes loaded, start providing search criteria.")
 print("")
@@ -26,7 +23,7 @@ print("-"*40)
 searchLog = "Search Log\n"
 continueSearch = True
 searchIndex = 0
-searchHistory ={}
+searchHistory = {}
 searchResult = allNotes.copy()
 searchHistory[searchIndex] = allNotes.copy()  # Store the initial state of all notes
 
@@ -102,26 +99,25 @@ while continueSearch:
     elif inputChoice == 'l':
         print(f"\t{myTerminal.INFORMATION}{'Datetime':<20} {'Project':<31} {'Note Title':<31}{myTerminal.RESET}")
         print(f"\t{myTerminal.INFORMATION}{'________':<20} {'_______':<31} {'__________':<31}{myTerminal.RESET}")
-        for note_id, note in searchResult.items():
-            print(f"\t{myTerminal.INFORMATION}{note.get('date',''):<20} {note.get('project','')[:30]:<31} {note.get('title', 'No title')[:30]:<31}{myTerminal.RESET}")
+        for note in searchResult:
+            print(f"\t{myTerminal.INFORMATION}{note.date:<20} {note.project[:30]:<31} {note.title[:30]:<31}{myTerminal.RESET}")
     
     elif inputChoice == 'x':
-        searchResultBody =f"""
-        ---
-        title: Search Results 
-        date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-        ---
-        
+        searchResultBody = f"""---
+title: Search Results 
+date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+---
+
 # Search Results {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-        
-        """
-        for note_id, note in searchResult.items():
-            searchResultBody += f"\n## {note.get('title', 'No title')}\n"
-            searchResultBody += f"**Project:** {note.get('project', 'No project')}\n"
-            searchResultBody += f"**Date:** {note.get('date', 'No date')}\n"
-            searchResultBody += f"**Tags:** {note.get('tags', 'No tags')}\n"
+
+"""
+        for note in searchResult:
+            searchResultBody += f"\n## {note.title}\n"
+            searchResultBody += f"**Project:** {note.project}\n"
+            searchResultBody += f"**Date:** {note.date}\n"
+            searchResultBody += f"**Tags:** {', '.join(note.tags) if note.tags else 'No tags'}\n"
             searchResultBody += "\n\n"
-            searchResultBody += f"{note.get('noteBody', 'No body text').replace('---','')}\n\n"
+            searchResultBody += f"{note.noteBody.replace('---','')}\n\n"
         
         searchResultFilePath = os.path.join(myPreferences.root_pkv(), ".SearchResults.md")
         with open(searchResultFilePath, 'w',encoding='utf-8') as file:

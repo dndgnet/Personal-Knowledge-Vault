@@ -2,25 +2,23 @@
 import os
 from _library import Terminal  as myTerminal, Preferences as myPreferences, Tools as myTools
 
-todo = myTools.get_Note_with_INCOMPLETE(myPreferences.root_pkv())
 
-if not todo:
+todoNotes = myTools.get_Note_with_INCOMPLETE(myPreferences.root_pkv())
+
+if not todoNotes:
     print(f"{myTerminal.GREEN}No INCOMPLETE items found.{myTerminal.RESET}")
     exit(0)
 
 index = 0    
-print(f"{myTerminal.SUCCESS} {len(todo)} INCOMPLETE items found:{myTerminal.RESET}")
-for key, value in todo.items():
+print(f"{myTerminal.SUCCESS} {len(todoNotes)} INCOMPLETE items found:{myTerminal.RESET}")
+for note in todoNotes:
     index += 1
-    frontMatter = value.get("frontMatter", "")
-    title = myTools.get_note_title_from_frontMatter(frontMatter)
-    noteDate = myTools.get_note_date_from_frontMatter(frontMatter)
-    print(f"\t{myTerminal.BLUE}{index:>2}. {key}{myTerminal.RESET} - {title} ({noteDate})")
+    print(f"\t{myTerminal.BLUE}{index:>2}. - {note.title} ({note.date}){myTerminal.RESET}")
 
-selected = input(f"{myTerminal.BLUE}Select note by number (1-{index}) or press Enter to exit: {myTerminal.RESET}")
+selected = input(f"{myTerminal.BLUE}Select note item by number (1-{index}) or press Enter to exit: {myTerminal.RESET}")
 
 if selected.isdigit() and 1 <= int(selected) <= index:
-    selected_key = list(todo.keys())[int(selected) - 1]
-    notePathAndFile = todo[selected_key].get("notePathAndFile", "")
+    selectedNote = todoNotes[int(selected) - 1]
+    notePathAndFile = selectedNote.filePath
     os.system(f"""{myPreferences.default_editor()} "{notePathAndFile}" """)
     

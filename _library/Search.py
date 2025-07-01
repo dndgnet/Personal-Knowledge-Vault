@@ -1,15 +1,16 @@
 import datetime 
-import os 
-import re 
+from typing import List, Tuple
 
 from . import Preferences as myPreferences, Inputs as myInputs, Terminal as myTerminal, Tools as myTools
+from .Tools import NoteData
 
-def describe_search_results(searchCriteria, notes:dict) -> None:
+def describe_search_results(searchCriteria: str, notes: List[NoteData]) -> None:
     """
     Print a description of the search results.
 
     Args:
-        notes (dict): Dictionary of notes.
+        searchCriteria (str): The search criteria description.
+        notes (List[NoteData]): List of NoteData objects.
     """
     print("")
     
@@ -23,38 +24,36 @@ def describe_search_results(searchCriteria, notes:dict) -> None:
     print(f"\t\tFound {len(notes)} notes matching the search criteria.")
     print("")
     
-def search_project(notes:dict) -> tuple[str,dict]:
+def search_project(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
     """
-    Search for notes in the given dictionary that match the specified project.
+    Search for notes in the given list that match the specified project.
 
     Args:
-        notes (dict): Dictionary of notes.
-        project (str): The project name to search for.
+        notes (List[NoteData]): List of NoteData objects.
 
     Returns:
-        dict: Dictionary containing notes that match the project.
+        Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
     """
     
     _, selectedProject, _ = myInputs.select_project_name(showNewProjectOption=False)
-    results = {}
+    results = []
     if selectedProject is None or selectedProject == "":
-        return "none, no project selected",notes
+        return "none, no project selected", notes
     else:
-        for note_id, note in notes.items():
-            if note.get("project","") == selectedProject:
-                results[note_id] = note
+        for note in notes:
+            if note.project == selectedProject:
+                results.append(note)
         return f"project = {selectedProject}", results
 
-def search_date(notes:dict) -> tuple[str,dict]:
+def search_date(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
     """
-    Search for notes in the given dictionary that match the specified date range.
+    Search for notes in the given list that match the specified date range.
 
     Args:
-        notes (dict): Dictionary of notes.
-        project (str): The project name to search for.
+        notes (List[NoteData]): List of NoteData objects.
 
     Returns:
-        dict: Dictionary containing notes that match the date range.
+        Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
     """
     
     userInput = input("Enter start date (YYYY-MM-DD) or leave blank for no start date: ")
@@ -72,79 +71,75 @@ def search_date(notes:dict) -> tuple[str,dict]:
     startDate = startDate.replace(hour=0, minute=0, second=0, microsecond=0).strftime(myPreferences.datetime_format())  
     endDate = endDate.replace(hour=23, minute=59, second=59, microsecond=999999).strftime(myPreferences.datetime_format())
     
-    results = {}
-    for note_id, note in notes.items():
-        noteDate = note.get("date", "")
+    results = []
+    for note in notes:
+        noteDate = note.date
         if startDate <= noteDate <= endDate:
-            results[note_id] = note
+            results.append(note)
             
     return f"date range from {startDate} to {endDate}", results
 
-def search_title(notes:dict) -> tuple[str,dict]:
+def search_title(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
     """
-    Search for notes in the given dictionary that match the specified title.
+    Search for notes in the given list that match the specified title.
 
     Args:
-        notes (dict): Dictionary of notes.
-        project (str): The project name to search for.
+        notes (List[NoteData]): List of NoteData objects.
 
     Returns:
-        dict: Dictionary containing notes that match the title.
+        Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
     """
     
     titlePart = input("Enter a part of the title to search for (or leave blank for no title search): ").strip()
     
-    results = {}
+    results = []
     if titlePart is None or titlePart == "":
-        return "none, no title selected",notes
+        return "none, no title selected", notes
     else:
-        for note_id, note in notes.items():
-            if titlePart in note.get("title",""):
-                results[note_id] = note
+        for note in notes:
+            if titlePart in note.title:
+                results.append(note)
         return f"title contains '{titlePart}'", results
 
-def search_body(notes:dict) -> tuple[str,dict]:
+def search_body(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
     """
-    Search for notes in the given dictionary that match the specified title.
+    Search for notes in the given list that match the specified body content.
 
     Args:
-        notes (dict): Dictionary of notes.
-        project (str): The project name to search for.
+        notes (List[NoteData]): List of NoteData objects.
 
     Returns:
-        dict: Dictionary containing notes that match the body.
+        Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
     """
     
     searchPart = input("Enter a part of the body to search for (or leave blank for no body search): ").strip()
     
-    results = {}
+    results = []
     if searchPart is None or searchPart == "":
-        return "none, no search part provided",notes
+        return "none, no search part provided", notes
     else:
-        for note_id, note in notes.items():
-            if searchPart in note.get("noteBody",""):
-                results[note_id] = note
+        for note in notes:
+            if searchPart in note.noteBody:
+                results.append(note)
         return f"body contains '{searchPart}'", results
     
-def search_tags(notes:dict) -> tuple[str,dict]:
+def search_tags(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
     """
     Search for notes for a given tag.
 
     Args:
-        notes (dict): Dictionary of notes.
-        project (str): The project name to search for.
+        notes (List[NoteData]): List of NoteData objects.
 
     Returns:
-        dict: Dictionary containing notes that match the project.
+        Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
     """
     allTags = {}
     
-    for note_id, note in notes.items():
-        if "tags" not in note:
-            continue
-        for tag in note.get("tags", []):
-            tag = tag.strip()
-            allTags[tag] = allTags.get(tag, 0) + 1
+    for note in notes:
+        if note.tags:
+            for tag in note.tags:
+                tag = tag.strip()
+                allTags[tag] = allTags.get(tag, 0) + 1
 
     tagCount = 0 
     sortedTags = sorted(allTags.items(), key=lambda x: x[1], reverse=True)
@@ -164,7 +159,8 @@ def search_tags(notes:dict) -> tuple[str,dict]:
             column = 0
             line = ""
             
-        
+    if line:  # Print any remaining tags on the last line
+        print(line)
 
     userInput = input(f"Select a tag to search by number (1-{len(sortedTags)}) or 0 for no tag search: ")
     
@@ -172,12 +168,11 @@ def search_tags(notes:dict) -> tuple[str,dict]:
     if userInput.isdigit() and 1 <= int(userInput) <= len(sortedTags):
         selectedTagIndex = int(userInput)
         selectedTag = sortedTags[selectedTagIndex - 1][0]
-        results = {}
-        for note_id, note in notes.items():
-            noteTags = list(note.get("tags", []))
-            if selectedTag in noteTags:
-                results[note_id] = note
+        results = []
+        for note in notes:
+            if note.tags and selectedTag in note.tags:
+                results.append(note)
         return f"note tags include {selectedTag}", results
     else:
-        return "none, no tag selected",notes
+        return "none, no tag selected", notes
   
