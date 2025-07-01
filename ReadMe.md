@@ -51,6 +51,7 @@ Use the `Edit-Preferences` command to open the preferences command in a text edi
 
 An default preferences file should look like this
 ```python
+
 #empty preferences file
 _exampleEmptyPreferences = {
 
