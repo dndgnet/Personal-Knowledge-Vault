@@ -18,9 +18,10 @@ author: [Current User]
 
 **Likelihood**: [Likelihood (High/Medium/Low)]
 
+**Description**: #INCOMPLETE
+
+## Summary
+
+
 ## Mitigation:
 
-
-## Action Items
-
-#INCOMPLETE

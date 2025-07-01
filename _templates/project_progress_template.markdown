@@ -17,11 +17,14 @@ author: [Current User]
 
 #INCOMPLETE
 
+## Summary
+
+
 ## Achievements:
 - Key milestones or deliverables.
 
 ## Issues and Impediments:
 - Challenges or blockers encountered.
 
-## Action Items:
+## Next Steps:
 - 

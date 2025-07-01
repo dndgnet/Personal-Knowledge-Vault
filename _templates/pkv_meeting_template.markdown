@@ -22,13 +22,8 @@ author: [Current User]
 
 ## Agenda 
 
-## Notes
-
-## Discussion Summary
+## Summary
 
 #INCOMPLETE
-
-### Action Items and Decisions
-- [ ]
 
 

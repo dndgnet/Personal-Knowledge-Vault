@@ -26,6 +26,5 @@ author: [Current User]
 
 #INCOMPLETE
 
-## Action Items
--
+
 

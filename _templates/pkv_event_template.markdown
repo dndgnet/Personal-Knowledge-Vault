@@ -13,4 +13,6 @@ author: [Current User]
 
 # Event: [Title]
 
+## Summary
+
 [Event Description]

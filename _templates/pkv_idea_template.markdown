@@ -13,6 +13,8 @@ author: [Current User]
 
 # Idea: [Title]
 
+## Summary
+
 #INCOMPLETE
 
 

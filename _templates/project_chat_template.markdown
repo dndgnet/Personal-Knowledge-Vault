@@ -20,11 +20,7 @@ author: [Current User]
 **Attendees**: [Attendees]
 
 ## Summary
-[Title]
 
 #INCOMPLETE
-
-### Action Items
-- 
 
 
