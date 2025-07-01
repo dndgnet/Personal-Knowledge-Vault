@@ -275,28 +275,6 @@ def get_project_tags(projectName: str) -> dict:
     
     return tags
 
-# def get_NoteFiles_dict(target_dir: str) -> dict:
-#     files_dict = {}
-#     for root, dirs, files in os.walk(target_dir, topdown=True):
-#         for file in files:
-#             if not file.startswith('.'):  # Skip hidden files
-#                 uniqueIdentifier = file.split(".")[0]
-#                 if file.endswith('.md'):
-#                     files_dict[uniqueIdentifier] = [file, os.path.join(root, file)]
-                    
-#     return files_dict
-
-def get_NoteFiles_withTags_dict(target_dir: str) -> dict:
-    files_dict = {}
-    for root, dirs, files in os.walk(target_dir, topdown=True):
-        for file in files:
-            if not file.startswith('.'):  # Skip hidden files
-                uniqueIdentifier = file.split(".")[0]
-                if file.endswith('.md'):
-                    files_dict[uniqueIdentifier] = [file, os.path.join(root, file), get_note_tags(os.path.join(root, file))]
-                    
-    return files_dict
- 
 def is_NewNote_identifier_unique(noteIdentifier) -> bool:
     """
     Checks if a note identifier is unique across all notes in the PKV.
