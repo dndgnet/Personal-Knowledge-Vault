@@ -97,7 +97,7 @@ def datetime_fromString(date_string: str) -> tuple [bool,datetime.datetime]:
     
     return isDateTime, d
 
-def get_Notes_as_list(target_dir: str) -> list:
+def get_Notes_as_list(target_dir: str) -> list[NoteData]:
     """
     Workhorse method to return a list of NoteData objects from the target directory.
     """
@@ -157,6 +157,20 @@ def get_Notes_as_list(target_dir: str) -> list:
                 noteList.append(note)
                     
     return noteList
+
+def sort_Notes_by_date(notes: list[NoteData], descending: bool = True) -> list[NoteData]:
+    """
+    Sorts a list of NoteData objects by date.
+    
+    Args:
+        notes (list[NoteData]): The list of NoteData objects to sort.
+        reverse (bool): If True, sorts in descending order; if False, sorts in ascending order. Default is True.
+        
+    Returns:
+        list[NoteData]: The sorted list of NoteData objects.
+    """
+    
+    return sorted(notes, key=lambda note: note.date, reverse=descending)
 
 def get_pkv_projects() -> dict:
     """
@@ -365,6 +379,23 @@ def get_note_date_from_frontMatter(frontMatter: str) -> str:
     
     return ""
 
+def remove_noteHeaders(noteBody: str) -> str:   
+    """
+    Removes headers from the note body.
+    
+    Args:
+        noteBody (str): The content of the note.
+        
+    Returns:
+        str: The note body with headers removed.
+    """
+    headers = ["###### ", "##### ", "#### ", "### ","## ","# "]
+    
+    for header in headers:
+        noteBody = noteBody.replace(header, "")
+        
+    return noteBody.strip()
+
 def get_listValue_from_frontMatter(valuePrefix:str, frontMatter: str) -> list:
     """
     Extracts keywords from the front matter of a note.
@@ -492,6 +523,10 @@ def get_Note_with_ActionItems(target_dir: str) -> list[NoteData]:
          
     return files_dict
 
+
+# todo at some point dumping and loading notes to/from JSON files would be useful
+# for now, at least with small vaults, the entire vault can be loaded into memory 
+# so quickly that we don't need to get fancy.
 def dump_notes_to_json(notes: List[NoteData], file_path: str, indent: int = 2) -> bool:
     """
     Dumps a list of Note objects to a JSON file.

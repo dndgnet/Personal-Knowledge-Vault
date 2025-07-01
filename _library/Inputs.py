@@ -15,6 +15,24 @@ from typing import Union
 # Define the template and output paths
 template_pathRoot = os.path.join(os.getcwd(),"_templates")
 
+def ask_yes_no(prompt: str, default: bool = True) -> bool:
+    """
+    Ask the user a yes/no question and return True for yes, False for no.
+    If the user presses Enter without typing anything, return the default value.
+    """
+    default_str = "Y" if default else "N"
+    response = input(f"{myTerminal.INPUTPROMPT}{prompt} (Y/n enter for {default_str}): {myTerminal.RESET}").strip().upper()
+    
+    if response == "":
+        return default
+    elif response in ("Y", "YES"):
+        return True
+    elif response in ("N", "NO"):
+        return False
+    else:
+        print(f"{myTerminal.ERROR}Invalid input. Please enter 'Y' or 'N'.{myTerminal.RESET}")
+        return ask_yes_no(prompt, default)
+
 def get_datetime_and_title_from_user(datePrompt = "enter a date time", defaultIfNone = datetime.now(), 
                                      titlePrompt = "enter note title", titleDefault = "untitled" ) -> tuple[datetime,str]:
     """
