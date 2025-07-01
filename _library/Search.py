@@ -133,41 +133,40 @@ def search_tags(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
     Returns:
         Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
     """
-    allTags = {}
+    # allTags = {}
     
-    for note in notes:
-        if note.tags:
-            for tag in note.tags:
-                tag = tag.strip()
-                allTags[tag] = allTags.get(tag, 0) + 1
+    # for note in notes:
+    #     if note.tags:
+    #         for tag in note.tags:
+    #             tag = tag.strip()
+    #             allTags[tag] = allTags.get(tag, 0) + 1
 
-    tagCount = 0 
-    sortedTags = sorted(allTags.items(), key=lambda x: x[1], reverse=True)
+    # tagCount = 0 
+    # sortedTags = sorted(allTags.items(), key=lambda x: x[1], reverse=True)
 
-    print("available tags:")
+    # print("available tags:")
     
-    column = 0 
-    line = ""
-    for tag, count in sortedTags:
-        tagCount += 1    
-        newTag = f"{tagCount:>3}. {tag} ({count})  "
-        line += f"{newTag:<35}"
-        column += 1
+    # column = 0 
+    # line = ""
+    # for tag, count in sortedTags:
+    #     tagCount += 1    
+    #     newTag = f"{tagCount:>3}. {tag} ({count})  "
+    #     line += f"{newTag:<45}"
+    #     column += 1
         
-        if column >2:
-            print(line)
-            column = 0
-            line = ""
+    #     if column >2:
+    #         print(line)
+    #         column = 0
+    #         line = ""
             
-    if line:  # Print any remaining tags on the last line
-        print(line)
+    # if line:  # Print any remaining tags on the last line
+    #     print(line)
 
-    userInput = input(f"Select a tag to search by number (1-{len(sortedTags)}) or 0 for no tag search: ")
+    # userInput = input(f"Select a tag to search by number (1-{len(sortedTags)}) or 0 for no tag search: ")
     
-    selectedTag = ""
-    if userInput.isdigit() and 1 <= int(userInput) <= len(sortedTags):
-        selectedTagIndex = int(userInput)
-        selectedTag = sortedTags[selectedTagIndex - 1][0]
+    selectedTag = myInputs.select_tag()
+    
+    if selectedTag is not None and selectedTag != "":
         results = []
         for note in notes:
             if note.tags and selectedTag in note.tags:

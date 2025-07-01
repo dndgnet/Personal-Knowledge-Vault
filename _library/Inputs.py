@@ -123,6 +123,58 @@ def select_template(templateType = "All") -> tuple[dict,str, int]:
     
     return templates, templates[int(selectedTemplate)], int(selectedTemplate)
 
+def select_tag(projectName="") -> str:
+    
+    if projectName is None or projectName == "":
+        targetDirectory = myPreferences.root_pkv()
+    else:
+        targetDirectory = os.path.join(myPreferences.root_projects(), projectName)
+        if not os.path.exists(targetDirectory):
+            print(f"{myTerminal.ERROR}Project directory '{targetDirectory}' does not exist.{myTerminal.RESET}")
+            return ""
+        
+    allTags = {}
+    for note in myTools.get_Notes_as_list(targetDirectory):
+        if note.tags:
+            for tag in note.tags:
+                tag = tag.strip()
+                allTags[tag] = allTags.get(tag, 0) + 1
+
+    tagCount = 0 
+    sortedTags = sorted(allTags.items(), key=lambda x: x[1], reverse=True)
+
+    print("available tags:")
+    
+    column = 0 
+    line = ""
+    for tag, count in sortedTags:
+        tagCount += 1    
+        if count == 1:
+            newTag = f"{tagCount:>3}. {tag}"
+        else:
+            newTag = f"{tagCount:>3}. {tag} (x{count})"
+        line += f"{newTag:<45}"
+        column += 1
+        
+        if column >2:
+            print(line)
+            column = 0
+            line = ""
+            
+    if line:  # Print any remaining tags on the last line
+        print(line)
+
+    userInput = input(f"Select a tag to search by number (1-{len(sortedTags)}) or 0 for no tag search: ")
+    
+    selectedTag = ""
+    if userInput.isdigit() and 1 <= int(userInput) <= len(sortedTags):
+        selectedTagIndex = int(userInput)
+        selectedTag = sortedTags[selectedTagIndex - 1][0]
+    else:
+        selectedTag = ""
+        
+    return selectedTag
+
 def select_attachment_from_user(projectName="", uniqueIdentifier = "") -> tuple[str, str]:
     """
     Get the attachment file path from the user.
