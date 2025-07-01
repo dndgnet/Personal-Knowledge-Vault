@@ -404,7 +404,8 @@ def get_stringValue_from_frontMatter(valuePrefix:str,frontMatter: str) -> str:
         list: A list of keywords found in the front matter.
     """
     pattern = rf'{valuePrefix}:[^\n](.*)'
-    match = re.search(pattern, frontMatter)
+    match = re.search(pattern, frontMatter, re.IGNORECASE)
+    # match = re.search(pattern, frontMatter)
     if match:
         return match.group(1).strip()
     else:
@@ -484,7 +485,19 @@ def get_Note_with_ActionItems(target_dir: str) -> dict:
                     noteBody  = f.read()
                     if "[ ]" in noteBody:  
                         uniqueIdentifier = file.split(".")[0]
+                        frontMatter = get_note_frontMatter(noteBody)
                         files_dict[uniqueIdentifier] = {"notePathAndFile": notePathAndFile,
+                                                        "date": get_note_date_from_frontMatter(frontMatter),
+                                                        "title": get_stringValue_from_frontMatter("title", frontMatter),
+                                                        "project": get_stringValue_from_frontMatter("project", frontMatter),
                                                         "frontMatter": get_note_frontMatter(noteBody)}
-                    
+    
+    files_dict = dict(
+        sorted(
+            files_dict.items(),
+            key=lambda item: item[1].get("date", ""),
+            reverse=False
+        )
+    )
+         
     return files_dict
