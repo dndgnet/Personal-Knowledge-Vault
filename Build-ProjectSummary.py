@@ -33,10 +33,12 @@ notes = myTools.sort_Notes_by_date(notes, descending=True)
 
 includeBodyInTimeline = myInputs.ask_yes_no("Include body in timeline?", default=False)
 includeBackLinkInTimeline = myInputs.ask_yes_no("Include backlinks in timeline?", default=False)
+includeGannt = myInputs.ask_yes_no("Include Gantt chart?", default=False)
+ 
 
 progressBody = ""
 timeLine = ""
-
+gantt = ""
 
 for note in notes:
     note: NoteData = note  # type hint for better IDE support
@@ -57,9 +59,28 @@ for note in notes:
 
     if includeBackLinkInTimeline:
         timeLine += f"\n[[{note.id}]]\n"
+    
+    if includeGannt: 
+        gantt += f"{ myTools.letters_and_numbers_only(note.title)} : {note.date}, 1d\n"
 
     #debug
     #print(f"{myTerminal.INFORMATION}{note.date:<20} {note.project[:30]:<31} {note.title[:30]:<31}{myTerminal.RESET}")
+
+if includeGannt:
+    gantt = f"""
+    
+
+```mermaid
+
+gantt
+    title {selectedProject}
+    dateFormat YYYY-MM-DD
+    section Timeline
+
+        {gantt}
+    
+```
+"""
 
 
 summary = f"""
@@ -73,6 +94,8 @@ prepared: {datetime.datetime.now().strftime(myPreferences.date_format())}
 
 ## Timeline
 {timeLine}
+
+{gantt}
 
 """
 

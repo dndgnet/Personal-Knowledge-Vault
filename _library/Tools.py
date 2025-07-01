@@ -68,6 +68,18 @@ def print_separator(separator: str = "-", length: int = 80) -> None:
         length (int): The length of the separator line. Default is 80 characters.
     """
     print(separator * length)
+
+def letters_and_numbers_only(input_string: str, maxLength = 400) -> str:
+    """
+    Removes all characters from the input string except letters and numbers.
+    
+    Args:
+        input_string (str): The string to process.
+        
+    Returns:
+        str: The processed string containing only letters and numbers.
+    """
+    re.sub(r'[^A-Za-z0-9_\-\s]', '', input_string)[:maxLength]
     
 def datetime_fromString(date_string: str) -> tuple [bool,datetime.datetime]:
     """
