@@ -95,6 +95,9 @@ TODO: talk about Zettelkasten basics
 TODO: explain why projects get their own folders
 - expect that a project might have to be exported or share with other users
 
+TODO: explain the project summary
+
+
 ## Commands
 
 Consider `chmod +x *.py` to make the Python scripts in the root folder executable if using Linux or mac OS.
