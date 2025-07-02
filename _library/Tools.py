@@ -42,6 +42,12 @@ class NoteData:
             "noteBody": self.noteBody,
             "backLinks": self.backLinks,
         }
+      
+    def __str__(self):
+        if self.project != "":
+            return f"{self.title} ({self.date}) from {self.project}"
+        else:
+            return f"{self.title} ({self.date})"
 
 _datetime_formats = (
     "%Y-%m-%d %H:%M:%S",    # Full datetime with seconds

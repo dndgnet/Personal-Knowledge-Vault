@@ -17,6 +17,10 @@ INPUTPROMPT = WHITE
 MUTED = GREY
 RESET = "\033[0m"
 
+CURSOR_UP = '\033[1A'
+CLEAR = '\x1b[2K'
+CLEAR_LINE = CURSOR_UP + CLEAR
+
 
 def clearTerminal() -> None:
     """
