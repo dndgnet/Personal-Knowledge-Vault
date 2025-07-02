@@ -32,7 +32,7 @@ for note in allNotes:
 #i = indent
 i = "\t"
 
-markdown = f"""# Mindmap for {selectedTag}
+markdown = f"""# Mindmap for {selectedTag} tag
 """
 mermaid = f"""
 ```mermaid
@@ -81,7 +81,7 @@ prepared {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 
 # use the dot prefix to hide the file in the project directory (at least in civilized file managers)
-output_path = os.path.join(myPreferences.root_pkv(),".TagDiagram.md")
+output_path = os.path.join(myPreferences.root_pkv(),".TagMindmapDiagram.md")
 
 if os.path.exists(output_path):
     print(f"{myTerminal.WARNING}Tag diagram already exists: {output_path}{myTerminal.RESET}")
