@@ -69,14 +69,7 @@ def main():
         timestamp_id, title, note_Content = myInputs.get_templateMerge_Values_From_ExistingData(eventDict,templateContent)
         
         titleLettersAndNumbers = re.sub(r'[^A-Za-z0-9_\-\s]', '', title)[:200]  # Limit to 200 characters and remove special characters
-        uniqueIdentifier = f"{timestamp_id}_{noteType}_{titleLettersAndNumbers}"
-        while not myTools.is_NewNote_identifier_unique(uniqueIdentifier):
-            #Convert timestamp_id back to a datetime object and add a second to it
-            print (f"\t{myTerminal.WARNING}Note identifier '{uniqueIdentifier}' already exists. Generating a new one...{myTerminal.RESET}")
-            selectedDateTime = datetime.strptime(timestamp_id, myPreferences.timestamp_id_format())
-            timestamp_id = (selectedDateTime + timedelta(seconds=1)).strftime(myPreferences.timestamp_id_format())
-            uniqueIdentifier = f"{timestamp_id}_{noteType}_{titleLettersAndNumbers}"
-
+        uniqueIdentifier = myTools.generate_unique_identifier (timestamp_id,noteType,titleLettersAndNumbers)
      
         # Construct the output filename and path
         output_filename = f"{uniqueIdentifier}.md"

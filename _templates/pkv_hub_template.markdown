@@ -11,8 +11,7 @@ project: [Project Name]
 author: [Author]
 ---
 
-## Summary
+# Hub [Title]
 
-#INCOMPLETE
 
 

@@ -1,4 +1,5 @@
 from . import Preferences as myPreferences
+from . import Terminal as myTerminal
 from dataclasses import dataclass
 from typing import List
 import json
@@ -114,6 +115,8 @@ def datetime_fromString(date_string: str) -> tuple [bool,datetime.datetime]:
             continue
     
     return isDateTime, d
+
+
 
 def get_Notes_as_list(target_dir: str) -> list[NoteData]:
     """
@@ -324,6 +327,30 @@ def is_NewNote_identifier_unique(noteIdentifier) -> bool:
         return False
     else: 
         return True
+
+def generate_unique_identifier(timestamp_id, noteType, title) -> str:
+    """
+    Ensures that the unique identifier is not already used in the target directory.
+    
+    Args:
+        uniqueIdentifier (str): The identifier to check for uniqueness.
+        target_dir (str): The directory where notes are stored.
+        
+    Returns:
+        str: A unique identifier, modified if necessary to ensure uniqueness.
+    """
+    
+    titleLettersAndNumbers = letters_and_numbers_only(title, maxLength=200)  # Limit to 200 characters and remove special characters
+    uniqueIdentifier = f"{timestamp_id}_{noteType}_{titleLettersAndNumbers}"
+    while not is_NewNote_identifier_unique(uniqueIdentifier):
+        #Convert timestamp_id back to a datetime object and add a second to it
+        print (f"\t{myTerminal.WARNING}Note identifier '{uniqueIdentifier}' already exists. Generating a new one...{myTerminal.RESET}")
+        selectedDateTime = datetime.datetime.strptime(timestamp_id, myPreferences.timestamp_id_format())
+        timestamp_id = (selectedDateTime + datetime.timedelta(seconds=1)).strftime(myPreferences.timestamp_id_format())
+        uniqueIdentifier = f"{timestamp_id}_{noteType}_{titleLettersAndNumbers}"
+
+
+    return uniqueIdentifier
 
 def get_note_frontMatter(noteBody: str) -> str:
     """

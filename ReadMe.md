@@ -69,7 +69,7 @@ _exampleEmptyPreferences = {
     "screenCapture_path": "default", #where we can look for new screen captures, use 'default' to let the OS return the screenshots folder
     "template_path": "default", #path to the templates, use 'default' to use the system templates, provide a different path if you have your own templates
     
-    "default_editor": "code", #default editor to use for opening files, can be 'code' for VS Code, 'zed' for Zed, or any other editor command
+    "default_editor": "code", #default editor to use for opening files, can be 'code' for VS Code, 'zed' for Zed, nano for Nano, or any other editor command
     "show_tag_prompt": "False", #set to true if the add new note commands should prompt for front matter tags when creating a new note, set to false if the author will provide front matter tags manually
     "automatically_open_event_notes": "False", #set to true if the add new note commands should automatically open the created note in the default editor, set to false if the author will open it manually
     
