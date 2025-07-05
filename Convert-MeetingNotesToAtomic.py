@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import os
-from _library import Preferences as myPreferences, Tools as myTools, Inputs as myInputs, Terminal as myTerminal
+from _library import Preferences as myPreferences, Tools as myTools, Inputs as myInputs, Terminal as myTerminal, VersionControl as myVersionControl
  
 
 selectedNoteId, note = myInputs.select_recent_note("meeting")
@@ -66,6 +66,9 @@ for line in noteBody.splitlines():
                     # Save the fleeting note with the new atomic thought link
                     with open(note.filePath, 'w', encoding='utf-8') as f:
                         f.write(f"""---\n{note.frontMatter}\n---\n\n {newNoteBody}""")
+
+                    myVersionControl.add_and_commit(note.filePath, f"moved '{h3}' section from fleeting note {note.title} to {atomicNoteIdentifier} on {timestamp_full}")
+                    
 
             h3 = line[4:].strip()
             atomicBody = ""

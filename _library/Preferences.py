@@ -34,6 +34,8 @@ _exampleEmptyPreferences = {
     "show_tag_prompt": "False", #set to true if the add new note commands should prompt for front matter tags when creating a new note, set to false if the author will provide front matter tags manually
     "automatically_open_event_notes": "False", #set to true if the add new note commands should automatically open the created note in the default editor, set to false if the author will open it manually
     
+    "use_versioncontrol": "True", #set to true if the PKV should use git for version control, set to false if the author does not want to use git
+
     "author_name": "default", #use default to use the system username, or provide a custom name to be used in notes
     
     }
@@ -68,6 +70,7 @@ _screenCaptures_path = ""
 _show_tag_prompt = False
 _automatically_open_event_notes = False
 _author_name = ""
+_use_versioncontrol = False
 
 def root_pkv() -> str:
     """Returns the documents subfolder for the pkv."""
@@ -127,6 +130,10 @@ def automatically_open_event_notes() -> bool:
 def author_name() -> str:
     """Returns the author name to use in notes."""
     return _author_name
+
+def use_versioncontrol() -> bool:
+    """Returns whether to use git for version control."""
+    return _use_versioncontrol
 
 def preferences() -> dict:
     """Returns the loaded preferences."""
@@ -207,7 +214,9 @@ try:
         if not os.path.exists(_screenCaptures_path):
             print(f"""{myTerminal.ERROR}Screen capture pickup path '{_screenCaptures_path}' does not exist, 
                   consider creating it or editing your preferences.{myTerminal.RESET} """)
-         
+
+        _use_versioncontrol = _preferences.get("use_versioncontrol", "True").upper() == "TRUE"
+
     #print(f"{len(_preferences)} preferences loaded successfully")
 
 except Exception as e:

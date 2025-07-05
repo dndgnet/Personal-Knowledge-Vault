@@ -9,6 +9,7 @@ from _library import Preferences as myPreferences
 from _library import Inputs as myInputs
 from _library import Terminal as myTerminal
 from _library import Tools as myTools
+from _library import VersionControl as myVersionControl
 
 # Define the template and output paths
 template_pathRoot = myPreferences.root_templates()
@@ -66,9 +67,13 @@ def main():
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(note_Content)
 
+    myVersionControl.add_and_commit(output_path, f"Added new {noteType} note: {title} on {timestamp_full}")
+
     print(f"{myTerminal.SUCCESS}Note created:{myTerminal.RESET} {output_path}")
     if noteType != "event" or myPreferences.automatically_open_event_notes():
         os.system(f'{myPreferences.default_editor()} "{output_path}"')
+
+
 
 if __name__ == "__main__":
     main()

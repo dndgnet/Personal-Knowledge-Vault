@@ -257,3 +257,14 @@ Windows
 ```powershell
 Get-ChildItem -Recurse -File |Where-Object { ($_ | Select-String "project: TMS") -and ($_ | Select-String "banana")} 
 ```
+
+
+# Version Control
+
+todo - assume simple local use
+
+Open vault in terminal
+`git init` to initialize the vault.
+`git add .` to add all of the existing notes.
+`git commit -m"my initial commit after starting to use version control in my vault` to commit your existing notes.
+edit your prferences and change `use_versionControl = "True"`

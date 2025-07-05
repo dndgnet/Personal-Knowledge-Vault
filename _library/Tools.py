@@ -1,5 +1,6 @@
 from . import Preferences as myPreferences
 from . import Terminal as myTerminal
+from . import VersionControl as myVersionControl
 from dataclasses import dataclass
 from typing import List
 import json
@@ -440,6 +441,8 @@ def merge_template_with_values(timestamp_id, timestamp_full, selectedProjectName
     # Save the new note
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(templateBody)
+    
+    myVersionControl.add_and_commit(output_path, f"create atomic note note: {title} from a fleeting note on {timestamp_full}")
 
     print(f"{myTerminal.SUCCESS}Note created:{myTerminal.RESET} {output_path}")
     #os.system(f'{myPreferences.default_editor()} "{output_path}"')
