@@ -86,7 +86,7 @@ def letters_and_numbers_only(input_string: str, maxLength = 400) -> str:
     Returns:
         str: The processed string containing only letters and numbers.
     """
-    re.sub(r'[^A-Za-z0-9_\-\s]', '', input_string)[:maxLength]
+    return re.sub(r'[^A-Za-z0-9_\-\s]', '', input_string)[:maxLength]
     
 def datetime_fromString(date_string: str) -> tuple [bool,datetime.datetime]:
     """
@@ -115,8 +115,6 @@ def datetime_fromString(date_string: str) -> tuple [bool,datetime.datetime]:
             continue
     
     return isDateTime, d
-
-
 
 def get_Notes_as_list(target_dir: str) -> list[NoteData]:
     """
@@ -351,6 +349,103 @@ def generate_unique_identifier(timestamp_id, noteType, title) -> str:
 
 
     return uniqueIdentifier
+
+def read_templateBody(templatePath: str) -> str:
+    """
+    Reads the content of a template file.
+    
+    Args:
+        templatePath (str): The path to the template file.
+        
+    Returns:
+        str: The content of the template file.
+        
+    Raises:
+        FileNotFoundError: If the template file does not exist.
+    """
+    
+    if os.path.exists(templatePath) is False:
+        print (f"{myTerminal.ERROR}Template file '{templatePath}' does not exist.{myTerminal.RESET}")
+        return ""
+    else:
+        with open(templatePath, 'r', encoding='utf-8') as f:
+            return f.read()
+
+def merge_template_with_values(timestamp_id, timestamp_full, selectedProjectName, templateBody: str, mergeData: dict) -> str:
+    """
+    Merges a template string with values from a dictionary.
+    
+    Args:
+        template (str): The template string containing placeholders.
+        values (dict): A dictionary containing values to replace the placeholders.
+        
+    Returns:
+        str: The merged string with placeholders replaced by actual values.
+    """
+     
+    #handle the common date tags with hard coded values 
+    timestamp_id = timestamp_id.split("_")[0]  # Ensure timestamp_id is just the date part
+    templateBody = templateBody.replace("[YYYYMMDDHHMMSS]", timestamp_id)
+    templateBody = templateBody.replace("[TIMESTAMP_ID]", timestamp_id)
+    templateBody = templateBody.replace("[YYYY-MM-DD HH:MM:SS]", timestamp_full)
+    templateBody = templateBody.replace("[DATETIME]", timestamp_full)
+    templateBody = templateBody.replace("[YYYY-MM-DD]", timestamp_full.split(" ")[0])
+    templateBody = templateBody.replace("[DATE]", timestamp_full.split(" ")[0])
+
+    #handle the project, author and tags with synonyms    
+    projectTag_synonyms = ["Project Name", "ProjectName", "Project"]
+    authorTag_synonyms = ["Current User", "User", "Username", "Author", "author"]
+    tagTag_synonyms = ["tags", "Tags", "TAGS"]
+    title = ""
+    for key, value in mergeData.items():
+        if key in projectTag_synonyms:
+            for synonym in projectTag_synonyms:
+                placeholder = f"[{synonym}]"
+                templateBody = templateBody.replace(placeholder, value)
+        elif key in authorTag_synonyms:
+            for synonym in authorTag_synonyms:
+                placeholder = f"[{synonym}]"
+                templateBody = templateBody.replace(placeholder, value)
+        elif key in tagTag_synonyms:
+            for synonym in tagTag_synonyms:
+                placeholder = f"[{synonym}]"
+                templateBody = templateBody.replace(placeholder, value)
+                tags = ""
+                for tag in value.split(","):
+                    tag = tag.strip().replace(" ","_")
+                    tags += f"#{tag} "
+                templateBody = templateBody.replace(placeholder, tags.strip())
+        else:
+            if key.upper() == "TITLE":
+                title = value
+            placeholder = f"[{key}]"
+            # Case-insensitive replace for placeholders
+            pattern = re.compile(re.escape(placeholder), re.IGNORECASE)
+            templateBody = pattern.sub(str(value), templateBody)
+    
+    #make sure the new note directory directory exists
+    if selectedProjectName == "" or selectedProjectName is None:
+        #project selected, save in the project folder
+        newNote_directory = myPreferences.root_pkv()
+    else:
+        #project not selected, save in the root of the PKV            
+        newNote_directory = os.path.join(myPreferences.root_projects(), selectedProjectName)
+
+    titleLettersAndNumbers = letters_and_numbers_only(title)  # Limit to 200 characters and remove special characters
+    uniqueIdentifier = generate_unique_identifier(timestamp_id, "atomic", titleLettersAndNumbers)
+
+    output_filename = f"{uniqueIdentifier}.md"
+    output_path = os.path.join(newNote_directory, output_filename)
+
+    # Save the new note
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(templateBody)
+
+    print(f"{myTerminal.SUCCESS}Note created:{myTerminal.RESET} {output_path}")
+    #os.system(f'{myPreferences.default_editor()} "{output_path}"')
+    
+    return uniqueIdentifier
+
 
 def get_note_frontMatter(noteBody: str) -> str:
     """

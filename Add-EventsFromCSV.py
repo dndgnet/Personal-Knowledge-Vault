@@ -35,7 +35,6 @@ def main():
     for part in templateNamePartsToReplace:
         noteType = noteType.replace(part, "")
 
-
     csv_file_path = os.path.join(os.path.dirname(__file__), 'EventsExample.csv')
     events_dict = {}
 
@@ -68,7 +67,7 @@ def main():
 
         timestamp_id, title, note_Content = myInputs.get_templateMerge_Values_From_ExistingData(eventDict,templateContent)
         
-        titleLettersAndNumbers = re.sub(r'[^A-Za-z0-9_\-\s]', '', title)[:200]  # Limit to 200 characters and remove special characters
+        titleLettersAndNumbers = myTools.letters_and_numbers_only(title,200)  # Limit to 200 characters and remove special characters
         uniqueIdentifier = myTools.generate_unique_identifier (timestamp_id,noteType,titleLettersAndNumbers)
      
         # Construct the output filename and path

@@ -35,7 +35,7 @@ def search_project(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
         Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
     """
     
-    _, selectedProject, _ = myInputs.select_project_name(showNewProjectOption=False)
+    _, selectedProject, _ = myInputs.select_project_name_withDict(showNewProjectOption=False)
     results = []
     if selectedProject is None or selectedProject == "":
         return "none, no project selected", notes

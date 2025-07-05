@@ -2,7 +2,7 @@
 
 import os
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
 
 #my stuff
 from _library import Preferences as myPreferences
@@ -15,7 +15,7 @@ template_pathRoot = myPreferences.root_templates()
 
 
 def main():
-    projects, selectedProjectName, selectedProjectIndex = myInputs.select_project_name()
+    projects, selectedProjectName, selectedProjectIndex = myInputs.select_project_name_withDict()
     if selectedProjectName is None or selectedProjectName == "":
         templates, selectedTemplateName, selectedTemplateIndex = myInputs.select_template("pkv")
     else:
@@ -48,12 +48,11 @@ def main():
     timestamp_date = selectedDateTime.strftime(myPreferences.date_format())
     timestamp_full = selectedDateTime.strftime(myPreferences.datetime_format())
     
-    titleLettersAndNumbers = re.sub(r'[^A-Za-z0-9_\-\s]', '', title)[:200]  # Limit to 200 characters and remove special characters
+    titleLettersAndNumbers = myTools.letters_and_numbers_only(title)  # Limit to 200 characters and remove special characters
     uniqueIdentifier = myTools.generate_unique_identifier(timestamp_id, noteType, titleLettersAndNumbers)
 
     # Read the template content
-    with open(selectedTemplatePath, 'r', encoding='utf-8') as f:
-        templateBody  = f.read()
+    templateBody = myTools.read_templateBody(selectedTemplatePath)
     
     note_Content = myInputs.get_templateMerge_Values_From_User(timestamp_id,timestamp_date,
                                                                timestamp_full,selectedProjectName,

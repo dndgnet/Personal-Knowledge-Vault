@@ -54,7 +54,7 @@ def get_datetime_and_title_from_user(datePrompt = "enter a date time", defaultIf
     
     return d, title
     
-def select_project_name(showNewProjectOption = True) -> tuple[dict,str, int]:
+def select_project_name_withDict(showNewProjectOption = True) -> tuple[dict,str, int]:
     """
     Prompt the user to select a project from a list of available projects.
     If the user selects "No Project", return an empty string.
@@ -109,6 +109,14 @@ def select_project_name(showNewProjectOption = True) -> tuple[dict,str, int]:
         
     print(f"{myTerminal.SUCCESS}Selected project: {projects[int(selectedProject)]}{myTerminal.RESET}\n")
     return projects, projects[int(selectedProject)], int(selectedProject)
+
+def select_project_name(showNewProjectOption = True) -> str:
+    """
+    simplified version of select_project_name_withDict that only returns the selected project name.
+    """
+    projects, selectedProjectName, selectedProject = select_project_name_withDict(showNewProjectOption)
+
+    return selectedProjectName
 
 def select_template(templateType = "All") -> tuple[dict,str, int]:
     """ 
@@ -249,7 +257,7 @@ def select_attachment_from_user(projectName="", uniqueIdentifier = "") -> tuple[
     
     return selected_file,newFileName
 
-def select_recent_note() -> tuple[str, NoteData]:
+def select_recent_note(noteTypeContains = "", numberOfNotesToShow = 5) -> tuple[str, NoteData]:
     """
     Get the most recent note from the user.
     Returns the note ID and the NoteData object.
@@ -257,25 +265,28 @@ def select_recent_note() -> tuple[str, NoteData]:
     
     allNotes = myTools.get_Notes_as_list(myPreferences.root_pkv())
     sortedNotes = sorted(allNotes, key=lambda note: note.date, reverse=True)
-    
+    displayedNotes = []
+
     if not sortedNotes:
         print(f"{myTerminal.ERROR}No notes found.{myTerminal.RESET}")
-        return "", NoteData("", "", "", "", "", "", "", [], [], "", "", "", "", [])
+        return "", NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [])
     
     print(f"{myTerminal.INPUTPROMPT}Recent notes:{myTerminal.RESET}")
     noteIndex = 0
     for note in sortedNotes:
-        noteIndex += 1
-        print(f"\t {noteIndex}) {note.date} - {note.title}")
-        if noteIndex > 5:
-            break  # Show only the first 5 notes for brevity
+        if (noteTypeContains == "Any" or noteTypeContains.upper() == "ANY" or (noteTypeContains.upper() in note.type.upper()) and note.noteBody != ""):
+            displayedNotes.append(note)
+            noteIndex += 1
+            print(f"\t {noteIndex}) {note.date} - {note.title}")
+            if noteIndex > numberOfNotesToShow:
+                break  # Show only the first numberOfNotesToShow notes for brevity
         
     selectedNoteId = input(f"{myTerminal.INPUTPROMPT}Select a note number or press Enter to skip: {myTerminal.RESET}").strip()
     
     if not selectedNoteId.isdigit() or int(selectedNoteId) < 1 or int(selectedNoteId) > noteIndex:
-        return "", NoteData("", "", "", "", "", "", "", [], [], "", "", "", "", [])
+        return "", NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [])
     
-    selectedNote = sortedNotes[int(selectedNoteId) - 1]
+    selectedNote = displayedNotes[int(selectedNoteId) - 1]
     return str(selectedNoteId), selectedNote
     
 def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_full,

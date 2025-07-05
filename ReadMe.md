@@ -120,6 +120,7 @@ Consider `chmod +x *.py` to make the Python scripts in the root folder executabl
 | Make-Table  | Asks for the column headings and then produces a blank markdown table that can be copied and used in a note.  |
 | Search-Notes  | Performs an iterative search by asking for search parameters such as project, tag, date and note body content.  |
 | Build-ProjectSummary  | Selects a project and then prepares a summary putting the latest <i>progress</i> note at the top followed by a timeline of other notes.  |
+| Convert-MeetingNotesToAtomic | Splits a meeting note into atomic notes based on level three summary headings.|
 
 ## Templates
 

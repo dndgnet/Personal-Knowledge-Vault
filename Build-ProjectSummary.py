@@ -13,7 +13,7 @@ from _library import Inputs as myInputs
 print(f"{myTerminal.INFORMATION}Prepare a project summary...{myTerminal.RESET}\n")
 
 print("Available projects:") 
-_,selectedProject, _ = myInputs.select_project_name()
+_,selectedProject, _ = myInputs.select_project_name_withDict()
 
 if selectedProject is None or selectedProject == "":
     print(f"{myTerminal.WARNING}No project selected.{myTerminal.RESET}")
