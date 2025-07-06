@@ -71,12 +71,12 @@ def select_project_name_withDict(showNewProjectOption = True) -> tuple[dict,str,
     #print(f"{myTerminal.INPUTPROMPT}Available projects:{myTerminal.RESET}")
     projectIndex = 0
     projects[projectIndex] = "No Project"
-    print(f"\t{projectIndex}. {projects.get(1, 'No Project')}")
+    print(f"\t{myTerminal.GREY}{projectIndex}. {projects.get(1, 'No Project')}{myTerminal.RESET}")
     
     projectIndex = 1
     if showNewProjectOption:
-        projects[projectIndex] = "New Project"
-        print(f"\t{projectIndex}. {projects.get(1, 'New Project')}")
+        projects[projectIndex] = "Start a new project"
+        print(f"""\t{myTerminal.GREY}{projectIndex}. {projects.get(1, "Start a new project")}{myTerminal.RESET}""")
     
     for filename in sorted(os.listdir(myPreferences.root_projects())):
         if os.path.isdir(os.path.join(myPreferences.root_projects(), filename)):
@@ -86,14 +86,10 @@ def select_project_name_withDict(showNewProjectOption = True) -> tuple[dict,str,
 
     selectedProject = input(f"Select a project (0-{projectIndex}): ")
 
-    if not selectedProject.isdigit() or int(selectedProject) not in projects:
+    if not selectedProject.isdigit() or int(selectedProject) not in projects or int(selectedProject) == 0:
         # print(f"{myTerminal.ERROR}Invalid selection. Please select a valid project number.{myTerminal.RESET}")
         # exit(1)
-        return projects, "", 0
-
-    if int(selectedProject) == 0:
-        # print(f"{myTerminal.ERROR}Not yet implemented, I haven't decided what to do with no project calls. Exiting.{myTerminal.RESET}")
-        # exit(1)
+        print(f"{myTerminal.SUCCESS}no project selected {projects[int(selectedProject)]}{myTerminal.RESET}\n")
         return projects, "", 0
 
     if int(selectedProject) == 1:
@@ -101,10 +97,10 @@ def select_project_name_withDict(showNewProjectOption = True) -> tuple[dict,str,
         if not newProjectName:
             print(f"{myTerminal.ERROR}Project name cannot be empty.{myTerminal.RESET}")
             exit(1)
-        newProjectPath = os.path.join(myPreferences.root_projects(), f"Project {newProjectName}")
+        newProjectPath = os.path.join(myPreferences.root_projects(), f"{newProjectName.strip()}")
         os.makedirs(newProjectPath, exist_ok=True)
         selectedProject = projectIndex + 1
-        projects[selectedProject] = f"Project {newProjectName}"
+        projects[selectedProject] = f"{newProjectName.strip()}"
         print(f"{myTerminal.SUCCESS}New project created: {newProjectPath}{myTerminal.RESET}")
         
     print(f"{myTerminal.SUCCESS}Selected project: {projects[int(selectedProject)]}{myTerminal.RESET}\n")
@@ -126,7 +122,7 @@ def select_template(templateType = "All") -> tuple[dict,str, int]:
     
     templateIndex = 1
     templates = {}
-    print(f"{myTerminal.INPUTPROMPT}Available templates:{myTerminal.RESET}")
+    print(f"\n{myTerminal.INPUTPROMPT}Available templates:{myTerminal.RESET}")
     for filename in os.listdir(template_pathRoot):
         if filename.upper().startswith(f"{templateType.upper()}_") or templateType.upper() in ("ALL",""):
             
