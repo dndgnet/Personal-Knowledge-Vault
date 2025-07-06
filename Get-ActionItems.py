@@ -13,9 +13,11 @@ index = 0
 print(f"{myTerminal.SUCCESS} {len(todoNotes)} Action items found:{myTerminal.RESET}")
 for note in todoNotes:
     index += 1
-    print(f"\t{myTerminal.BLUE}{index:>2}. - {note.title} ({note.date}){myTerminal.RESET}")
+    print(f"\t{myTerminal.WHITE}{index:>2}. - {note.title[:40]:<40} ({note.date}){myTerminal.RESET}")
+    for actionItem in note.actionItems:
+        print(f"\t\t{myTerminal.GREY} - [ ] {actionItem}{myTerminal.RESET}")
 
-selected = input(f"{myTerminal.BLUE}Select note item by number (1-{index}) or press Enter to exit: {myTerminal.RESET}")
+selected = input(f"{myTerminal.WHITE}Select note item by number (1-{index}) or press Enter to exit: {myTerminal.RESET}")
 
 if selected.isdigit() and 1 <= int(selected) <= index:
     selectedNote = todoNotes[int(selected) - 1]

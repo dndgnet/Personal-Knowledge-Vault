@@ -116,6 +116,7 @@ date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
             searchResultBody += f"**Project:** {note.project}\n"
             searchResultBody += f"**Date:** {note.date}\n"
             searchResultBody += f"**Tags:** {', '.join(note.tags) if note.tags else 'No tags'}\n"
+            searchResultBody += f"**Link:** [[{note.id}]]\n"
             searchResultBody += "\n\n"
             searchResultBody += f"{note.noteBody.replace('---','')}\n\n"
         

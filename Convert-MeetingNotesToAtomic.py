@@ -10,7 +10,7 @@ print(f"""{myTerminal.YELLOW}Processing meeting note - {note.title} from {note.d
 noteBody = note.noteBody
 newNoteBody = noteBody
 
-if noteBody == "":
+if selectedNoteId == 0:
     print(f"{myTerminal.WARNING}No meeting notes found in the selected note.{myTerminal.RESET}")
     exit(1)
 
@@ -20,7 +20,7 @@ h3 = ""
 atomicBody = ""
 
 atomicThoughtsAreaFound = False
-
+countFoundAtomicThoughtNotes = 0
 for line in noteBody.splitlines():    
     if not atomicThoughtsAreaFound:
         #get to the noteBody part where atomic thoughts 
@@ -66,7 +66,7 @@ for line in noteBody.splitlines():
                     # Save the fleeting note with the new atomic thought link
                     with open(note.filePath, 'w', encoding='utf-8') as f:
                         f.write(f"""---\n{note.frontMatter}\n---\n\n {newNoteBody}""")
-
+                    countFoundAtomicThoughtNotes += 1
                     myVersionControl.add_and_commit(note.filePath, f"moved '{h3}' section from fleeting note {note.title} to {atomicNoteIdentifier} on {timestamp_full}")
                     
 
@@ -75,10 +75,12 @@ for line in noteBody.splitlines():
         else:
             atomicBody += line + "\n"
 
-
-if not atomicThoughtsAreaFound:
-    print(f"{myTerminal.WARNING}No atomic thoughts area found in the selected note, no changes made.{myTerminal.RESET}")
-    print("\t atomic thoughts area stars with '## Discussion Summary' or '## Summary'.\n")
+if countFoundAtomicThoughtNotes == 0:
+    if atomicThoughtsAreaFound:
+        print(f"{myTerminal.WARNING}No atomic thoughts were moved to atomic notes, no changes made.{myTerminal.RESET}")
+    else:
+        print(f"{myTerminal.WARNING}No atomic thoughts area found in the selected note, no changes made.{myTerminal.RESET}")
+        print("\t atomic thoughts area stars with '## Discussion Summary' or '## Summary'.\n")
 else:
     #open the fleeting note 
     os.system(f'{myPreferences.default_editor()} "{note.filePath}"')
