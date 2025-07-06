@@ -25,6 +25,10 @@ class NoteData:
     frontMatter: str
     noteBody: str
     backLinks: List[str]
+    actionItems: List[str]
+    archived: bool = False
+    hasActionItems: bool = False
+    
 
     def to_dict(self):
         return {
@@ -43,6 +47,9 @@ class NoteData:
             "frontMatter": self.frontMatter,
             "noteBody": self.noteBody,
             "backLinks": self.backLinks,
+            "archived": self.archived,
+            "hasActionItems": self.hasActionItems,
+            "actionItems": self.actionItems
         }
       
     def __str__(self):
@@ -147,13 +154,17 @@ def get_Notes_as_list(target_dir: str) -> list[NoteData]:
                 keywords = get_listValue_from_frontMatter("keywords",frontMatter)
                 retention = get_stringValue_from_frontMatter("retention", frontMatter)
                 author = get_stringValue_from_frontMatter("author", frontMatter)
-            
+                archived = True if get_stringValue_from_frontMatter("archived", frontMatter) == "True" else False
+
                 if title == "" or title is None:
                     title = uniqueIdentifier
                     
                 body = get_note_body(noteContent)
                 backLinks = get_note_backlinks(noteContent)
-                
+                hasActionItems = True if "[ ]" in body else False
+                actionItems = [] 
+                for actionItem in re.findall(r'\[ \](.*)', body):  # Find all action items in the note body
+                    actionItems.append(actionItem.strip())
 
                 # Replace the dictionary with an instance of the Note dataclass
                 note = NoteData(
@@ -171,7 +182,10 @@ def get_Notes_as_list(target_dir: str) -> list[NoteData]:
                     author=author,
                     frontMatter=frontMatter,
                     noteBody=body,
-                    backLinks=backLinks
+                    backLinks=backLinks,
+                    archived=archived,
+                    hasActionItems=hasActionItems,
+                    actionItems = actionItems
                 )
                 
                 noteList.append(note)
