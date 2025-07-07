@@ -17,6 +17,19 @@ if not vaultIsVersionControlled and useVersionControl:
     #even if the preferences say to use version control, turn it off if the vault is not set up for it
     useVersionControl = False
 
+if os.path.exists(os.path.join(myPreferences.root_pkv(),".gitignore")) is False:
+    #create a .gitignore file if it does not exist
+    with open(os.path.join(myPreferences.root_pkv(), ".gitignore"), "w") as gitignore_file:
+        gitignore_file.write("# Ignore PKV specific files\n")
+        gitignore_file.write("#\n")
+        gitignore_file.write("# dictionary of all notes in vault\n")
+        gitignore_file.write("AllNotes.json\n")
+        gitignore_file.write("# Scripted Search log for debugging\n")
+        gitignore_file.write("search.log\n")
+        gitignore_file.write("# any hidden files including Search Results, diagram exports, etc\n")
+        gitignore_file.write(".*\n")
+        
+
 def startVersionControlMessage() -> None:
     """
     Prints a message indicating that version control is starting.
