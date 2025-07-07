@@ -116,7 +116,7 @@ def select_project_name(showNewProjectOption = True) -> str:
 
     return selectedProjectName
 
-def select_template(templateType = "All") -> tuple[dict,str, int]:
+def select_template(templateType = "All") -> tuple[dict,str, str]:
     """ 
         Get the template from the user.
         exits if the user does not select a valid template
@@ -127,25 +127,29 @@ def select_template(templateType = "All") -> tuple[dict,str, int]:
     print(f"\n{myTerminal.INPUTPROMPT}Available templates:{myTerminal.RESET}")
     for filename in os.listdir(template_pathRoot):
         if filename.upper().startswith(f"{templateType.upper()}_") or templateType.upper() in ("ALL",""):
-            
+            templateName = filename.replace("_template.markdown","").replace("pkv_","").replace("project_","")
+            templateKey = templateName[:1]
+            while templateKey in templates.keys():
+                templateKey = templateName[:len(templateKey)+1]
+
             if templateType.upper() == "ALL" or templateType =="":
-                print(f"""\t{templateIndex}. {filename.replace("_template.markdown","")}""")
+                print(f"""\t{templateKey:<4}) {filename.replace("_template.markdown","")}""")
             else:
                 #don't show the template type in the list if it's not "All"
-                print(f"""\t{templateIndex}. {filename.replace(f"{templateType}_","").replace("_template.markdown","")}""")
+                print(f"""\t{templateKey:>4}) {filename.replace(f"{templateType}_","").replace("_template.markdown","")}""")
                 
-            templates[templateIndex] = filename
+            templates[templateKey] = filename
             templateIndex += 1
         
-    selectedTemplate = input(f"Select a template (1-{len(templates)}): ")
+    selectedTemplate = input("Select a template: ").strip()
 
-    if not selectedTemplate.isdigit() or int(selectedTemplate) not in templates:
+    if selectedTemplate not in templates.keys():
         print(f"{myTerminal.ERROR}Invalid selection. Please select a valid template number.{myTerminal.RESET}")
         exit(1)
 
-    print(f"{myTerminal.SUCCESS}Selected template: {templates[int(selectedTemplate)]}{myTerminal.RESET}\n")
+    print(f"{myTerminal.SUCCESS}Selected template: {templates[selectedTemplate].replace("_template.markdown","").replace("pkv_","").replace("project_","")}{myTerminal.RESET}\n")
     
-    return templates, templates[int(selectedTemplate)], int(selectedTemplate)
+    return templates, templates[selectedTemplate], selectedTemplate
 
 def select_tag(projectName="") -> str:
     

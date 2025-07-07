@@ -97,10 +97,10 @@ while continueSearch:
             print(f"{myTerminal.WARNING}No previous search to undo.{myTerminal.RESET}")      
     
     elif inputChoice == 'l':
-        print(f"\t{myTerminal.INFORMATION}{'Datetime':<20} {'Project':<31} {'Note Title':<31}{myTerminal.RESET}")
-        print(f"\t{myTerminal.INFORMATION}{'________':<20} {'_______':<31} {'__________':<31}{myTerminal.RESET}")
+        print(f"\t{myTerminal.BLUE}{'Datetime':<20} {'Project':<31} {'Note Title':<31}{myTerminal.RESET}")
+        print(f"\t{myTerminal.BLUE}{'________':<20} {'_______':<31} {'__________':<31}{myTerminal.RESET}")
         for note in searchResult:
-            print(f"\t{myTerminal.INFORMATION}{note.date:<20} {note.project[:30]:<31} {note.title[:30]:<31}{myTerminal.RESET}")
+            print(f"\t{myTerminal.GREY}{note.date:<20} {note.project[:30]:<31} {note.title[:30]:<31}{myTerminal.RESET}")
     
     elif inputChoice == 'x':
         searchResultBody = f"""---

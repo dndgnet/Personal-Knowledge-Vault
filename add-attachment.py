@@ -78,7 +78,8 @@ if input_string.isdigit() and 1 <= int(input_string) <= fileIndex:
         
         newNoteBody += f"""\n\n[{selected_file}](./_Attachments/{attachment_file_name})\n"""
 
-        print(f"{myTerminal.WARNING} Make sure you have saved the note '{selectedNote.title}' before continuing (pressing enter).{myTerminal.RESET}")
+        _ = input(f"{myTerminal.WARNING} Make sure you have saved the note '{selectedNote.title}' before continuing (pressing enter).{myTerminal.RESET}")
+        
         # Save the fleeting note with the new atomic thought link
         with open(selectedNote.filePath, 'w', encoding='utf-8') as f:
             f.write(f"""---\n{selectedNote.frontMatter}\n---\n\n {newNoteBody}""")
