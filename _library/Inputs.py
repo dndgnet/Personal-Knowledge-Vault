@@ -215,12 +215,14 @@ def select_attachment_from_user(projectName="", uniqueIdentifier = "") -> tuple[
     downloads_dict = {f: mtime for f, mtime in files_sorted}
 
     fileIndex = 0
+    fileList = []
     print(f"{myTerminal.INPUTPROMPT}Recent files in attachment pick up folder:{myTerminal.RESET}")
     for file_name in downloads_dict:
         if file_name.startswith('.'):
             continue  # Skip hidden files
         
         fileIndex += 1
+        fileList.append(file_name)
         print(f"\t{myTerminal.INPUTPROMPT}{fileIndex}: {file_name}{myTerminal.RESET}")
         if fileIndex > 20:
             print(f"\t\t{myTerminal.YELLOW}only showing the first 20.{myTerminal.RESET}")
@@ -233,7 +235,7 @@ def select_attachment_from_user(projectName="", uniqueIdentifier = "") -> tuple[
     #select a file
     input_string = input(f"{myTerminal.INPUTPROMPT}Select a file (1-{fileIndex} or 0 to skip attachment):{myTerminal.RESET} ")
     if input_string.isdigit() and 1 <= int(input_string) <= fileIndex:
-        selected_file = list(downloads_dict.keys())[int(input_string) - 1]
+        selected_file = fileList[int(input_string) - 1]
         sourcefile_path = os.path.join(downloads_folder, selected_file)
     else:
         return "",""
