@@ -147,7 +147,7 @@ def select_template(templateType = "All") -> tuple[dict,str, str]:
         print(f"{myTerminal.ERROR}Invalid selection. Please select a valid template number.{myTerminal.RESET}")
         exit(1)
 
-    print(f"{myTerminal.SUCCESS}Selected template: {templates[selectedTemplate].replace("_template.markdown","").replace("pkv_","").replace("project_","")}{myTerminal.RESET}\n")
+    print(f"""{myTerminal.SUCCESS}Selected template: {templates[selectedTemplate].replace("_template.markdown","").replace("pkv_","").replace("project_","")}{myTerminal.RESET}\n""")
     
     return templates, templates[selectedTemplate], selectedTemplate
 
