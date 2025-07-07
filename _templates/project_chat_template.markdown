@@ -1,7 +1,7 @@
 ---
 title: [Title]
 id: [YYYYMMDDHHMMSS] 
-type: project-meeting
+type: project-chat
 created: [YYYY-MM-DD HH:MM:SS] 
 modified: [YYYY-MM-DD HH:MM:SS] 
 retention: Long
