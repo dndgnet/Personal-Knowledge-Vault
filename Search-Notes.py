@@ -39,7 +39,7 @@ while continueSearch:
     print ("Commands:")
     print ("\tu) undo - undo the last search")
     print ("\tl) list - list current search results")
-    print ("\tx) export - export results to editor note")
+    print ("\tx) export - export and open results in editor")
     print ("\tq) quit - Quit the search")
     print ("\t","-"*20)
     
