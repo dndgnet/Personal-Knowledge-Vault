@@ -69,6 +69,7 @@ def select_project_name_withDict(showNewProjectOption = True) -> tuple[dict,str,
 
     #let hte user pic which project to use
     #print(f"{myTerminal.INPUTPROMPT}Available projects:{myTerminal.RESET}")
+    print(f"\n{myTerminal.WHITE}Available options:{myTerminal.RESET}")
     projectIndex = 0
     projects[projectIndex] = "No Project"
     print(f"\t{myTerminal.GREY}{projectIndex}. {projects.get(1, 'No Project')}{myTerminal.RESET}")
@@ -78,13 +79,14 @@ def select_project_name_withDict(showNewProjectOption = True) -> tuple[dict,str,
         projects[projectIndex] = "Start a new project"
         print(f"""\t{myTerminal.GREY}{projectIndex}. {projects.get(1, "Start a new project")}{myTerminal.RESET}""")
     
+    print(f"{myTerminal.WHITE}Available projects:{myTerminal.RESET}")
     for filename in sorted(os.listdir(myPreferences.root_projects())):
         if os.path.isdir(os.path.join(myPreferences.root_projects(), filename)):
             projectIndex += 1
             print(f"\t{projectIndex}. {filename}")
             projects[projectIndex] = filename
 
-    selectedProject = input(f"Select a project (0-{projectIndex}): ")
+    selectedProject = input(f"Select (0-{projectIndex}): ")
 
     if not selectedProject.isdigit() or int(selectedProject) not in projects or int(selectedProject) == 0:
         # print(f"{myTerminal.ERROR}Invalid selection. Please select a valid project number.{myTerminal.RESET}")
