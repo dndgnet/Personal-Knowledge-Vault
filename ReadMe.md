@@ -105,22 +105,27 @@ Consider `chmod +x *.py` to make the Python scripts in the root folder executabl
 | Command | Description |
 | --- | --- |
 | |<i><b>Vault Commands</b></i> |
-| Open-PKV | Opens the personal knowledge vault in the default editor|
+| open-vault | Opens the personal knowledge vault in the default editor|
+| open-hubNote | Displays a list of hub notes and opens the selected note|
 | Get-VaultDetails | Displays a summary of the vault preferences and vault details.|
-| Edit-Preferences | Opens the personal knowledge vault preferences in the default editor|
+| edit-preferences | Opens the personal knowledge vault preferences in the default editor|
 | |<i><b>Follow-up Commands</b></i> |
 |Get-INCOMPLETE| Returns a list of notes that contain an #INCOMPLETE tag|
 |Get-TODO| Returns a list of notes that contain an #TODO tag|
-|Get-ActionItems| Returns a list of notes that contain one or more action [ ] items|
+|get-actionItems| Returns a list of notes that contain one or more action [ ] items|
 | |<i><b>Add Content Commands</b></i> |
 | Add-ScreenCapture  | Selects a recent screen capture to be moved to the PKV or Project attachment.  |
 | Add-Attachment  | Selects a recent attachment to be moved to the PKV or Project attachment.  |
-| Add-Note  | Asks for a project and attachments before preparing note based on the selected template. <br/> Note: if a project name is provided the note is saved in the note front matter and the note is created in the project sub directory.  |
+| add-note  | Asks for a project and attachments before preparing note based on the selected template. <br/> Note: if a project name is provided the note is saved in the note front matter and the note is created in the project sub directory.  |
 | |<i><b>Helpers</b></i> |
 | Make-Table  | Asks for the column headings and then produces a blank markdown table that can be copied and used in a note.  |
-| Search-Notes  | Performs an iterative search by asking for search parameters such as project, tag, date and note body content.  |
-| Build-ProjectSummary  | Selects a project and then prepares a summary putting the latest <i>progress</i> note at the top followed by a timeline of other notes.  |
-| Convert-MeetingNotesToAtomic | Splits a meeting note into atomic notes based on level three summary headings.|
+| search-notes  | Performs an iterative search by asking for search parameters such as project, tag, date and note body content.  |
+| build-projectSummary  | Selects a project and then prepares a summary putting the latest <i>progress</i> note at the top followed by a timeline of other notes.  |
+| make-meetingNotesAtomic | Splits a meeting note into atomic notes based on level three summary headings.|
+| |<i><b>Version Control</b></i> |
+| versioncontrol-commitAll  | Adds and commits any changes in the vault.  |
+| versioncontrol-showHistory  | Shows the git history  |
+
 
 ## Templates
 
@@ -238,6 +243,10 @@ Enter your choice:
 ## OS native searches
 
 ### Simple Search
+
+With grep
+`-r` is recursive (search all sub folders)
+`-n` will display the line number within the file
 
 Find all files in the PKV that contain the word "banana"
 
