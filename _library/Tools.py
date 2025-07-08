@@ -463,7 +463,6 @@ def merge_template_with_values(timestamp_id, timestamp_full, selectedProjectName
     
     return uniqueIdentifier
 
-
 def get_note_frontMatter(noteBody: str) -> str:
     """
     Extracts the front matter from a note body.
@@ -679,7 +678,6 @@ def get_Note_with_ActionItems(target_dir: str) -> list[NoteData]:
     )
          
     return files_dict
-
 
 # todo at some point dumping and loading notes to/from JSON files would be useful
 # for now, at least with small vaults, the entire vault can be loaded into memory 

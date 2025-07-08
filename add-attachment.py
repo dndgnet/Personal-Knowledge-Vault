@@ -5,25 +5,24 @@ import os
 import datetime
 
 downloads_folder = myPreferences.attachmentPickUp_path()
-files = [
-    (f, os.path.getmtime(os.path.join(downloads_folder, f)))
-    for f in os.listdir(downloads_folder)
-    if os.path.isfile(os.path.join(downloads_folder, f))
-]
-files_sorted = sorted(files, key=lambda x: x[1], reverse=False)
-downloads_dict = {f: mtime for f, mtime in files_sorted}
+files = []
+for file in os.listdir(downloads_folder):
+    if file.startswith('.') or file.upper() == 'DESKTOP.INI':
+        continue
+    
+    files.append((file, os.path.getctime(os.path.join(downloads_folder, file))))
+
+recentFiles = sorted(files, key=lambda x: x[1], reverse=True)
 
 fileIndex = 0
-recentFiles = []
+fileList = []
 print(f"{myTerminal.INPUTPROMPT}Recent files in attachment pick up folder:{myTerminal.RESET}")
-for file_name in downloads_dict:
-    if file_name.startswith('.'):
-        continue  # Skip hidden files
-    recentFiles.append(file_name)
+for file in recentFiles:
     fileIndex += 1
-    print(f"\t{myTerminal.INPUTPROMPT}{fileIndex}: {file_name}{myTerminal.RESET}")
-    if fileIndex > 20:
-        print(f"\t\t{myTerminal.YELLOW}only showing the first 20.{myTerminal.RESET}")
+    fileList.append(file[0])
+    print(f"\t{myTerminal.INPUTPROMPT}{fileIndex}: {file[0]}{myTerminal.RESET}")
+    if fileIndex > 25:
+        print(f"\t\t{myTerminal.YELLOW}only showing the first {fileIndex}.{myTerminal.RESET}")
         break
 
 if fileIndex == 0:
