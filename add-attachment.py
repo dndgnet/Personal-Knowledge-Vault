@@ -32,7 +32,7 @@ if fileIndex == 0:
 #select a file
 input_string = input(f"{myTerminal.INPUTPROMPT}Select a file (1-{fileIndex}):{myTerminal.RESET} ")
 if input_string.isdigit() and 1 <= int(input_string) <= fileIndex:
-    selected_file = recentFiles[int(input_string) - 1]
+    selected_file = fileList[int(input_string) - 1]
     sourcefile_path = os.path.join(downloads_folder, selected_file)
 
     selectedNoteId, selectedNote = myInputs.select_recent_note(noteTypeContains="Any", numberOfNotesToShow = 10, showActionItems = False)
