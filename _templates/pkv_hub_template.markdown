@@ -1,7 +1,7 @@
 ---
 title: [Title]
 id: [YYYYMMDDHHMMSS] 
-type: project-hub
+type: hub
 created: [YYYY-MM-DD HH:MM:SS] 
 modified: [YYYY-MM-DD HH:MM:SS] 
 retention: Long
@@ -12,7 +12,7 @@ project: [Project Name]
 author: [Author]
 ---
 
-# Hub [Title]
+# [Title]
 
 
 

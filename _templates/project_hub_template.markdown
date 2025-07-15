@@ -12,7 +12,7 @@ project: [Project Name]
 author: [Author]
 ---
 
-# Hub [Title]
+# [Title]
 
 
 
