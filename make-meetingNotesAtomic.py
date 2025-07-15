@@ -1,7 +1,68 @@
 #!/usr/bin/env python3
 import os
 from _library import Preferences as myPreferences, Tools as myTools, Inputs as myInputs, Terminal as myTerminal, VersionControl as myVersionControl
- 
+
+'''
+This script processes a meeting note, extracting sections that can be converted into atomic thought notes.
+It identifies sections under "## Discussion Summary" or "## Summary", and for each subsection starting
+with "###", it prompts the user to decide whether to create an atomic thought note. 
+
+
+'''
+
+def makeAtomicNote(newNoteBody, atomicBody, h3, note) -> tuple[bool, str]:
+    
+    atomicNoteCreated = False
+
+    print (f"\n{myTerminal.SUCCESS}{h3}{myTerminal.RESET}\n{atomicBody}\n")
+    makeAtomicNote = input("Should this be an atomic thought note? (y/n) ").upper().strip()
+    
+    if makeAtomicNote == "Y":
+        atomicNoteCreated = True
+
+        if note.project != "":
+            selectedProjectName = note.project
+        else:
+            print("\nIf appropriate, select a project for the atomic thought note.")
+            selectedProjectName = myInputs.select_project_name(showNewProjectOption=False)
+
+        timestamp_id = note.id 
+        timestamp_full = note.date 
+        
+        #add a backlink to the original note
+        atomicBodyWithLink = atomicBody +  f"""\n\n[[{note.id}]] \n\n """
+
+        atomicNoteData = {"title": h3,
+                        "project": selectedProjectName,
+                        "author": note.author,
+                        "tags": "",
+                        "body": atomicBodyWithLink,
+                    }
+        
+        atomicNoteIdentifier = myTools.merge_template_with_values (timestamp_id, timestamp_full, selectedProjectName, atomicNoteTemplateBody, atomicNoteData)
+        tempNote = newNoteBody
+        s = atomicBody[-1:]
+        if atomicBody[-3:] == "\n\n":
+            atomicBody = atomicBody[:-4]
+        elif atomicBody[-1:] == "\n":
+            atomicBody = atomicBody[:-2]
+
+        newNoteBody = newNoteBody.replace(f"### {h3}\n{atomicBody}", f"### {h3}\n\n[[{atomicNoteIdentifier}]]\n\n")
+        
+        if tempNote == newNoteBody:
+            print(f"{myTerminal.WARNING}No changes made to the fleeting note body.{myTerminal.RESET}")
+            return atomicNoteCreated, newNoteBody
+        # Save the fleeting note with the new atomic thought link
+        with open(note.filePath, 'w', encoding='utf-8') as f:
+            f.write(f"""---\n{note.frontMatter}\n---\n\n {newNoteBody}""")
+        myVersionControl.add_and_commit(note.filePath, f"moved '{h3}' section from fleeting note {note.title} to {atomicNoteIdentifier} on {timestamp_full}")
+            
+    h3 = line[4:].strip()
+    atomicBody = ""
+
+    return atomicNoteCreated,newNoteBody
+
+
 
 selectedNoteId, note = myInputs.select_recent_note("meeting")
 
@@ -19,6 +80,7 @@ h2 = ""
 h3 = ""
 atomicBody = ""
 
+
 atomicThoughtsAreaFound = False
 countFoundAtomicThoughtNotes = 0
 for line in noteBody.splitlines():    
@@ -34,46 +96,21 @@ for line in noteBody.splitlines():
         if line.startswith("## "):
             h2 = line[3:].strip()
             #ask if body should be a note 
-        elif line.startswith("### "):
+        elif line.startswith("### ") or line.startswith("#### Attachments"):
             if atomicBody != "" and h3 != "":
-                print (f"\n{myTerminal.SUCCESS}{h3}{myTerminal.RESET}")
-                print(atomicBody)
-                makeAtomicNote = input("Should this be an atomic thought note? (y/n) ").upper().strip()
+                atomicNoteMade, newNoteBody = makeAtomicNote(newNoteBody, atomicBody, h3, note)
                 
-                if makeAtomicNote == "Y":
-                    if note.project != "":
-                        selectedProjectName = note.project
-                    else:
-                        print("\nIf appropriate, select a project for the atomic thought note.")
-                        selectedProjectName = myInputs.select_project_name(showNewProjectOption=False)
-
-                    timestamp_id = note.id 
-                    timestamp_full = note.date 
-                    
-                    #add a backlink to the original note
-                    atomicBodyWithLink = atomicBody +  f"""\n\n[[{note.id}]] \n\n """
-
-                    atomicNoteData = {"title": h3,
-                                    "project": selectedProjectName,
-                                    "author": note.author,
-                                    "tags": "",
-                                    "body": atomicBodyWithLink,
-                                }
-                    
-                    atomicNoteIdentifier = myTools.merge_template_with_values (timestamp_id, timestamp_full, selectedProjectName, atomicNoteTemplateBody, atomicNoteData)
-        
-                    newNoteBody = newNoteBody.replace(atomicBody, f"\n[[{atomicNoteIdentifier}]]\n\n")
-                    # Save the fleeting note with the new atomic thought link
-                    with open(note.filePath, 'w', encoding='utf-8') as f:
-                        f.write(f"""---\n{note.frontMatter}\n---\n\n {newNoteBody}""")
+                if atomicNoteMade:
                     countFoundAtomicThoughtNotes += 1
-                    myVersionControl.add_and_commit(note.filePath, f"moved '{h3}' section from fleeting note {note.title} to {atomicNoteIdentifier} on {timestamp_full}")
-                    
-
-            h3 = line[4:].strip()
             atomicBody = ""
+            h3 = line[4:].strip()
         else:
             atomicBody += line + "\n"
+
+if atomicBody != "":
+    atomicNoteMade, newNoteBody = makeAtomicNote(newNoteBody, atomicBody, h3, note)
+    if atomicNoteMade:
+        countFoundAtomicThoughtNotes += 1
 
 if countFoundAtomicThoughtNotes == 0:
     if atomicThoughtsAreaFound:
