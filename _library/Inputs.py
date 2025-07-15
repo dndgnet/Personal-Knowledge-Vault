@@ -10,7 +10,7 @@ from .Tools import NoteData
 import os
 import re
 from datetime import datetime
-from typing import Union
+from typing import Union, List
 
 # Define the template and output paths
 template_pathRoot = os.path.join(os.getcwd(),"_templates")
@@ -160,9 +160,13 @@ def select_tag(projectName="") -> str:
         if not os.path.exists(targetDirectory):
             print(f"{myTerminal.ERROR}Project directory '{targetDirectory}' does not exist.{myTerminal.RESET}")
             return ""
-        
+    notes = myTools.get_Notes_as_list(targetDirectory)
+
+    return select_tags_from_noteList(notes)
+
+def select_tags_from_noteList(notes: List[myTools.NoteData]) -> str:    
     allTags = {}
-    for note in myTools.get_Notes_as_list(targetDirectory):
+    for note in notes:
         if note.tags:
             for tag in note.tags:
                 tag = tag.strip()

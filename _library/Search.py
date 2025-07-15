@@ -13,7 +13,7 @@ def describe_search_results(searchCriteria: str, notes: List[NoteData]) -> None:
         notes (List[NoteData]): List of NoteData objects.
     """
     print("")
-    
+    myTerminal.clearTerminal()
     if searchCriteria != "":
         print(f"{myTerminal.INFORMATION}Search {searchCriteria}{myTerminal.RESET}")
     
@@ -134,7 +134,7 @@ def search_tags(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
         Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
     """
      
-    selectedTag = myInputs.select_tag()
+    selectedTag = myInputs.select_tags_from_noteList(notes)
     
     if selectedTag is not None and selectedTag != "":
         results = []

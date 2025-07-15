@@ -29,7 +29,7 @@ searchHistory[searchIndex] = allNotes.copy()  # Store the initial state of all n
 
 
 while continueSearch:
-    print ("Search options:")
+    print ("\nSearch options:")
     print ("\tp) project - Search by project")
     print ("\tt) tags - Search by tags")
     print ("\td) date range - Search by note date")
@@ -44,6 +44,7 @@ while continueSearch:
     print ("\t","-"*20)
     
     inputChoice = input("Enter your choice: ").strip().lower()
+    
     if inputChoice == 'q':
         searchLog += f"{datetime.datetime.now()}: quit search.\n"
         continueSearch = False
@@ -55,30 +56,35 @@ while continueSearch:
         
         print("Exiting search.")
         break
+    
     elif inputChoice =='p':
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_project(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
         searchLog += f"{datetime.datetime.now()}: {searchCriteria}\n"
         mySearch.describe_search_results(searchCriteria,searchResult)
+
     elif inputChoice =='t':
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_tags(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
         searchLog += f"{datetime.datetime.now()}: {searchCriteria}\n"
         mySearch.describe_search_results(searchCriteria,searchResult)
+
     elif inputChoice =='d':
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_date(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
         searchLog += f"{datetime.datetime.now()}: {searchCriteria}\n"
         mySearch.describe_search_results(searchCriteria,searchResult)
+
     elif inputChoice =='i':
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_title(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
         searchLog += f"{datetime.datetime.now()}: {searchCriteria}\n"
         mySearch.describe_search_results(searchCriteria,searchResult)
+
     elif inputChoice =='b':
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_body(searchResult)
@@ -97,11 +103,22 @@ while continueSearch:
             print(f"{myTerminal.WARNING}No previous search to undo.{myTerminal.RESET}")      
     
     elif inputChoice == 'l':
-        print(f"\t{myTerminal.BLUE}{'Datetime':<20} {'Project':<31} {'Note Title':<31}{myTerminal.RESET}")
-        print(f"\t{myTerminal.BLUE}{'________':<20} {'_______':<31} {'__________':<31}{myTerminal.RESET}")
+        myTerminal.clearTerminal()
+        i = 0
+        print(f"\t{myTerminal.BLUE}{' id ':>4}  {'Datetime':<20} {'Project':<31} {'Note Title':<31}{myTerminal.RESET}")
+        print(f"\t{myTerminal.BLUE}{'____':>4}  {'________':<20} {'_______':<31} {'__________':<31}{myTerminal.RESET}")
         for note in searchResult:
-            print(f"\t{myTerminal.GREY}{note.date:<20} {note.project[:30]:<31} {note.title[:30]:<31}{myTerminal.RESET}")
+            i += 1
+            print(f"\t{myTerminal.GREY}{i:>4}) {note.date:<20} {note.project[:30]:<31} {note.title[:30]:<31}{myTerminal.RESET}")
     
+        selectedNote = input(f"{myTerminal.WHITE}\tEnter the note id to open or enter to continue searching: {myTerminal.RESET}").strip()
+        if selectedNote.isdigit() and 1 <= int(selectedNote) <= len(searchResult):
+            selectedNote = int(selectedNote) - 1
+            noteToOpen = searchResult[selectedNote]
+            os.system(f"""{myPreferences.default_editor()} "{noteToOpen.filePath}" """)
+        
+        mySearch.describe_search_results("list results",searchResult)
+
     elif inputChoice == 'x':
         searchResultBody = f"""---
 title: Search Results 
@@ -126,7 +143,7 @@ date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         
         continueSearch = False    
         print(f"{myTerminal.INFORMATION}Search results saved to {searchResultFilePath}{myTerminal.RESET}")
-        os.system(f"{myPreferences.default_editor()} {searchResultFilePath}")
+        os.system(f"""{myPreferences.default_editor()} "{searchResultFilePath}" """)
         break
     
     else:
