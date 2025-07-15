@@ -260,14 +260,16 @@ def select_attachment_from_user(projectName="", uniqueIdentifier = "") -> tuple[
     
     return selected_file,newFileName
 
-def select_recent_note(noteTypeContains = "", numberOfNotesToShow = 5, showActionItems = False) -> tuple[int, NoteData]:
+def select_recent_note(noteTypeContains = "", numberOfNotesToShow = 25, showActionItems = False, 
+                       groupByProject = True) -> tuple[int, NoteData]:
     """
     Get the most recent note from the user.
     Returns the note ID and the NoteData object.
     """
     
     allNotes = myTools.get_Notes_as_list(myPreferences.root_pkv())
-    sortedNotes = sorted(allNotes, key=lambda note: note.date, reverse=True)
+    sortedNotes = sorted(allNotes, key=lambda note: (note.project, note.date), reverse=True)
+
     displayedNotes = []
 
     if not sortedNotes:
@@ -280,12 +282,21 @@ def select_recent_note(noteTypeContains = "", numberOfNotesToShow = 5, showActio
         print(f"{myTerminal.INPUTPROMPT}Recent {noteTypeContains} notes:{myTerminal.RESET}")
    
     noteIndex = 0
+    project = ""
     for note in sortedNotes:
         if (noteTypeContains == "Any" or noteTypeContains.upper() == "ANY" 
             or (noteTypeContains.upper() in note.type.upper()) and note.noteBody != "") and note.archived is False:
             displayedNotes.append(note)
             noteIndex += 1
-            print(f"\t {noteIndex}) {note.title[:40]:<40} ({note.date})")
+
+            if groupByProject and note.project != project:
+                project = note.project
+                if project == "":
+                    print(f"\n{myTerminal.WHITE}no project: {project}{myTerminal.RESET}")
+                else:
+                    print(f"\n{myTerminal.WHITE}Project: {project}{myTerminal.RESET}")    
+
+            print(f"\t {noteIndex:>3}) {note.title[:40]:<40} ({note.date})")
             if showActionItems:
                 if note.actionItems:
                     for actionItem in note.actionItems:
@@ -296,7 +307,7 @@ def select_recent_note(noteTypeContains = "", numberOfNotesToShow = 5, showActio
             if noteIndex > numberOfNotesToShow:
                 break  # Show only the first numberOfNotesToShow notes for brevity
         
-    selectedNoteId = input(f"{myTerminal.INPUTPROMPT}Select a note number or press Enter to skip: {myTerminal.RESET}").strip()
+    selectedNoteId = input(f"\n{myTerminal.INPUTPROMPT}Select a note number or press Enter to skip: {myTerminal.RESET}").strip()
     
     if not selectedNoteId.isdigit() or int(selectedNoteId) < 1 or int(selectedNoteId) > noteIndex:
         return 0, NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)

@@ -9,7 +9,6 @@ files = []
 for file in os.listdir(downloads_folder):
     if file.startswith('.') or file.upper() == 'DESKTOP.INI':
         continue
-    
     files.append((file, os.path.getctime(os.path.join(downloads_folder, file))))
 
 recentFiles = sorted(files, key=lambda x: x[1], reverse=True)
@@ -35,7 +34,7 @@ if input_string.isdigit() and 1 <= int(input_string) <= fileIndex:
     selected_file = fileList[int(input_string) - 1]
     sourcefile_path = os.path.join(downloads_folder, selected_file)
 
-    selectedNoteId, selectedNote = myInputs.select_recent_note(noteTypeContains="Any", numberOfNotesToShow = 10, showActionItems = False)
+    selectedNoteId, selectedNote = myInputs.select_recent_note(noteTypeContains="Any", numberOfNotesToShow = 25, showActionItems = False)
 
     if selectedNoteId != 0:
         selectedProject = selectedNote.project
