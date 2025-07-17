@@ -35,7 +35,7 @@ includeBodyInTimeline = myInputs.ask_yes_no("Include body in timeline?", default
 includeBackLinkInTimeline = myInputs.ask_yes_no("Include backlinks in timeline?", default=False)
 includeGannt = myInputs.ask_yes_no("Include Gantt chart?", default=False)
  
-
+hubNote = ""
 progressBody = ""
 timeLine = ""
 gantt = ""
@@ -43,6 +43,12 @@ gantt = ""
 for note in notes:
     note: NoteData = note  # type hint for better IDE support
     
+    # find the hub note status update note, put it at the top of the output
+    if hubNote == "" and (note.type == "hub" or note.type == "project-hub"):
+        hubNote = myTools.remove_noteHeaders(note.noteBody)
+        print(f"{myTerminal.SUCCESS}Found hub note: {note.title}{myTerminal.RESET}")
+        continue 
+
     # find the latest status update note, put it at the top of the output
     if progressBody == "" and (note.type == "progress" or note.type == "project-progress"):
         progressBody = myTools.remove_noteHeaders(note.noteBody)
@@ -87,6 +93,10 @@ summary = f"""
 # {selectedProject} Project Summary\n\n
 
 prepared: {datetime.datetime.now().strftime(myPreferences.date_format())}
+
+## Governance
+
+{hubNote}
 
 ## Progress
 
