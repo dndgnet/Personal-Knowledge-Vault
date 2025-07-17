@@ -30,17 +30,18 @@ searchHistory[searchIndex] = allNotes.copy()  # Store the initial state of all n
 
 while continueSearch:
     print ("\nSearch options:")
-    print ("\tp) project - Search by project")
-    print ("\tt) tags - Search by tags")
-    print ("\td) date range - Search by note date")
-    print ("\ti) title - Search by title")
-    print ("\tb) body - Search by body text")
+    print ("\t p)  project - Search by project")
+    print ("\t d)  date range - Search by note date")
+    print ("\t ta) tags - Search by tags")
+    print ("\t ti) title - Search by title")
+    print ("\t b)  body - Search by body text")
     print ("\t","-"*20)
     print ("Commands:")
-    print ("\tu) undo - undo the last search")
-    print ("\tl) list - list current search results")
-    print ("\tx) export - export and open results in editor")
-    print ("\tq) quit - Quit the search")
+    print ("\t h)  history - show search history")
+    print ("\t u)  undo - undo the last search")
+    print ("\t l)  list - list current search results")
+    print ("\t x)  export - export and open results in editor")
+    print ("\t q)  quit - Quit the search")
     print ("\t","-"*20)
     
     inputChoice = input("Enter your choice: ").strip().lower()
@@ -61,35 +62,35 @@ while continueSearch:
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_project(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
-        searchLog += f"{datetime.datetime.now()}: {searchCriteria}\n"
+        searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
         mySearch.describe_search_results(searchCriteria,searchResult)
 
-    elif inputChoice =='t':
+    elif inputChoice =='ta':
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_tags(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
-        searchLog += f"{datetime.datetime.now()}: {searchCriteria}\n"
+        searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
         mySearch.describe_search_results(searchCriteria,searchResult)
 
     elif inputChoice =='d':
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_date(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
-        searchLog += f"{datetime.datetime.now()}: {searchCriteria}\n"
+        searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
         mySearch.describe_search_results(searchCriteria,searchResult)
 
-    elif inputChoice =='i':
+    elif inputChoice =='ti':
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_title(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
-        searchLog += f"{datetime.datetime.now()}: {searchCriteria}\n"
+        searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
         mySearch.describe_search_results(searchCriteria,searchResult)
 
     elif inputChoice =='b':
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_body(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
-        searchLog += f"{datetime.datetime.now()}: {searchCriteria}\n"
+        searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
         mySearch.describe_search_results(searchCriteria,searchResult)
     
     elif inputChoice == 'u':
@@ -102,6 +103,11 @@ while continueSearch:
         else:
             print(f"{myTerminal.WARNING}No previous search to undo.{myTerminal.RESET}")      
     
+    elif inputChoice == 'h':
+        for line in searchLog.splitlines():
+            print(f"{myTerminal.GREY}{line[len('2025-07-16 20:13:00.674325:'):]}{myTerminal.RESET}")
+             
+
     elif inputChoice == 'l':
         myTerminal.clearTerminal()
         i = 0
