@@ -16,6 +16,9 @@ from typing import Union, List
 # Define the template and output paths
 template_pathRoot = os.path.join(os.getcwd(),"_templates")
 
+maxNumberOfNotesToShow = 99
+maxNumberOfDaysToGoBackWhenShowingNotes = 10  # Number of days to go back when showing recent notes
+
 def ask_yes_no(prompt: str, default: bool = True) -> bool:
     """
     Ask the user a yes/no question and return True for yes, False for no.
@@ -265,13 +268,15 @@ def select_attachment_from_user(projectName="", uniqueIdentifier = "") -> tuple[
     
     return selected_file,newFileName
 
-def select_recent_note(noteTypeContains = "", numberOfNotesToShow = 25, showActionItems = False, 
+def select_recent_note(noteTypeContains = "",  showActionItems = False, 
                        groupByProject = True) -> tuple[int, NoteData]:
     """
     Get the most recent note from the user.
     Returns the note ID and the NoteData object.
     """
     
+    numberOfNotesToShow = maxNumberOfNotesToShow
+
     allNotes = myTools.get_Notes_as_list(myPreferences.root_pkv())
     sortedNotes = sorted(allNotes, key=lambda note: (note.project, note.date), reverse=True)
 
@@ -290,7 +295,7 @@ def select_recent_note(noteTypeContains = "", numberOfNotesToShow = 25, showActi
     project = ""
     for note in sortedNotes:
         if (noteTypeContains == "Any" or noteTypeContains.upper() == "ANY" 
-            or (noteTypeContains.upper() in note.type.upper()) and note.noteBody != "") and note.archived is False and note.date > (datetime.now()- timedelta(days=10)).strftime(myPreferences.datetime_format()):
+            or (noteTypeContains.upper() in note.type.upper()) and note.noteBody != "") and note.archived is False and note.date > (datetime.now() - timedelta(days=maxNumberOfDaysToGoBackWhenShowingNotes)).strftime(myPreferences.datetime_format()):
             displayedNotes.append(note)
             noteIndex += 1
 
