@@ -14,8 +14,12 @@ author: [Current User]
 # [Project Name]: Progress Update [Date]
 
 ## Status:
+Project Phase: Initiation, Planning, Execution, Monitor, Closure, Complete
+Overall Project Status: Not stated, On Track, At Risk, Complete, Cancelled
 
-#INCOMPLETE
+## Budget
+Actuals: 
+Forecast to Completion: 
 
 ## Summary
 

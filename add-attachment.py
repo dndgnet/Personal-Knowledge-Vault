@@ -34,7 +34,7 @@ if input_string.isdigit() and 1 <= int(input_string) <= fileIndex:
     selected_file = fileList[int(input_string) - 1]
     sourcefile_path = os.path.join(downloads_folder, selected_file)
 
-    selectedNoteId, selectedNote = myInputs.select_recent_note(noteTypeContains="Any", numberOfNotesToShow = 25, showActionItems = False)
+    selectedNoteId, selectedNote = myInputs.select_recent_note(noteTypeContains="Any", showActionItems = False)
 
     if selectedNoteId != 0:
         selectedProject = selectedNote.project
