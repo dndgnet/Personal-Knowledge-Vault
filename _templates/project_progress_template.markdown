@@ -1,5 +1,5 @@
 ---
-title: Progress Update [Title]
+title: Progress Update [DATE]
 id: [YYYYMMDDHHMMSS] 
 type: project-progress
 created: [YYYY-MM-DD HH:MM:SS] 
@@ -11,18 +11,19 @@ project: [Project Name]
 author: [Current User]
 ---
 
-# [Project Name]: Progress Update [Date]
+# [Project Name]: Progress Update [DATE]
 
 ## Status:
-Project Phase: Initiation, Planning, Execution, Monitor, Closure, Complete
-Overall Project Status: Not stated, On Track, At Risk, Complete, Cancelled
+
+**Project Phase:** Initiation, Planning, Execution, Monitor, Closure, Complete
+**Overall Project Status:** Not stated, On Track, At Risk, Complete, Cancelled
 
 ## Budget
-Actuals: 
-Forecast to Completion: 
+
+**Actuals:**
+**Forecast to Completion:**
 
 ## Summary
-
 
 ## Achievements:
 - Key milestones or deliverables.

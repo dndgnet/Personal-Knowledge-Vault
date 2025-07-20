@@ -53,8 +53,6 @@ gantt
     Deployment                          :a6, after p5, 2d
     Maintenance                         :crit,p7, after p6, 10d
 
-    
-
 
 ```
 
@@ -65,8 +63,3 @@ gantt
 **Budget Amount:** $1000.00
 **Contingency:** 10%
 
-
-|date|Actual Cost|Projected Completion Costs|Note|
-|--|--|--|--|
-|2014-07|$15|$600||
-|2014-06|$100|$600|large expenses expected in next sprint|
