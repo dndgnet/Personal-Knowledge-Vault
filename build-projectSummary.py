@@ -9,6 +9,7 @@ from _library import Tools as myTools
 from _library.Tools import NoteData
 from _library import Preferences as myPreferences
 from _library import Inputs as myInputs 
+from _library import HTML as myHTML
 
 def actuals_graph(actuals: dict, budget: Decimal) -> str:
     """
@@ -194,3 +195,5 @@ with open(output_path, 'w', encoding='utf-8') as f:
     f.write(summary)
     
 os.system(f'{myPreferences.default_editor()} "{output_path}"')    
+
+myHTML.openMarkDownFileInBrowser(output_path)

@@ -28,7 +28,8 @@ if os.path.exists(os.path.join(myPreferences.root_pkv(),".gitignore")) is False:
         gitignore_file.write("search.log\n")
         gitignore_file.write("# any hidden files including Search Results, diagram exports, etc\n")
         gitignore_file.write(".*\n")
-        
+        gitignore_file.write("# temporary HTML output files\n")
+        gitignore_file.write("*.html\n")
 
 def startVersionControlMessage() -> None:
     """

@@ -32,18 +32,21 @@ for note in allNotes:
 #i = indent
 i = "\t"
 
-markdown = f"""# Mindmap for {selectedTag} tag
+markdown = f"""# Relationships for {selectedTag} tag
 """
 mermaid = f"""
 ```mermaid
-mindmap
-{i*1}root(({selectedTag}))
+---
+title: {selectedTag} Relationships
+---
+erDiagram
+
 """
 
 for project in projects:
     #add project node
     mermaid += f"""
-{i*2}{project}){project if project != "" else "Personal Knowledge Vault"}(
+{i*1}{selectedTag}||--||{project.replace(" ","-") if project != "" else "Personal-Knowledge-Vault"} : pkv
 """
     if project == "":
         markdown += "- **Personal Knowledge Vault**\n"
@@ -53,14 +56,14 @@ for project in projects:
     #add links to project node
     for note in linkedNotes:
         if note.project == project:
-            mermaid += f"""{i*3}{note.title}({note.title})\n"""
+            mermaid += f"""{i*2}{project.replace(" ","_") if project != "" else "Personal-Knowledge-Vault"}||--||{note.title.replace(" ","_")} : project\n"""
             markdown += f"  - Note: {note.title} *{note.date}* [[{note.id}]]\n"
             
             for tag in note.tags:
                 if tag != selectedTag and not tag.startswith("p_"):
                     if tag != selectedTag:
                         #add tags below the note
-                        mermaid += f"""{i*4}{tag}(({tag}))\n"""
+                        mermaid += f"""{i*3}{note.title.replace(" ","_")}||--||{tag} : pageTag\n"""
                         markdown += f"    - Tag: {tag}\n"    
 
 #finish the mermaid diagram
@@ -81,7 +84,7 @@ prepared {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 
 # use the dot prefix to hide the file in the project directory (at least in civilized file managers)
-output_path = os.path.join(myPreferences.root_pkv(),".TagMindmapDiagram.md")
+output_path = os.path.join(myPreferences.root_pkv(),".TagERDiagram.md")
 
 if os.path.exists(output_path):
     print(f"{myTerminal.WARNING}Tag diagram already exists: {output_path}{myTerminal.RESET}")
