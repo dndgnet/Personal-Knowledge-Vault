@@ -10,6 +10,7 @@ from .Tools import NoteData
 import os
 import re
 from datetime import datetime
+from datetime import timedelta
 from typing import Union, List
 
 # Define the template and output paths
@@ -289,7 +290,7 @@ def select_recent_note(noteTypeContains = "", numberOfNotesToShow = 25, showActi
     project = ""
     for note in sortedNotes:
         if (noteTypeContains == "Any" or noteTypeContains.upper() == "ANY" 
-            or (noteTypeContains.upper() in note.type.upper()) and note.noteBody != "") and note.archived is False:
+            or (noteTypeContains.upper() in note.type.upper()) and note.noteBody != "") and note.archived is False and note.date > (datetime.now()- timedelta(days=10)).strftime(myPreferences.datetime_format()):
             displayedNotes.append(note)
             noteIndex += 1
 
