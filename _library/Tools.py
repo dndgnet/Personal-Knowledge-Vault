@@ -604,7 +604,7 @@ def get_stringValue_from_noteBody(valueLabel:str,noteBody: str) -> str:
     Returns:
         str: found value or blank string if not found.
     """
-    pattern = rf'{valueLabel.replace("*",r"\*")}[^\n](.*)'
+    pattern = rf"""{valueLabel.replace("*",r"\*")}[^\n](.*)"""
     match = re.search(pattern, noteBody, re.IGNORECASE)
     # match = re.search(pattern, frontMatter)
     if match:
