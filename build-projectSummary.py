@@ -51,6 +51,50 @@ bar [{bar.strip(', ')}]
 """
     return graph
 
+def progress_graph(dictProgress: dict) -> str:
+    """
+    Generate a string representation of progress for graphing.
+    """
+    graph = """
+```mermaid
+    xychart-beta
+    title "Reported Progress"
+"""
+ 
+    x_axis = ""
+    bar = ""
+    line = ""
+    min_yValue = 0 # min(actuals.values(), default=0)
+    max_yValue = 100
+    
+    #todo
+    #include linear projection for for the bar chart
+
+    y_axis = f""" "Progress (in %)" {min_yValue} --> {max_yValue}\n"""
+ 
+    for date, value in sorted(dictProgress.items()):
+        x_axis += f'"{date}", '
+        line += f"{value:.2f}, "
+        #bar += f"{plannedValue:.2f}, "
+    
+    graph += f"""
+x-axis [{x_axis.strip(', ')}]
+y-axis {y_axis}
+line [{line.strip(', ')}]
+
+```
+"""
+    
+#     graph += f"""
+# x-axis [{x_axis.strip(', ')}]
+# y-axis {y_axis}
+# line [{line.strip(', ')}]
+# bar [{bar.strip(', ')}]
+# ```
+# """
+
+    return graph
+
 print(f"{myTerminal.INFORMATION}Prepare a project summary...{myTerminal.RESET}\n")
 
 print("Available projects:") 
@@ -88,6 +132,11 @@ actualsStr = ""
 actualsDecimal = Decimal("0.00")
 dictActuals = {}
 
+progressStr = ""
+progressDecimal = Decimal("0.00")
+dictProgress = {}
+
+
 for note in notes:
     note: NoteData = note  # type hint for better IDE support
     
@@ -114,13 +163,16 @@ for note in notes:
             progressBody = myTools.remove_noteHeaders(note.noteBody)
             print(f"{myTerminal.SUCCESS}Found progress note: {note.title}{myTerminal.RESET}")
 
-
+        progressStr = myTools.get_stringValue_from_noteBody("**Complete:**", note.noteBody)
+        progressDecimal = myTools.decimal_from_string(progressStr)
+        if progressDecimal != Decimal("0.00"):
+            dictProgress[progressDate] = progressDecimal
 
     # for the rest of items build a timeline in descending order of date
     if not includeBackLinkInTimeline and not includeBodyInTimeline:
-        timeLine += f"\n- {note.date} {note.type} {note.title}\n"
+        timeLine += f"\n- {note.date[:10]} {note.type} {note.title}\n"
     else:
-        timeLine += f"\n### {note.date} {note.type} {note.title}\n"
+        timeLine += f"\n### {note.date[:10]} {note.type} {note.title}\n"
         
     if includeBodyInTimeline:
         timeLine += f"\n{myTools.remove_noteHeaders(note.noteBody)}\n"
@@ -173,6 +225,16 @@ summary += f"""
 
 ## Progress
 
+"""
+
+if len(dictProgress) > 5:
+    #only show progress graph if there are more than 5 entries
+    progressGraph = progress_graph(dictProgress)
+    summary += f"""
+{progressGraph}
+"""
+
+summary += f"""
 {progressBody}
 
 ## Timeline

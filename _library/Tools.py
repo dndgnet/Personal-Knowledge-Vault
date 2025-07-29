@@ -604,8 +604,11 @@ def get_stringValue_from_noteBody(valueLabel:str,noteBody: str) -> str:
     Returns:
         str: found value or blank string if not found.
     """
-    pattern = rf"""{valueLabel.replace("*",r"\*")}[^\n](.*)"""
+    
+    escaped_valueLabel = valueLabel.replace("*",r"\*")
+    pattern = rf"""{escaped_valueLabel}[^\n](.*)"""
     match = re.search(pattern, noteBody, re.IGNORECASE)
+    
     # match = re.search(pattern, frontMatter)
     if match:
         return match.group(1).strip()
@@ -626,7 +629,7 @@ def decimal_from_string(value: str) -> Decimal:
         ValueError: If the string cannot be converted to a decimal.
     """
     returnValue = Decimal("0.00")
-    value = value.replace(",","").replace("$","").strip()  # Remove commas and dollar signs, and strip whitespace
+    value = value.replace(",","").replace("$","").replace(" ","").replace("%","").strip()  # Remove commas and dollar signs, and strip whitespace
     
     try:
         returnValue = Decimal(value)
@@ -636,7 +639,32 @@ def decimal_from_string(value: str) -> Decimal:
     
     return returnValue
         
+def get_sectionValue_from_noteBody(valueLabel:str,noteBody: str) -> str:
+    """
+    Extracts section from the body of a note based on a given label.  Assumes the 
+    label will start with #
+    and the section ends at the next section header.
     
+    Args:
+        noteBody (str): The front matter of the note.
+        
+    Returns:
+        str: found value or blank string if not found.
+    """
+    returnValue = ""
+    sectionFound = False
+    for line in noteBody.splitlines():
+        if line.startswith(f"# {valueLabel}"):
+            sectionFound = True
+            continue
+        
+        if sectionFound:
+            if "# " in line:
+                break # we reached the next section header
+            else:
+                returnValue += line.strip() + "\n"
+             
+    return returnValue
 
 def get_pkv_tags() -> dict:
     """

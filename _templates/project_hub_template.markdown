@@ -12,19 +12,50 @@ project: [Project Name]
 author: [Author]
 ---
 
-# [Project Name] Governance
+# [Project Name] 
 
-**Description**:
+## Authorization
 
-**Business Sponsor**:
-**Project Manager**:
-**Team Resources**:
+**Business Sponsor:**
 
-## Timeline
+**Project Manager:**
+
+**Team Resources:**
+
+## Executive Summary
+
+**Business Need:**
+
+**Objectives:**
+
+**Success Criteria:**
+
+## Scope
+
+### In Scope:
+
+### Out of Scope:
+
+## Stakeholders
+
+| Name | Contact Info | Position | Role | Expectations | Classification |
+| --- | --- | --- | --- | --- | --- |
+|   |   |   |   |   |   |
+
+
+*Monitor, Keep Informed, Keep Satisfied, Manage Closely
+
+## Schedule
 
 **Start Date:**
+
 **Projected Completion Date:**
+
 **Actual Completion Date:**
+
+### Milestones:
+
+
 
 ```mermaid
 gantt
@@ -57,9 +88,15 @@ gantt
 ```
 
 
-
 ## Budget
 
 **Budget Amount:** $1000.00
+
 **Contingency:** 10%
+
+
+# Risks
+
+
+
 
