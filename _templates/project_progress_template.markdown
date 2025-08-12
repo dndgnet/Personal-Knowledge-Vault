@@ -1,5 +1,5 @@
 ---
-title: Progress Update [DATE]
+title: [Title]
 id: [YYYYMMDDHHMMSS] 
 type: project-progress
 created: [YYYY-MM-DD HH:MM:SS] 
@@ -11,9 +11,11 @@ project: [Project Name]
 author: [Current User]
 ---
 
-# [Project Name] Progress Update [DATE]
+# [Project Name] Progress Update 
 
 ## Status
+
+**Date:** [DATE]
 
 **Project Phase:** Initiation, Planning, Execution, Monitor, Closure, Complete
 
@@ -23,9 +25,17 @@ author: [Current User]
 
 ## Budget
 
+**Budget:**
+
 **Actuals:**
 
 **Forecast to Completion:**
+
+## Effort
+
+**Effort Budget:** 
+
+**Effort Actuals:**
 
 ## Summary
 

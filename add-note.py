@@ -22,7 +22,7 @@ def main():
     else:
         templates, selectedTemplateName, selectedTemplateIndex = myInputs.select_template("project")
 
-    #based on the selected template, figure out which ouptut folder to use
+    #based on the selected template, figure out which output folder to use
     selectedTemplatePath = os.path.join(template_pathRoot, selectedTemplateName)
     
     #get rid of unnecessary parts of the template name

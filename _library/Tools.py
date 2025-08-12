@@ -139,13 +139,17 @@ def get_Notes_as_list(target_dir: str) -> list[NoteData]:
                     
                 frontMatter = get_note_frontMatter(noteContent)
                 
-                uniqueIdentifier = file.split(".")[0]
+                
                 osFileDateTime = datetime.datetime.fromtimestamp(os.path.getmtime(os.path.join(root, file))).strftime("%Y-%m-%d %H:%M:%S")
                 date = get_note_date_from_frontMatter(frontMatter)
                 if date == "":
                     # If no date in front matter, use the file's last modified date
                     date = osFileDateTime
                 
+                uniqueIdentifier = get_stringValue_from_frontMatter("id", frontMatter) 
+                if uniqueIdentifier == "":
+                    uniqueIdentifier = file.split(".")[0].split("_")[0]  # Use the file name without extension as the unique identifier
+
                 project = get_stringValue_from_frontMatter("project", frontMatter)
                 type = get_stringValue_from_frontMatter("type", frontMatter)
                 if type == "":
@@ -665,6 +669,22 @@ def get_sectionValue_from_noteBody(valueLabel:str,noteBody: str) -> str:
                 returnValue += line.strip() + "\n"
              
     return returnValue
+
+def load_MostRecentProjectProgressNote(projectName: str) -> tuple[bool,NoteData]:
+     
+
+    allNotes = get_Notes_as_list(myPreferences.root_pkv())
+    sortedNotes = sorted(allNotes, key=lambda note: (note.project, note.date), reverse=True)
+
+    if not sortedNotes:
+        print(f"{myTerminal.ERROR}No notes found.{myTerminal.RESET}")
+        return False, NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)
+    
+    for note in sortedNotes:
+        if note.project.upper() == projectName.upper() and "progress".upper() in note.type.upper():
+            return True, note  # Return the first matching note
+           
+    return False, NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)
 
 def get_pkv_tags() -> dict:
     """

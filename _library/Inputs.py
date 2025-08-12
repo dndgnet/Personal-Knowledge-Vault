@@ -95,7 +95,7 @@ def select_project_name_withDict(showNewProjectOption = True) -> tuple[dict,str,
     if not selectedProject.isdigit() or int(selectedProject) not in projects or int(selectedProject) == 0:
         # print(f"{myTerminal.ERROR}Invalid selection. Please select a valid project number.{myTerminal.RESET}")
         # exit(1)
-        print(f"{myTerminal.SUCCESS}no project selected {projects[int(selectedProject)]}{myTerminal.RESET}\n")
+        print(f"{myTerminal.SUCCESS}no project selected{myTerminal.RESET}\n")
         return projects, "", 0
 
     if int(selectedProject) == 1:
