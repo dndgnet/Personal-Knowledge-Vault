@@ -117,8 +117,13 @@ while continueSearch:
             i += 1
             print(f"\t{myTerminal.GREY}{i:>4}) {note.date:<20} {note.project[:30]:<31} {note.title[:30]:<31}{myTerminal.RESET}")
     
+        print(f"\t{myTerminal.GREY}{'a':>4}) open all {myTerminal.RESET}")
+
         selectedNote = input(f"{myTerminal.WHITE}\tEnter the note id to open or enter to continue searching: {myTerminal.RESET}").strip()
-        if selectedNote.isdigit() and 1 <= int(selectedNote) <= len(searchResult):
+        if selectedNote.lower() == 'a':
+            for noteToOpen in searchResult:
+                os.system(f"""{myPreferences.default_editor()} "{noteToOpen.filePath}" """)
+        elif selectedNote.isdigit() and 1 <= int(selectedNote) <= len(searchResult):
             selectedNote = int(selectedNote) - 1
             noteToOpen = searchResult[selectedNote]
             os.system(f"""{myPreferences.default_editor()} "{noteToOpen.filePath}" """)
