@@ -723,7 +723,6 @@ def get_Note_with_TODO(target_dir: str) -> list[NoteData]:
 def get_Note_with_INCOMPLETE(target_dir: str) -> list[NoteData]:
     """
     Returns a dictionary of notes that contain INCOMPLETE items.
-    value dictionary contains keys "notePathAndFile" and "frontMatter".
     """
     filteredNotes = []
     for note in get_Notes_as_list(target_dir):
