@@ -81,7 +81,12 @@ def convertMarkDownStringToHTML(markdownText: str, DocumentTitle: str) -> str:
                     # Convert Markdown bold and italic
                     line = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', line)
                     line = re.sub(r'\*(.*?)\*', r'<em>\1</em>', line)
-                
+
+                    # replace the task todo items with checkboxes
+                    line = line.replace("[ ]", '<input type="checkbox" disabled> ')
+                    line = line.replace("[x]", '<input type="checkbox" checked disabled> ')
+                    
+
                 html += f"<p>{line}</p>\n"
 
     #close out the html
