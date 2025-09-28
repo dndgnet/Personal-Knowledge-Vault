@@ -86,9 +86,13 @@ def select_project_name_withDict(showNewProjectOption = True) -> tuple[dict,str,
     print(f"{myTerminal.WHITE}Available projects:{myTerminal.RESET}")
     for filename in sorted(os.listdir(myPreferences.root_projects())):
         if os.path.isdir(os.path.join(myPreferences.root_projects(), filename)):
-            projectIndex += 1
-            print(f"\t{projectIndex}. {filename}")
-            projects[projectIndex] = filename
+            projectConfig = myTools.get_ProjectConfig_as_dict(filename)
+            if projectConfig.get("Archived", "False").upper() == "TRUE":
+                continue  # Skip archived projects
+            else:
+                projectIndex += 1
+                print(f"\t{projectIndex}. {filename}")
+                projects[projectIndex] = filename
 
     selectedProject = input(f"Select (0-{projectIndex}): ")
 

@@ -9,12 +9,12 @@ tags: [tags]
 keywords: 
 project: [Project Name]
 author: [Author]
+private: No
 ---
 
 # Idea: [Title]
 
 ## Summary
 
-#INCOMPLETE
 
 

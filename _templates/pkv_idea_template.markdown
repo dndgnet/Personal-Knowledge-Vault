@@ -9,6 +9,7 @@ tags: [tags]
 keywords: 
 project: [Project Name]
 author: [Current User]
+private: No
 ---
 
 # Idea: [Title]

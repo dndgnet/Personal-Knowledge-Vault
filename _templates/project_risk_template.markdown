@@ -9,6 +9,7 @@ tags: [tags]
 keywords: 
 project: [Project Name]
 author: [Current User]
+private: No
 ---
 
 # [Project Name]: Risk [Title]
@@ -18,7 +19,7 @@ author: [Current User]
 
 **Likelihood**: [Likelihood (High/Medium/Low)]
 
-**Description**: #INCOMPLETE
+**Description**: 
 
 ## Summary
 

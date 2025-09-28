@@ -17,7 +17,7 @@ Scripts in this repository rely on standard Python libraries available in Python
 
 Cloud storage and backup are achieved by leveraging existing corporate infrastructure. For example, by placing your vault in the Windows Documents folder, you can utilize corporate OneDrive for seamless integration.
 
->*Hint* Consider calling `git init` in your value to give yourself local backups and roll back points.
+>*Hint* Consider calling `git init` in your value to give yourself local backups and roll back points. See [Version Control](#Version_Control) section.
 
 
 
@@ -95,8 +95,23 @@ TODO: talk about Zettelkasten basics
 TODO: explain why projects get their own folders
 - expect that a project might have to be exported or share with other users
 
-TODO: explain the project summary
+### TODO: explain the project summary
 
+The script `build-projectSummary.py` generates a summary report for a selected project in your Personal Knowledge Vault. What it does:
+
+- **Project Selection**: Prompts you to select a project from available options.
+- **Note Gathering**: Collects all notes related to the selected project, including those tagged with the project.
+- **Data Extraction**: Extracts budget, actuals, and progress information from project notes.  
+  - Individual notes and note bodies can be selectively added to the timeline.
+  - budget is taken from the hub note
+  - actuals are taken from the latest progress note
+
+- **Graph Generation**: Creates visual graphs (using Mermaid syntax) for actual expenses and progress over time if enough data is available.
+- **Timeline & Gantt Chart**: Builds a timeline of project notes and optionally a Gantt chart.
+  - private notes are not included
+- **Summary File Creation**: Compiles all the above into a Markdown summary file (`.ProjectSummary.md`) in the project’s folder.
+- **Output**: Opens the summary in your default editor and browser for review.
+The script is interactive and designed to help you quickly visualize and review the status and history of a project.
 
 ## Commands
 

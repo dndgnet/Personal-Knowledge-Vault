@@ -9,6 +9,7 @@ tags: [tags]
 keywords: 
 project: [Project Name]
 author: [Current User]
+private: Yes
 ---
 
 # Chat [Title]
@@ -21,6 +22,5 @@ author: [Current User]
 
 ## Summary
 
-#INCOMPLETE
 
 

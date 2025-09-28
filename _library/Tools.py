@@ -23,13 +23,13 @@ class NoteData:
     keywords: List[str]
     retention: str
     author: str
-    frontMatter: str
+    frontMatter: str 
     noteBody: str
     backLinks: List[str]
     actionItems: List[str]
     archived: bool = False
     hasActionItems: bool = False
-    
+    private: bool = False # indicates that note is only for the vault owner's use
 
     def to_dict(self):
         return {
@@ -45,6 +45,7 @@ class NoteData:
             "keywords": self.keywords,
             "retention": self.retention,
             "author": self.author,
+            "private": self.private,
             "frontMatter": self.frontMatter,
             "noteBody": self.noteBody,
             "backLinks": self.backLinks,
@@ -125,7 +126,7 @@ def datetime_fromString(date_string: str) -> tuple [bool,datetime.datetime]:
     
     return isDateTime, d
 
-def get_Notes_as_list(target_dir: str) -> list[NoteData]:
+def get_Notes_as_list(target_dir: str, includePrivateNotes = True) -> list[NoteData]:
     """
     Workhorse method to return a list of NoteData objects from the target directory.
     """
@@ -139,9 +140,9 @@ def get_Notes_as_list(target_dir: str) -> list[NoteData]:
                     
                 frontMatter = get_note_frontMatter(noteContent)
                 
-                
                 osFileDateTime = datetime.datetime.fromtimestamp(os.path.getmtime(os.path.join(root, file))).strftime("%Y-%m-%d %H:%M:%S")
                 date = get_note_date_from_frontMatter(frontMatter)
+                
                 if date == "":
                     # If no date in front matter, use the file's last modified date
                     date = osFileDateTime
@@ -159,6 +160,7 @@ def get_Notes_as_list(target_dir: str) -> list[NoteData]:
                 keywords = get_listValue_from_frontMatter("keywords",frontMatter)
                 retention = get_stringValue_from_frontMatter("retention", frontMatter)
                 author = get_stringValue_from_frontMatter("author", frontMatter)
+                private = False if get_stringValue_from_frontMatter("private", frontMatter).lower in ("false","f","no","n") else True
                 archived = True if get_stringValue_from_frontMatter("archived", frontMatter) == "True" else False
 
                 if title == "" or title is None:
@@ -174,26 +176,30 @@ def get_Notes_as_list(target_dir: str) -> list[NoteData]:
                 # Replace the dictionary with an instance of the Note dataclass
                 note = NoteData(
                     id=uniqueIdentifier,
-                    fileName=file,
-                    filePath=os.path.join(root, file),
-                    date=date,
-                    osFileDateTime=osFileDateTime,
-                    type=type,
-                    title=title,
-                    project=project,
-                    tags=tags,
-                    keywords=keywords,
-                    retention=retention,
-                    author=author,
-                    frontMatter=frontMatter,
-                    noteBody=body,
-                    backLinks=backLinks,
-                    archived=archived,
-                    hasActionItems=hasActionItems,
+                    fileName = file,
+                    filePath = os.path.join(root, file),
+                    date = date,
+                    osFileDateTime = osFileDateTime,
+                    type = type,
+                    title = title,
+                    project = project,
+                    tags = tags,
+                    keywords = keywords,
+                    retention = retention,
+                    author = author,
+                    private = private,
+                    frontMatter = frontMatter,
+                    noteBody = body,
+                    backLinks = backLinks,
+                    archived = archived,
+                    hasActionItems = hasActionItems,
                     actionItems = actionItems
                 )
                 
-                noteList.append(note)
+                if private is True and includePrivateNotes is False:
+                    pass  # skip private notes if not including them
+                else:
+                    noteList.append(note)
                     
     return noteList
 
@@ -225,6 +231,43 @@ def get_pkv_projects() -> dict:
             projects[filename] = projectPath
     
     return projects
+
+def get_ProjectConfig_as_dict(projectName: str) -> dict:
+    """
+    Returns the project configuration for a given project name.
+    
+    Args:
+        projectName (str): The name of the project.
+    """
+    projectPath = os.path.join(myPreferences.root_projects(), projectName)
+    
+    if not os.path.isdir(projectPath):
+        print(f"{myTerminal.ERROR}Project '{projectName}' does not exist.{myTerminal.RESET}")
+        return {}
+
+    if not os.path.exists(os.path.join(projectPath, ".ProjectConfig.json")):
+        configBody = {
+                    "ProjectFolderName": f"{projectName}",
+                    "ProjectName": f"{projectName}",
+                    "Archived": "False",
+                    "Sync": "False",
+                    "PublicShareFolder": ""
+                    }
+        with open(os.path.join(projectPath, ".ProjectConfig.json"), 'w', encoding='utf-8') as f:
+            json.dump(configBody, f, indent=4)
+        
+    configPath = os.path.join(projectPath, ".ProjectConfig.json")
+    if not os.path.isfile(configPath):
+        return {}
+    
+    with open(configPath, 'r', encoding='utf-8') as f:
+        try:
+            config = json.load(f)
+            return config
+        except json.JSONDecodeError:
+            print(f"{myTerminal.ERROR}Error decoding JSON from {configPath}{myTerminal.RESET}")
+            return {}
+        
 
 def get_pkv_attachments() -> dict:
     """
