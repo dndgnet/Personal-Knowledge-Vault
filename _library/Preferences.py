@@ -87,6 +87,7 @@ def root_archive() -> str:
 def root_projects() -> str:
     """Returns the projects root."""
     return os.path.join(root_pkv(), _projects_root)
+
 def root_templates() -> str:
     """Returns the templates root."""
     return os.path.join(_template_path)

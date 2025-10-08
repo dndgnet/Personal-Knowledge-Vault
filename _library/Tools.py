@@ -268,7 +268,6 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
             print(f"{myTerminal.ERROR}Error decoding JSON from {configPath}{myTerminal.RESET}")
             return {}
         
-
 def get_pkv_attachments() -> dict:
     """
     Returns a dictionary of attachments with their names as keys and their paths as values.
@@ -819,6 +818,35 @@ def get_Note_with_ActionItems(target_dir: str) -> list[NoteData]:
          
     return files_dict
 
+def get_Note_Last_Project_Note_ByType(projectName: str, noteType: str) -> tuple[bool,NoteData]:
+    """
+    Returns the most recent note of a specific type for a given project.
+    
+    Args:
+        projectName (str): The name of the project.
+        noteType (str): The type of note to filter by.
+        
+    Returns:
+        tuple: A tuple containing a boolean indicating success and the NoteData object if found.
+    """
+    if projectName == "" or projectName is None:
+        #if there is no project name, return notes from the root PKV
+        allNotes = get_Notes_as_list(myPreferences.root_pkv(), True)
+    else:
+        #if there is a project name, only return notes for that project
+        allNotes = get_Notes_as_list(os.path.join(myPreferences.root_projects(), projectName), True)
+
+    sortedNotes = sorted(allNotes, key=lambda note: (note.project, note.date), reverse=True)
+
+    if not sortedNotes:
+        print(f"{myTerminal.ERROR}No notes found.{myTerminal.RESET}")
+        return False, NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)
+    
+    for note in sortedNotes:
+        if note.project.upper() == projectName.upper() and noteType.upper() in note.type.upper():        
+            return True, note  # Return the first matching note
+           
+    return False, NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)
 # todo at some point dumping and loading notes to/from JSON files would be useful
 # for now, at least with small vaults, the entire vault can be loaded into memory 
 # so quickly that we don't need to get fancy.
@@ -848,6 +876,7 @@ def dump_notes_to_json(notes: List[NoteData], file_path: str, indent: int = 2) -
         return False
     
 def load_notes_from_json(file_path: str) -> List[NoteData]:
+
     """
     Loads Note objects from a JSON file.
     
@@ -868,3 +897,64 @@ def load_notes_from_json(file_path: str) -> List[NoteData]:
     except Exception as e:
         print(f"Error loading notes from JSON file: {e}")
         return []
+    
+def clone_note(sourceNotePath) -> str:
+    """
+    Clones an existing note to a new note with a unique identifier.
+    
+    Args:
+        sourceNotePath (str): The path to the source note file.
+        
+    Returns:
+        str: The path to the newly created cloned note.
+    """
+    
+    if not os.path.isfile(sourceNotePath):
+        print(f"{myTerminal.ERROR}Source note '{sourceNotePath}' does not exist.{myTerminal.RESET}")
+        return ""
+    
+    notePath = os.path.dirname(sourceNotePath)
+
+    with open(sourceNotePath, 'r', encoding='utf-8') as f:
+        noteContent = f.read()
+        
+    frontMatter = get_note_frontMatter(noteContent)
+    body = get_note_body(noteContent)
+    
+    date = get_note_date_from_frontMatter(frontMatter)
+    if date == "":
+        date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    newBody = body
+    # Replace the date line in the body with the current date
+    date_pattern = r'\*\*Date:\*\*.*'
+    replacement_date = f"**Date:** {date}"
+    newBody = re.sub(date_pattern, replacement_date, body)
+    
+    oldId = get_stringValue_from_frontMatter("id", frontMatter)
+    oldCreated = get_stringValue_from_frontMatter("created", frontMatter)
+    oldModified = get_stringValue_from_frontMatter("modified", frontMatter)
+    oldTitle = get_stringValue_from_frontMatter("title", frontMatter)
+    oldType = get_stringValue_from_frontMatter("type", frontMatter)
+
+    timestamp_id = datetime.datetime.now().strftime(myPreferences.timestamp_id_format())
+    selectedDateTime = datetime.datetime.now()
+    timestamp_date = selectedDateTime.strftime(myPreferences.date_format())
+    timestamp_full = selectedDateTime.strftime(myPreferences.datetime_format())
+    
+
+    newFileName = generate_unique_identifier(timestamp_id, "", oldTitle) + ".md"
+    
+    newFrontMatter = frontMatter
+    newFrontMatter = re.sub(r'id:\s*.*', f'id: {timestamp_id}', newFrontMatter)  # Update the id in front matter
+    newFrontMatter = re.sub(r'created:\s*.*', f'created: {timestamp_full}', newFrontMatter)  # Update the created in front matter
+    newFrontMatter = re.sub(r'modified:\s*.*', f'modified: {timestamp_full}', newFrontMatter)  # Update the modified in front matter
+
+    newNoteContent = f"---\n{newFrontMatter}\n---\n\n{newBody}"
+
+    with open(os.path.join(notePath, newFileName), 'w', encoding='utf-8') as f:
+        f.write(newNoteContent)
+
+    return os.path.join(notePath, newFileName)
+        
+    

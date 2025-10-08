@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import re
 from datetime import datetime
 
 #my stuff
@@ -17,11 +16,13 @@ template_pathRoot = myPreferences.root_templates()
 
 def main():
     projects, selectedProjectName, selectedProjectIndex = myInputs.select_project_name_withDict()
+    
     if selectedProjectName is None or selectedProjectName == "":
+        selectedProjectName = ""
         templates, selectedTemplateName, selectedTemplateIndex = myInputs.select_template("pkv")
     else:
         templates, selectedTemplateName, selectedTemplateIndex = myInputs.select_template("project")
-
+        
     #based on the selected template, figure out which output folder to use
     selectedTemplatePath = os.path.join(template_pathRoot, selectedTemplateName)
     
@@ -32,6 +33,21 @@ def main():
     templateNamePartsToReplace = ["PKV_","project_", "_template.markdown", "_template.md"]
     for part in templateNamePartsToReplace:
         noteType = noteType.replace(part, "")
+
+    if selectedProjectName != "":
+        noteTypeExists, existingNote = myTools.get_Note_Last_Project_Note_ByType(selectedProjectName, noteType)
+        if noteTypeExists:
+            print(f"{myTerminal.WARNING} A note of type '{noteType}' already exists in project '{selectedProjectName}'{myTerminal.RESET}")
+            print(f"  - {existingNote}")
+            clone = myInputs.ask_yes_no("Do you want to clone this note?", default= False)
+            if not clone:
+                print("Exiting without creating a new note.")
+                return
+            else:
+                print("Cloning the existing note.")
+                clonedNotePath = myTools.clone_note(existingNote.filePath)
+                os.system(f'{myPreferences.default_editor()} "{clonedNotePath}"')
+                exit(0)
 
     #make sure the new note directory directory exists
     if selectedProjectName == "" or selectedProjectName is None:
