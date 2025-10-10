@@ -90,14 +90,14 @@ def search_title(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
         Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
     """
     
-    titlePart = input("Enter a part of the title to search for (or leave blank for no title search): ").strip()
+    titlePart = input("Enter a part of the title to search for (or leave blank for no title search): ").lower().strip()
     
     results = []
     if titlePart is None or titlePart == "":
         return "none, no title selected", notes
     else:
         for note in notes:
-            if titlePart in note.title:
+            if titlePart in note.title.lower():
                 results.append(note)
         return f"title contains '{titlePart}'", results
 
@@ -112,14 +112,14 @@ def search_body(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
         Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
     """
     
-    searchPart = input("Enter a part of the body to search for (or leave blank for no body search): ").strip()
+    searchPart = input("Enter a part of the body to search for (or leave blank for no body search): ").lower().strip()
     
     results = []
     if searchPart is None or searchPart == "":
         return "none, no search part provided", notes
     else:
         for note in notes:
-            if searchPart in note.noteBody:
+            if searchPart in note.noteBody.lower():
                 results.append(note)
         return f"body contains '{searchPart}'", results
     

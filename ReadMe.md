@@ -19,8 +19,6 @@ Cloud storage and backup are achieved by leveraging existing corporate infrastru
 
 >*Hint* Consider calling `git init` in your value to give yourself local backups and roll back points. See [Version Control](#Version_Control) section.
 
-
-
 ## Vault Structure
 ```zsh
 root/
@@ -233,25 +231,26 @@ todo:
 ```zsh
 david@Davids-Laptop Personal-Knowledge-Vault % ./Search-Notes.py
 
+Search list results
 40 notes found.
 
-----------------------------------------
 Search options:
-	p) project - Search by project
-	t) tags - Search by tags
-	d) date range - Search by note date
-	i) title - Search by title
-	b) body - Search by body text
+	 p)  project - Search by project
+	 d)  date range - Search by note date
+	 ta) tags - Search by tags
+	 ti) title - Search by title
+	 b)  body - Search by body text
 	 --------------------
 Commands:
-	u) undo - undo the last search
-	l) list - list current search results
-	x) export - export results to editor note
-	q) quit - Quit the search
+	 h)  history - show search history
+	 u)  undo - undo the last search
+	 l)  list - list current search results
+	 x)  export - export and open results in editor
+	 q)  quit - Quit the search
 	 --------------------
-Enter your choice: 
-
 ```
+
+todo explain that title and body search are now case insensitive.
 
 
 
