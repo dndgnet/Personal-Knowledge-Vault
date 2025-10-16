@@ -76,12 +76,12 @@ def select_project_name_withDict(showNewProjectOption = True) -> tuple[dict,str,
     print(f"\n{myTerminal.WHITE}Available options:{myTerminal.RESET}")
     projectIndex = 0
     projects[projectIndex] = "No Project"
-    print(f"\t{myTerminal.GREY}{projectIndex}. {projects.get(1, 'No Project')}{myTerminal.RESET}")
+    print(f"\t{myTerminal.GREY}{projectIndex:>2}. {projects.get(1, 'No Project')}{myTerminal.RESET}")
     
     projectIndex = 1
     if showNewProjectOption:
         projects[projectIndex] = "Start a new project"
-        print(f"""\t{myTerminal.GREY}{projectIndex}. {projects.get(1, "Start a new project")}{myTerminal.RESET}""")
+        print(f"""\t{myTerminal.GREY}{projectIndex:>2}. {projects.get(1, "Start a new project")}{myTerminal.RESET}""")
     
     print(f"{myTerminal.WHITE}Available projects:{myTerminal.RESET}")
     for filename in sorted(os.listdir(myPreferences.root_projects())):
@@ -91,7 +91,7 @@ def select_project_name_withDict(showNewProjectOption = True) -> tuple[dict,str,
                 continue  # Skip archived projects
             else:
                 projectIndex += 1
-                print(f"\t{projectIndex}. {filename}")
+                print(f"\t{projectIndex:>2}. {filename}")
                 projects[projectIndex] = filename
 
     selectedProject = input(f"Select (0-{projectIndex}): ")
