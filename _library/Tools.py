@@ -126,6 +126,19 @@ def datetime_fromString(date_string: str) -> tuple [bool,datetime.datetime]:
     
     return isDateTime, d
 
+def obsidian_Encode_for_URI(input_string: str) -> str:
+    """
+    Encodes a string for use in an Obsidian URI.
+    
+    Args:
+        input_string (str): The string to encode.
+        
+    Returns:
+        str: The encoded string.
+    """
+    encoded_string = input_string.replace(" ", "%20").replace("#", "%23").replace(":", "%3A").replace("/", "%2F").replace("%", "%25")
+    return encoded_string
+
 def get_Notes_as_list(target_dir: str, includePrivateNotes = True) -> list[NoteData]:
     """
     Workhorse method to return a list of NoteData objects from the target directory.
@@ -957,4 +970,21 @@ def clone_note(sourceNotePath) -> str:
 
     return os.path.join(notePath, newFileName)
         
+def open_note_in_editor(notePath: str):
+    """
+    Opens a note in the default editor specified in preferences.
     
+    Args:
+        notePath (str): The path to the note file.
+    """
+    
+    os.system(f'{myPreferences.default_editor()} "{notePath}"')
+    if myPreferences.default_editor() != "obsidian":
+        os.system(f'{myPreferences.default_editor()} "{notePath}"')
+    else:
+        # For Obsidian, open the vault and the specific note
+        vaultName = myPreferences.root_pkv().split("/")[-1]
+        fileName = notePath.split("/")[-1]
+        encodedFileName = obsidian_Encode_for_URI(fileName)
+        openCmd = f"obsidian://advanced-uri?vault={vaultName}&filepath={encodedFileName}&openmode=true"
+        os.system(f'open "{openCmd}"')

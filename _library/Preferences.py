@@ -55,6 +55,21 @@ else:
     print(f"Unsupported platform: {sys.platform}")
     sys.exit(1)
 
+# default command to open files by platform
+osCmd = "open" 
+os_documents_Path = ""
+if sys.platform in ('linux', 'linux2',"darwin"):
+    osCmd = "xdg-open"
+    
+elif sys.platform in ("darwin"):
+    osCmd = "open"
+elif sys.platform in ('win32','windows'):
+    osCmd = "Start-Process"
+else:
+    print(f"Unsupported platform: {sys.platform}")
+    sys.exit(1)
+
+
 # shared preferences
 _pkv_baseFolderName = ""
 _attachment_root = ""
@@ -139,7 +154,8 @@ def use_versioncontrol() -> bool:
 def preferences() -> dict:
     """Returns the loaded preferences."""
     return _preferences
-    
+
+
 preferences_Path = os.path.join(preferences_Path, applicationNameRoot)
 preferences_File_Path = os.path.join(preferences_Path, preferences_File)
 

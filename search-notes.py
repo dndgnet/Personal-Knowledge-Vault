@@ -122,12 +122,13 @@ while continueSearch:
         selectedNote = input(f"{myTerminal.WHITE}\tEnter the note id to open or enter to continue searching: {myTerminal.RESET}").strip()
         if selectedNote.lower() == 'a':
             for noteToOpen in searchResult:
-                os.system(f"""{myPreferences.default_editor()} "{noteToOpen.filePath}" """)
+                #os.system(f"""{myPreferences.default_editor()} "{noteToOpen.filePath}" """)
+                myTools.open_note_in_editor(noteToOpen.filePath)
         elif selectedNote.isdigit() and 1 <= int(selectedNote) <= len(searchResult):
             selectedNote = int(selectedNote) - 1
             noteToOpen = searchResult[selectedNote]
-            os.system(f"""{myPreferences.default_editor()} "{noteToOpen.filePath}" """)
-        
+            #os.system(f"""{myPreferences.default_editor()} "{noteToOpen.filePath}" """)
+            myTools.open_note_in_editor(noteToOpen.filePath)
         mySearch.describe_search_results("list results",searchResult)
 
     elif inputChoice == 'x':
@@ -155,6 +156,7 @@ date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         continueSearch = False    
         print(f"{myTerminal.INFORMATION}Search results saved to {searchResultFilePath}{myTerminal.RESET}")
         os.system(f"""{myPreferences.default_editor()} "{searchResultFilePath}" """)
+
         break
     
     else:

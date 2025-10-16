@@ -40,13 +40,11 @@ def main():
             print(f"{myTerminal.WARNING} A note of type '{noteType}' already exists in project '{selectedProjectName}'{myTerminal.RESET}")
             print(f"  - {existingNote}")
             clone = myInputs.ask_yes_no("Do you want to clone this note?", default= False)
-            if not clone:
-                print("Exiting without creating a new note.")
-                return
-            else:
+            if clone:
                 print("Cloning the existing note.")
                 clonedNotePath = myTools.clone_note(existingNote.filePath)
-                os.system(f'{myPreferences.default_editor()} "{clonedNotePath}"')
+                #os.system(f'{myPreferences.default_editor()} "{clonedNotePath}"')
+                myTools.open_note_in_editor(clonedNotePath)
                 exit(0)
 
     #make sure the new note directory directory exists
@@ -87,7 +85,8 @@ def main():
 
     print(f"{myTerminal.SUCCESS}Note created:{myTerminal.RESET} {output_path}")
     if noteType != "event" or myPreferences.automatically_open_event_notes():
-        os.system(f'{myPreferences.default_editor()} "{output_path}"')
+        # os.system(f'{myPreferences.default_editor()} "{output_path}"')
+        myTools.open_note_in_editor(output_path)
 
 if __name__ == "__main__":
     main()
