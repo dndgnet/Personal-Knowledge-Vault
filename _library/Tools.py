@@ -425,6 +425,23 @@ def generate_unique_identifier(timestamp_id, noteType, title) -> str:
 
     return uniqueIdentifier
 
+def generate_tag_from_projectName(projectName: str) -> str:
+    """
+    Generates a tag from a project name by removing special characters and replacing spaces with underscores.
+    
+    Args:
+        projectName (str): The project name to convert into a tag.
+        
+    Returns:
+        str: The generated tag.
+    """
+    
+    tag = "p_" + letters_and_numbers_only(projectName).replace(" ", "_").replace("&", "and")
+    if not tag.startswith("#"):
+        tag = f"#{tag}"
+    
+    return tag
+
 def read_templateBody(templatePath: str) -> str:
     """
     Reads the content of a template file.

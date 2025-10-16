@@ -68,11 +68,22 @@ def main():
 
     # Read the template content
     templateBody = myTools.read_templateBody(selectedTemplatePath)
-    
+
     note_Content = myInputs.get_templateMerge_Values_From_User(timestamp_id,timestamp_date,
                                                                timestamp_full,selectedProjectName,
                                                                title,
                                                                templateBody)
+
+    if selectedProjectName != "" and selectedProjectName is not None:
+        frontMatterTags = myTools.get_stringValue_from_frontMatter("tags",note_Content)
+        if frontMatterTags is not None and frontMatterTags != "":
+            projectTag = myTools.generate_tag_from_projectName(selectedProjectName)+", "
+        else:
+            projectTag = myTools.generate_tag_from_projectName(selectedProjectName)
+
+        note_Content = note_Content.replace("tags:", f"tags: {projectTag}")
+
+
     # Construct the output filename and path
     output_filename = f"{uniqueIdentifier}.md"
     output_path = os.path.join(newNote_directory, output_filename)
