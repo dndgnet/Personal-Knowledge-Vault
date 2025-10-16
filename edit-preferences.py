@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import os
 from _library import Preferences as myPreferences
- 
+from _library import Tools as myTool
+
 examplePreferences = """
 _exampleEmptyPreferences = {
     "pkv_root":"PKV", #root folder name of the personal knowledge vault
@@ -20,5 +21,9 @@ _exampleEmptyPreferences = {
 """
 
 #open the preferences file in the default editor
-os.system(f'{myPreferences.default_editor()} "{myPreferences.preferences_File_Path}"')
+if myPreferences.default_editor() == "obsidian":
+    os.system(f'code "{myPreferences.preferences_File_Path}"')
+else:
+    os.system(f'{myPreferences.default_editor()} "{myPreferences.preferences_File_Path}"')    
+
 print(examplePreferences)
