@@ -113,6 +113,7 @@ while continueSearch:
         i = 0
         print(f"\t{myTerminal.BLUE}{' id ':>4}  {'Datetime':<20} {'Project':<31} {'Note Title':<31}{myTerminal.RESET}")
         print(f"\t{myTerminal.BLUE}{'____':>4}  {'________':<20} {'_______':<31} {'__________':<31}{myTerminal.RESET}")
+        searchResult.sort(key=lambda note: note.date, reverse=True)
         for note in searchResult:
             i += 1
             print(f"\t{myTerminal.GREY}{i:>4}) {note.date:<20} {note.project[:30]:<31} {note.title[:30]:<31}{myTerminal.RESET}")
