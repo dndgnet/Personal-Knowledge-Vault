@@ -111,6 +111,18 @@ The script `build-projectSummary.py` generates a summary report for a selected p
 - **Output**: Opens the summary in your default editor and browser for review.
 The script is interactive and designed to help you quickly visualize and review the status and history of a project.
 
+### Renaming Projects
+
+The `rename-project.py` command will accept old and new project names and then iterate through every note replacing 
+
+- front matter project name
+- front matter project tags
+- note body project tags
+- note body links `[description](./projectname/notefilename.md)` 
+- note body backlinks `[[./projectname/notefilename.md]]`
+  
+before finally renaming the project folder.
+
 ## Commands
 
 Consider `chmod +x *.py` to make the Python scripts in the root folder executable if using Linux or mac OS.
