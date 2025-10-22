@@ -8,12 +8,13 @@ import os
 import re
 import datetime
 from decimal import Decimal
+from dataclasses import field  
 
 @dataclass
 class NoteData:
     id: str # Unique identifier for the note, typically a timestamp or unique string
     fileName: str
-    filePath: str
+    filePath: str = field(metadata={"description": "os.path.join(notePath, noteFileName) full file name and path"})
     date: str
     osFileDateTime: str
     type: str
@@ -139,6 +140,77 @@ def obsidian_Encode_for_URI(input_string: str) -> str:
     encoded_string = input_string.replace(" ", "%20").replace("#", "%23").replace(":", "%3A").replace("/", "%2F").replace("%", "%25")
     return encoded_string
 
+def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
+    
+    notePathAndFile = os.path.join(notePath, noteFileName)
+
+    if os.path.exists(notePathAndFile) is False:
+        print(f"{myTerminal.ERROR}Note file '{notePathAndFile}' does not exist.{myTerminal.RESET}")
+        return NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)
+
+    with open(os.path.join(notePath, noteFileName), 'r', encoding='utf-8') as f:
+                    noteContent = f.read()
+                    
+    frontMatter = get_note_frontMatter(noteContent)
+    
+    osFileDateTime = datetime.datetime.fromtimestamp(os.path.getmtime(notePathAndFile)).strftime("%Y-%m-%d %H:%M:%S")
+    date = get_note_date_from_frontMatter(frontMatter)
+    
+    if date == "":
+        # If no date in front matter, use the file's last modified date
+        date = osFileDateTime
+    
+    uniqueIdentifier = get_stringValue_from_frontMatter("id", frontMatter) 
+    if uniqueIdentifier == "":
+        uniqueIdentifier = noteFileName.split(".")[0].split("_")[0]  # Use the file name without extension as the unique identifier
+
+    project = get_stringValue_from_frontMatter("project", frontMatter)
+    type = get_stringValue_from_frontMatter("type", frontMatter)
+    if type == "":
+        type = "unknown"
+    title = get_stringValue_from_frontMatter("title", frontMatter)
+    tags = get_tags_from_noteText(noteContent)
+    keywords = get_listValue_from_frontMatter("keywords",frontMatter)
+    retention = get_stringValue_from_frontMatter("retention", frontMatter)
+    author = get_stringValue_from_frontMatter("author", frontMatter)
+    private = False if get_stringValue_from_frontMatter("private", frontMatter).lower in ("false","f","no","n") else True
+    archived = True if get_stringValue_from_frontMatter("archived", frontMatter) == "True" else False
+
+    if title == "" or title is None:
+        title = uniqueIdentifier
+        
+    body = get_note_body(noteContent)
+    backLinks = get_note_backlinks(noteContent)
+    hasActionItems = True if "[ ]" in body else False
+    actionItems = [] 
+    for actionItem in re.findall(r'\[ \](.*)', body):  # Find all action items in the note body
+        actionItems.append(actionItem.strip())
+
+    # Replace the dictionary with an instance of the Note dataclass
+    note = NoteData(
+        id=uniqueIdentifier,
+        fileName = noteFileName,
+        filePath = os.path.join(notePath, noteFileName),
+        date = date,
+        osFileDateTime = osFileDateTime,
+        type = type,
+        title = title,
+        project = project,
+        tags = tags,
+        keywords = keywords,
+        retention = retention,
+        author = author,
+        private = private,
+        frontMatter = frontMatter,
+        noteBody = body,
+        backLinks = backLinks,
+        archived = archived,
+        hasActionItems = hasActionItems,
+        actionItems = actionItems
+    )
+
+    return note
+
 def get_Notes_as_list(target_dir: str, includePrivateNotes = True) -> list[NoteData]:
     """
     Workhorse method to return a list of NoteData objects from the target directory.
@@ -148,68 +220,9 @@ def get_Notes_as_list(target_dir: str, includePrivateNotes = True) -> list[NoteD
         for file in files:
             if not file.startswith('.') and file.endswith('.md'):  # Skip hidden files and non markdown files
                 
-                with open(os.path.join(root, file), 'r', encoding='utf-8') as f:
-                    noteContent = f.read()
-                    
-                frontMatter = get_note_frontMatter(noteContent)
+                note = get_Note_from_path(root, file)
                 
-                osFileDateTime = datetime.datetime.fromtimestamp(os.path.getmtime(os.path.join(root, file))).strftime("%Y-%m-%d %H:%M:%S")
-                date = get_note_date_from_frontMatter(frontMatter)
-                
-                if date == "":
-                    # If no date in front matter, use the file's last modified date
-                    date = osFileDateTime
-                
-                uniqueIdentifier = get_stringValue_from_frontMatter("id", frontMatter) 
-                if uniqueIdentifier == "":
-                    uniqueIdentifier = file.split(".")[0].split("_")[0]  # Use the file name without extension as the unique identifier
-
-                project = get_stringValue_from_frontMatter("project", frontMatter)
-                type = get_stringValue_from_frontMatter("type", frontMatter)
-                if type == "":
-                    type = "unknown"
-                title = get_stringValue_from_frontMatter("title", frontMatter)
-                tags = get_tags_from_noteText(noteContent)
-                keywords = get_listValue_from_frontMatter("keywords",frontMatter)
-                retention = get_stringValue_from_frontMatter("retention", frontMatter)
-                author = get_stringValue_from_frontMatter("author", frontMatter)
-                private = False if get_stringValue_from_frontMatter("private", frontMatter).lower in ("false","f","no","n") else True
-                archived = True if get_stringValue_from_frontMatter("archived", frontMatter) == "True" else False
-
-                if title == "" or title is None:
-                    title = uniqueIdentifier
-                    
-                body = get_note_body(noteContent)
-                backLinks = get_note_backlinks(noteContent)
-                hasActionItems = True if "[ ]" in body else False
-                actionItems = [] 
-                for actionItem in re.findall(r'\[ \](.*)', body):  # Find all action items in the note body
-                    actionItems.append(actionItem.strip())
-
-                # Replace the dictionary with an instance of the Note dataclass
-                note = NoteData(
-                    id=uniqueIdentifier,
-                    fileName = file,
-                    filePath = os.path.join(root, file),
-                    date = date,
-                    osFileDateTime = osFileDateTime,
-                    type = type,
-                    title = title,
-                    project = project,
-                    tags = tags,
-                    keywords = keywords,
-                    retention = retention,
-                    author = author,
-                    private = private,
-                    frontMatter = frontMatter,
-                    noteBody = body,
-                    backLinks = backLinks,
-                    archived = archived,
-                    hasActionItems = hasActionItems,
-                    actionItems = actionItems
-                )
-                
-                if private is True and includePrivateNotes is False:
+                if note.private is True and includePrivateNotes is False:
                     pass  # skip private notes if not including them
                 else:
                     noteList.append(note)
@@ -927,7 +940,7 @@ def load_notes_from_json(file_path: str) -> List[NoteData]:
     except Exception as e:
         print(f"Error loading notes from JSON file: {e}")
         return []
-    
+
 def clone_note(sourceNotePath) -> str:
     """
     Clones an existing note to a new note with a unique identifier.

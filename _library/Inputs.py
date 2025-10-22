@@ -58,7 +58,7 @@ def get_datetime_and_title_from_user(datePrompt = "enter a date time", defaultIf
     
     return d, title
     
-def select_project_name_withDict(showNewProjectOption = True) -> tuple[dict,str, int]:
+def select_project_name_withDict(showNewProjectOption = True, showNoProjectOption = True) -> tuple[dict,str, int]:
     """
     Prompt the user to select a project from a list of available projects.
     If the user selects "No Project", return an empty string.
@@ -73,10 +73,15 @@ def select_project_name_withDict(showNewProjectOption = True) -> tuple[dict,str,
 
     #let hte user pic which project to use
     #print(f"{myTerminal.INPUTPROMPT}Available projects:{myTerminal.RESET}")
-    print(f"\n{myTerminal.WHITE}Available options:{myTerminal.RESET}")
+    
+    if showNewProjectOption or showNoProjectOption:
+        print(f"\n{myTerminal.WHITE}Available options:{myTerminal.RESET}")
+    
     projectIndex = 0
     projects[projectIndex] = "No Project"
-    print(f"\t{myTerminal.GREY}{projectIndex:>2}. {projects.get(1, 'No Project')}{myTerminal.RESET}")
+    
+    if showNoProjectOption:
+        print(f"\t{myTerminal.GREY}{projectIndex:>2}. {projects.get(1, 'No Project')}{myTerminal.RESET}")
     
     projectIndex = 1
     if showNewProjectOption:
@@ -93,7 +98,7 @@ def select_project_name_withDict(showNewProjectOption = True) -> tuple[dict,str,
                 projectIndex += 1
                 print(f"\t{projectIndex:>2}. {filename}")
                 projects[projectIndex] = filename
-
+    
     selectedProject = input(f"Select (0-{projectIndex}): ")
 
     if not selectedProject.isdigit() or int(selectedProject) not in projects or int(selectedProject) == 0:
@@ -116,11 +121,11 @@ def select_project_name_withDict(showNewProjectOption = True) -> tuple[dict,str,
     print(f"{myTerminal.SUCCESS}Selected project: {projects[int(selectedProject)]}{myTerminal.RESET}\n")
     return projects, projects[int(selectedProject)], int(selectedProject)
 
-def select_project_name(showNewProjectOption = True) -> str:
+def select_project_name(showNewProjectOption = True, showNoProjectOption = True) -> str:
     """
     simplified version of select_project_name_withDict that only returns the selected project name.
     """
-    projects, selectedProjectName, selectedProject = select_project_name_withDict(showNewProjectOption)
+    projects, selectedProjectName, selectedProject = select_project_name_withDict(showNewProjectOption,showNoProjectOption)
 
     return selectedProjectName
 
