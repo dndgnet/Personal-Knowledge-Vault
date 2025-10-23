@@ -36,7 +36,7 @@ def main():
 
     if selectedProjectName != "":
         noteTypeExists, existingNote = myTools.get_Note_Last_Project_Note_ByType(selectedProjectName, noteType)
-        if noteTypeExists:
+        if noteTypeExists and noteType not in ("event","email","chat","issue","idea"):
             print(f"{myTerminal.WARNING} A note of type '{noteType}' already exists in project '{selectedProjectName}'{myTerminal.RESET}")
             print(f"  - {existingNote}")
             clone = myInputs.ask_yes_no("Do you want to clone this note?", default= False)
