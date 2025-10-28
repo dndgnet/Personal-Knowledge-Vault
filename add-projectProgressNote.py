@@ -1,7 +1,24 @@
 #!/usr/bin/env python3
 
+"""
+This script creates project progress notes for a PKV project.
+
+1. Select an existing project from available projects
+2. Create a new progress note using a template or clone from the last progress note
+3. Automatically populate note metadata (timestamps, project name, etc.)
+4. Save the note with a unique identifier in the project's directory
+5. Commit the new note to version control
+6. Optionally open the note in the default editor
+
+The script handles two modes:
+- Template mode: Creates a new note from a progress template
+- Clone mode: Copies the most recent progress note and updates it with new timestamps
+
+"""
+
+
+
 import os
-import re
 from datetime import datetime
 
 #my stuff

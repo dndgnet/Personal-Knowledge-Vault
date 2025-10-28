@@ -1,5 +1,36 @@
 #!/usr/bin/env python3
 
+"""
+Build Project Summary Script
+
+This script generates a comprehensive project summary report by analyzing notes and progress data 
+for a selected project. It creates visualizations including actuals vs budget graphs, progress 
+tracking charts, and optional Gantt charts, then outputs everything to a markdown file.
+
+Main Features:
+- Interactive project selection from available projects
+- Extracts budget, actuals, and progress data from project notes
+- Generates Mermaid charts for financial tracking and progress visualization
+- Creates chronological timeline of project activities
+- Optional Gantt chart generation for project scheduling
+- Outputs formatted markdown report with embedded visualizations
+- Automatically opens the generated report in default editor and browser
+
+The script processes different types of notes:
+- Hub/project-hub notes: Contains project governance and budget information
+- Progress/project-progress notes: Contains completion percentage and actual expenses
+- General project notes: Included in timeline for comprehensive project history
+
+Output includes:
+- Project governance section with budget vs actuals
+- Visual charts (when sufficient data exists)
+- Latest progress update
+- Chronological timeline of all project activities
+- Optional Gantt chart for project planning
+The generated report is saved as '.ProjectSummary.md' in the project directory.
+"""
+
+
 import os 
 import datetime
 from decimal import Decimal
@@ -178,7 +209,7 @@ for note in notes:
         timeLine += f"\n{myTools.remove_noteHeaders(note.noteBody)}\n"
 
     if includeBackLinkInTimeline:
-        timeLine += f"\n[[{note.id}]]\n"
+        timeLine += f"\n[[{note.fileName}]]\n"
     
     if includeGannt: 
         gantt += f"{ myTools.letters_and_numbers_only(note.title)} : {note.date}, 1d\n"
@@ -256,6 +287,8 @@ if os.path.exists(output_path):
 with open(output_path, 'w', encoding='utf-8') as f:
     f.write(summary)
     
+print("open project summary in default editor...")    
 os.system(f'{myPreferences.default_editor()} "{output_path}"')    
 
+print("open project summary as html in default browser...')")
 myHTML.openMarkDownFileInBrowser(output_path)

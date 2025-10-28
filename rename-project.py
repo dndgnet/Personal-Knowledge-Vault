@@ -64,6 +64,14 @@ def main():
             newBody,
             flags=re.IGNORECASE
         )
+
+        #replace Project: <progect name> pattern in body
+        newBody = re.sub(r'Project:\s*' + re.escape(oldProjectName),
+                        f'Project: {newProjectName}',
+                        newBody,
+                        flags=re.IGNORECASE
+                        )
+
         #replace links ()[]
         newBody = re.sub(r'' + oldProjectName_url + r'/', 
                         f'{newProjectName_url}/', 
