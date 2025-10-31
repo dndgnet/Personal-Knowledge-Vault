@@ -45,6 +45,23 @@ def search_project(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
                 results.append(note)
         return f"project = {selectedProject}", results
 
+def search_no_project(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
+    """
+    Search for notes in the given list that are not assigned to any project.
+
+    Args:
+        notes (List[NoteData]): List of NoteData objects.
+
+    Returns:
+        Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
+    """
+    
+    results = []
+    for note in notes:
+        if note.project == "":
+            results.append(note)
+    return "project = None", results
+
 def search_date(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
     """
     Search for notes in the given list that match the specified date range.

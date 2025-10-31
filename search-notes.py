@@ -78,6 +78,7 @@ def quitSearch(searchLog):
 while continueSearch:
     print ("\nSearch options:")
     print ("\t p)  project - Search by project")
+    print ("\t np) No project - Search for notes not attached to  project")
     print ("\t d)  date range - Search by note date")
     print ("\t ta) tags - Search by tags")
     print ("\t ti) title - Search by title")
@@ -103,6 +104,13 @@ while continueSearch:
         searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
         mySearch.describe_search_results(searchCriteria,searchResult)
 
+    elif inputChoice =='np':
+        searchIndex += 1
+        searchCriteria, searchResult = mySearch.search_no_project(searchResult)
+        searchHistory[searchIndex] = searchResult.copy()
+        searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
+        mySearch.describe_search_results(searchCriteria,searchResult)
+        
     elif inputChoice =='ta':
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_tags(searchResult)
