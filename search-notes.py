@@ -28,6 +28,53 @@ searchResult = allNotes.copy()
 searchHistory[searchIndex] = allNotes.copy()  # Store the initial state of all notes
 
 
+def selectSearchResultNote(searchResult) -> str:
+    i = 0
+    print(f"\t{myTerminal.BLUE}{' id ':>4}  {'Datetime':<20} {'Project':<31} {'Note Title':<31}{myTerminal.RESET}")
+    print(f"\t{myTerminal.BLUE}{'____':>4}  {'________':<20} {'_______':<31} {'__________':<31}{myTerminal.RESET}")
+    searchResult.sort(key=lambda note: note.date, reverse=True)
+    for note in searchResult:
+        i += 1
+        print(f"\t{myTerminal.GREY}{i:>4}) {note.date:<20} {note.project[:30]:<31} {note.title[:30]:<31}{myTerminal.RESET}")
+    
+    print(f"\t{myTerminal.GREY}{'a':>4}) open all {myTerminal.RESET}")
+
+    selectedNote = input(f"{myTerminal.WHITE}\tEnter the note id to open or enter to continue searching: {myTerminal.RESET}").strip()
+    return selectedNote
+
+def listSearchResults(searchResult, feedbackMessage=""):
+    myTerminal.clearTerminal()
+    if feedbackMessage != "":
+        print(f"{myTerminal.INFORMATION}{feedbackMessage}{myTerminal.RESET}\n") 
+
+    selectedNote = selectSearchResultNote(searchResult)
+
+    if selectedNote.lower() == 'q':
+        quitSearch(searchLog)
+    elif selectedNote.lower() == 'a':
+        for noteToOpen in searchResult:
+            #os.system(f"""{myPreferences.default_editor()} "{noteToOpen.filePath}" """)
+            myTools.open_note_in_editor(noteToOpen.filePath)
+    elif selectedNote.isdigit() and 1 <= int(selectedNote) <= len(searchResult):
+        selectedNote = int(selectedNote) - 1
+        noteToOpen = searchResult[selectedNote]
+        #os.system(f"""{myPreferences.default_editor()} "{noteToOpen.filePath}" """)
+        myTools.open_note_in_editor(noteToOpen.filePath)
+        listSearchResults(searchResult,feedbackMessage=f"Opened note: {noteToOpen.title}")
+
+    mySearch.describe_search_results("list results",searchResult)
+    
+def quitSearch(searchLog):
+    searchLog += f"{datetime.datetime.now()}: quit search.\n"
+    
+    # save searchLog to search.log in the root_pkv directory for potential troubleshooting
+    searchLogPath = os.path.join(myPreferences.root_pkv(), "search.log")
+    with open(searchLogPath, 'w') as log_file:
+        log_file.write(searchLog)
+    
+    print("Exiting search.")
+    exit("Exiting search.")
+
 while continueSearch:
     print ("\nSearch options:")
     print ("\t p)  project - Search by project")
@@ -47,17 +94,8 @@ while continueSearch:
     inputChoice = input("Enter your choice: ").strip().lower()
     
     if inputChoice == 'q':
-        searchLog += f"{datetime.datetime.now()}: quit search.\n"
-        continueSearch = False
-        
-        # save searchLog to search.log in the root_pkv directory for potential troubleshooting
-        searchLogPath = os.path.join(myPreferences.root_pkv(), "search.log")
-        with open(searchLogPath, 'w') as log_file:
-            log_file.write(searchLog)
-        
-        print("Exiting search.")
-        break
-    
+        quitSearch(searchLog)
+
     elif inputChoice =='p':
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_project(searchResult)
@@ -107,30 +145,8 @@ while continueSearch:
         for line in searchLog.splitlines():
             print(f"{myTerminal.GREY}{line[len('2025-07-16 20:13:00.674325:'):]}{myTerminal.RESET}")
              
-
     elif inputChoice == 'l':
-        myTerminal.clearTerminal()
-        i = 0
-        print(f"\t{myTerminal.BLUE}{' id ':>4}  {'Datetime':<20} {'Project':<31} {'Note Title':<31}{myTerminal.RESET}")
-        print(f"\t{myTerminal.BLUE}{'____':>4}  {'________':<20} {'_______':<31} {'__________':<31}{myTerminal.RESET}")
-        searchResult.sort(key=lambda note: note.date, reverse=True)
-        for note in searchResult:
-            i += 1
-            print(f"\t{myTerminal.GREY}{i:>4}) {note.date:<20} {note.project[:30]:<31} {note.title[:30]:<31}{myTerminal.RESET}")
-    
-        print(f"\t{myTerminal.GREY}{'a':>4}) open all {myTerminal.RESET}")
-
-        selectedNote = input(f"{myTerminal.WHITE}\tEnter the note id to open or enter to continue searching: {myTerminal.RESET}").strip()
-        if selectedNote.lower() == 'a':
-            for noteToOpen in searchResult:
-                #os.system(f"""{myPreferences.default_editor()} "{noteToOpen.filePath}" """)
-                myTools.open_note_in_editor(noteToOpen.filePath)
-        elif selectedNote.isdigit() and 1 <= int(selectedNote) <= len(searchResult):
-            selectedNote = int(selectedNote) - 1
-            noteToOpen = searchResult[selectedNote]
-            #os.system(f"""{myPreferences.default_editor()} "{noteToOpen.filePath}" """)
-            myTools.open_note_in_editor(noteToOpen.filePath)
-        mySearch.describe_search_results("list results",searchResult)
+        listSearchResults(searchResult)
 
     elif inputChoice == 'x':
         searchResultBody = f"""---
