@@ -70,7 +70,7 @@ def main():
                         f'Project: {newProjectName}',
                         newBody,
                         flags=re.IGNORECASE
-                        )
+                        ) 
 
         #replace links ()[]
         newBody = re.sub(r'' + oldProjectName_url + r'/', 

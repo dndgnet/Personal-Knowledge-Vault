@@ -9,6 +9,7 @@ from _library.Tools import NoteData
 from _library import Preferences as myPreferences
 from _library import Inputs as myInputs 
 from _library import HTML as myHTML
+import re
 
 print(f"{myTerminal.INFORMATION}Diagram a tag...{myTerminal.RESET}\n")
 
@@ -55,16 +56,23 @@ for project in projects:
 
     #add links to project node
     for note in linkedNotes:
+        safeNoteName = re.sub(r'[^a-zA-Z0-9\s]', '', note.title).replace(' ', '_')
+        safeProjectName = re.sub(r'[^a-zA-Z0-9\s]', '', project).replace(' ', '_')
+        if safeProjectName == "":
+            safeProjectName = "Personal_Knowledge_Vault"
+
         if note.project == project:
-            mermaid += f"""{i*2}{project.replace(" ","_") if project != "" else "Personal-Knowledge-Vault"}||--||{note.title.replace(" ","_")} : project\n"""
+            mermaid += f"""{i*2}{safeProjectName if safeProjectName != "" else "Personal-Knowledge-Vault"}||--||{safeNoteName} : project\n"""
             markdown += f"  - Note: {note.title} *{note.date}* [[{note.id}]]\n"
             
             for tag in note.tags:
-                if tag != selectedTag and not tag.startswith("p_"):
+                safeTag = re.sub(r'[^a-zA-Z0-9\s]', '', tag).replace(' ', '_')
+
+                if tag != selectedTag and not tag.startswith("p_") and tag.strip() != "" and tag != "p_" and safeTag != "_":
                     if tag != selectedTag:
                         #add tags below the note
-                        mermaid += f"""{i*3}{note.title.replace(" ","_")}||--||{tag} : pageTag\n"""
-                        markdown += f"    - Tag: {tag}\n"    
+                        mermaid += f"""{i*3}{safeNoteName}||--||{safeTag.strip()} : pageTag\n"""
+                        markdown += f"    - Tag: {safeTag}\n"    
 
 #finish the mermaid diagram
 mermaid += """
