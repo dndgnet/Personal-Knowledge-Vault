@@ -57,7 +57,6 @@ else:
 
 # default command to open files by platform
 osCmd = "open" 
-os_documents_Path = ""
 if sys.platform in ('linux', 'linux2',"darwin"):
     osCmd = "xdg-open"
     
