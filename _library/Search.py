@@ -24,7 +24,7 @@ def describe_search_results(searchCriteria: str, notes: List[NoteData]) -> None:
     print(f"\t\tFound {len(notes)} notes matching the search criteria.")
     print("")
     
-def search_project(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
+def search_project(notes: List[NoteData], searchPart = "") -> Tuple[str, List[NoteData]]:
     """
     Search for notes in the given list that match the specified project.
 
@@ -34,8 +34,11 @@ def search_project(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
     Returns:
         Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
     """
-    
-    _, selectedProject, _ = myInputs.select_project_name_withDict(showNewProjectOption=False)
+    if searchPart == "":
+        _, selectedProject, _ = myInputs.select_project_name_withDict(showNewProjectOption=False)
+    else:
+        selectedProject = searchPart
+
     results = []
     if selectedProject is None or selectedProject == "":
         return "none, no project selected", notes
@@ -62,7 +65,7 @@ def search_no_project(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
             results.append(note)
     return "project = None", results
 
-def search_date(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
+def search_date(notes: List[NoteData], startDate = "", endDate = "") -> Tuple[str, List[NoteData]]:
     """
     Search for notes in the given list that match the specified date range.
 
@@ -72,13 +75,20 @@ def search_date(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
     Returns:
         Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
     """
-    
-    userInput = input("Enter start date (YYYY-MM-DD) or leave blank for no start date: ")
+    if startDate == "":
+        userInput = input("Enter start date (YYYY-MM-DD) or leave blank for no start date: ")
+    else:
+        userInput = startDate
+        
     isDate, startDate = myTools.datetime_fromString(userInput)
     if not isDate:
         startDate = datetime.datetime(year = 1899,month = 1, day =1)
-        
-    userInput = input("Enter end date (YYYY-MM-DD) or leave blank for no end date: ")
+
+    if endDate == "":  
+        userInput = input("Enter end date (YYYY-MM-DD) or leave blank for no end date: ")
+    else:
+        userInput = endDate
+
     isDate, endDate = myTools.datetime_fromString(userInput)
     if not isDate:
         endDate = datetime.datetime.now()
@@ -96,7 +106,7 @@ def search_date(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
             
     return f"date range from {startDate} to {endDate}", results
 
-def search_title(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
+def search_title(notes: List[NoteData], searchPart = "") -> Tuple[str, List[NoteData]]:
     """
     Search for notes in the given list that match the specified title.
 
@@ -106,9 +116,11 @@ def search_title(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
     Returns:
         Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
     """
-    
-    titlePart = input("Enter a part of the title to search for (or leave blank for no title search): ").lower().strip()
-    
+    if searchPart == "":
+        titlePart = input("Enter a part of the title to search for (or leave blank for no title search): ").lower().strip()
+    else: 
+        titlePart = searchPart.lower().strip()
+
     results = []
     if titlePart is None or titlePart == "":
         return "none, no title selected", notes
@@ -118,7 +130,7 @@ def search_title(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
                 results.append(note)
         return f"title contains '{titlePart}'", results
 
-def search_body(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
+def search_body(notes: List[NoteData], searchPart = "") -> Tuple[str, List[NoteData]]:
     """
     Search for notes in the given list that match the specified body content.
 
@@ -128,9 +140,12 @@ def search_body(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
     Returns:
         Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
     """
+    searchPart = searchPart.lower().strip()
+
+    if searchPart == "":
+        searchPart = input("Enter a part of the body to search for (or leave blank for no body search): ").lower().strip()
     
-    searchPart = input("Enter a part of the body to search for (or leave blank for no body search): ").lower().strip()
-    
+
     results = []
     if searchPart is None or searchPart == "":
         return "none, no search part provided", notes
@@ -140,7 +155,7 @@ def search_body(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
                 results.append(note)
         return f"body contains '{searchPart}'", results
     
-def search_tags(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
+def search_tags(notes: List[NoteData], searchPart = "") -> Tuple[str, List[NoteData]]:
     """
     Search for notes for a given tag.
 
@@ -150,9 +165,11 @@ def search_tags(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
     Returns:
         Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
     """
-     
-    selectedTag = myInputs.select_tags_from_noteList(notes)
-    
+    if searchPart == "": 
+        selectedTag = myInputs.select_tags_from_noteList(notes)
+    else:
+        selectedTag = searchPart
+
     if selectedTag is not None and selectedTag != "":
         results = []
         for note in notes:

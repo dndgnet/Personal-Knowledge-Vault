@@ -97,7 +97,7 @@ def letters_and_numbers_only(input_string: str, maxLength = 400) -> str:
     Returns:
         str: The processed string containing only letters and numbers.
     """
-    return re.sub(r'[^A-Za-z0-9_\-\s]', '', input_string)[:maxLength]
+    return re.sub(r'[^A-Za-z0-9_\s]', '', input_string)[:maxLength]
     
 def datetime_fromString(date_string: str) -> tuple [bool,datetime.datetime]:
     """
@@ -218,7 +218,7 @@ def get_Notes_as_list(target_dir: str, includePrivateNotes = True) -> list[NoteD
     noteList = []
     for root, dirs, files in os.walk(target_dir, topdown=True):
         for file in files:
-            if not file.startswith('.') and file.endswith('.md'):  # Skip hidden files and non markdown files
+            if not file.startswith('.') and not file.startswith('_') and file.endswith('.md'):  # Skip hidden files and non markdown files
                 
                 note = get_Note_from_path(root, file)
                 
