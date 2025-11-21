@@ -30,7 +30,7 @@ def makeAtomicNote(newNoteBody, atomicBody, h3, note) -> tuple[bool, str]:
         timestamp_full = note.date 
         
         #add a backlink to the original note
-        atomicBodyWithLink = atomicBody +  f"""\n\n[[{note.id}]] \n\n """
+        atomicBodyWithLink = atomicBody +  f"""\n\n[[{note.fileName}]] \n\n """
 
         atomicNoteData = {"title": h3,
                         "project": selectedProjectName,
