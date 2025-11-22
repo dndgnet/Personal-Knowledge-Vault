@@ -43,8 +43,19 @@ private: No
 | --- | --- | --- | --- | --- | --- |
 |   |   |   |   |   |   |
 
+<!-- Hidden hints
+Position vs. Role: Position is usually a job title, role is the stakeholder's role in the project.
 
-*Monitor, Keep Informed, Keep Satisfied, Manage Closely
+Roles:
+    Project Sponsor: The person or group who provides the resources and financial support for the project.
+    Stakeholders: Individuals, groups, or organizations who may affect, be affected by, or perceive themselves to be affected by a decision, activity, or outcome of a project.
+    Project Team Members: Individuals who report directly to the Project Manager and perform the work necessary to produce the project's deliverables.
+    Functional Manager: The person who has management authority over an organizational unit (like an IT or marketing department) and is often the one who assigns staff to the project team.
+
+
+Classification: Monitor, Keep Informed, Keep Satisfied, Manage Closely
+-->
+
 
 ## Schedule
 
@@ -56,7 +67,7 @@ private: No
 
 ### Milestones:
 
-
+<!-- hidden mermaid example
 
 ```mermaid
 gantt
@@ -87,7 +98,7 @@ gantt
 
 
 ```
-
+-->
 
 ## Budget
 
@@ -97,6 +108,16 @@ gantt
 
 
 # Risks
+
+
+| **Risk Description** | **Likelihood** | **Impact** | **Response Action(s)** |
+| --- | --- | --- | -- |
+| Requirements expansion during build | Possible | Major | Define and sign off on scope document before build |
+
+<!-- Hidden hints
+Likelihood - Unlikely, Possible, Likely, Almost Certain
+Impact - Minor, Moderate, Major, Significant
+-->
 
 
 

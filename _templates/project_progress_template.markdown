@@ -18,9 +18,15 @@ private: No
 
 **Date:** [DATE]
 
-**Project Phase:** Initiation, Planning, Execution, Monitor, Closure, Complete
+**Project Phase:** 
+<!-- hidden hints
+Initiation, Planning, Execution, Monitor, Closure, Complete
+-->
 
-**Overall Project Status:** Not stated, On Track, At Risk, Complete, Cancelled
+**Overall Project Status:** 
+<!-- hidden hints
+Not stated, On Track, At Risk, Complete, Cancelled
+-->
 
 **Complete:** 0%
 
@@ -41,13 +47,19 @@ private: No
 ## Summary
 
 ## Achievements:
-
+<!-- hidden hints
 - Key milestones or deliverables.
+-->
+
 
 ## Issues and Impediments:
-
+<!-- hidden hints
 - Challenges or blockers encountered.
+-->
+
 
 ## Next Steps:
+<!-- hidden hints
+  - briefly describe the next period or sprint
+-->
 
-- step 1 
