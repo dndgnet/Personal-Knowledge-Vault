@@ -203,13 +203,13 @@ for note in notes:
     if not includeBackLinkInTimeline and not includeBodyInTimeline:
         timeLine += f"\n- {note.date[:10]} {note.type} {note.title}\n"
     else:
-        timeLine += f"\n### {note.date[:10]} {note.type} {note.title}\n"
+        timeLine += f"\n {note.date[:10]} **{note.type} {note.title}**\n"
         
     if includeBodyInTimeline:
-        timeLine += f"\n{myTools.remove_noteHeaders(note.noteBody)}\n"
+        timeLine += f"""\n<div style="margin-left:2em">\n{myTools.remove_noteHeaders(note.noteBody)}\n</div>\n"""
 
     if includeBackLinkInTimeline:
-        timeLine += f"\n[[{note.fileName}]]\n"
+        timeLine += f"""\n<div style="margin-left:2em">[[{note.fileName}]]\n</div>\n"""
     
     if includeGannt: 
         gantt += f"{ myTools.letters_and_numbers_only(note.title)} : {note.date}, 1d\n"
