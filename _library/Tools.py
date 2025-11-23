@@ -30,6 +30,8 @@ class NoteData:
     actionItems: List[str]
     archived: bool = False
     hasActionItems: bool = False
+    actionItemsWithComments: dict = field(default_factory=dict)
+
     private: bool = False # indicates that note is only for the vault owner's use
 
     def to_dict(self):
@@ -52,7 +54,8 @@ class NoteData:
             "backLinks": self.backLinks,
             "archived": self.archived,
             "hasActionItems": self.hasActionItems,
-            "actionItems": self.actionItems
+            "actionItems": self.actionItems,
+            "actionItemsWithComments": self.actionItemsWithComments 
         }
       
     def __str__(self):
@@ -140,6 +143,39 @@ def obsidian_Encode_for_URI(input_string: str) -> str:
     encoded_string = input_string.replace(" ", "%20").replace("#", "%23").replace(":", "%3A").replace("/", "%2F").replace("%", "%25")
     return encoded_string
 
+def get_Note_from_id(noteId: str) -> NoteData:
+    """
+    Returns a NoteData object from a note Id.
+    
+    Args:
+        note id (str): The name of the note id.
+
+        """
+    
+    notes = get_Notes_as_list(myPreferences.root_pkv())
+    for note in notes:
+        if note.id == noteId:
+            return note
+
+    return NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)   
+
+
+def get_Note_from_fileName(noteFileName: str) -> NoteData:
+    """
+    Returns a NoteData object from a note file name.
+    
+    Args:
+        noteFileName (str): The name of the note file.
+
+        """
+    
+    notes = get_Notes_as_list(myPreferences.root_pkv())
+    for note in notes:
+        if note.fileName == noteFileName:
+            return note
+
+    return NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)   
+    
 def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
     
     notePathAndFile = os.path.join(notePath, noteFileName)
@@ -183,8 +219,44 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
     backLinks = get_note_backlinks(noteContent)
     hasActionItems = True if "[ ]" in body else False
     actionItems = [] 
+    actionItemsWithComments = {}
     for actionItem in re.findall(r'\[ \](.*)', body):  # Find all action items in the note body
         actionItems.append(actionItem.strip())
+       
+        # Extract details that follow the action item until the next "- [" or blank line
+        action_item_pattern = re.escape(actionItem)
+        # Find the position of this action item in the body
+        match = re.search(rf'\[ \]\s?{action_item_pattern}', body)
+        if match:
+            start_pos = match.end()
+            remaining_text = body[start_pos:]
+            nextLine = remaining_text.splitlines()[1].strip() if len(remaining_text.splitlines()) > 1 else ""
+            if "<comment>" in nextLine:
+                # Extract comment from <comment></comment> tags if present
+                comment_match = re.search(r'<comment>(.*?)</comment>',remaining_text, re.DOTALL)
+                actionItemComment = comment_match.group(1).strip() if comment_match else ""
+            else:
+                actionItemComment = ""
+
+        # # Extract details that follow the action item until the next "- [" or blank line
+        # action_item_pattern = re.escape(actionItem)
+        # # Find the position of this action item in the body
+        # match = re.search(rf'\[ \]\s?{action_item_pattern}', body)
+        # if match:
+        #     start_pos = match.end()
+        #     # Extract text from after the action item to the next "- [" or blank line
+        #     remaining_text = body[start_pos:]
+        #     # Find the end position (next "- [" or double newline)
+        #     end_match = re.search(r'(\n\s*- \[|\n\s*\n)', remaining_text)
+        #     if end_match:
+        #         actionItemDetails = remaining_text[:end_match.start()].strip()
+        #     else:
+        #         actionItemDetails = remaining_text.strip()
+        # else:
+        #     actionItemDetails = ""
+
+            actionItemsWithComments[actionItem.strip()] = actionItemComment
+        
 
     # Replace the dictionary with an instance of the Note dataclass
     note = NoteData(
@@ -206,7 +278,8 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
         backLinks = backLinks,
         archived = archived,
         hasActionItems = hasActionItems,
-        actionItems = actionItems
+        actionItems = actionItems,
+        actionItemsWithComments = actionItemsWithComments
     )
 
     return note
