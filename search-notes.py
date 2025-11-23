@@ -114,7 +114,7 @@ def quitSearch(searchLog):
 
 # collect input parameters
 if len(sys.argv) > 1:
-    print ("debug args:",' '.join(sys.argv[1:]))
+    #print ("debug args:",' '.join(sys.argv[1:]))
     args = sys.argv[1:]
 
     searchPart = ""

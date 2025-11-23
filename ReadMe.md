@@ -20,6 +20,7 @@ Cloud storage and backup are achieved by leveraging existing corporate infrastru
 >*Hint* Consider calling `git init` in your value to give yourself local backups and roll back points. See [Version Control](#Version_Control) section.
 
 ## Vault Structure
+
 ```zsh
 root/
 ├── _Attachments/
@@ -232,7 +233,6 @@ If you want to use your own templates, use the `Edit-Preferences` command to ope
 Attachments and screen captures can be added to the PKV root or to the root of a specific project using the `Add-Attachment` and `Add-ScreenCapture` commands.
 
 These commands will brows the default attachment and screen capture pick up locations and then move the selected file to the appropriate attachment folder.  You can then use the double square bracket `[[filename.txt]]` syntax in your note to include a link or web standard links `[display value](url)`
-
 
 
 # Finding stuff
