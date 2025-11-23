@@ -42,7 +42,8 @@ def main():
         newBody = note.noteBody 
 
         #replace project name in front matter of all notes in the project folder
-        newFrontMatter = re.sub(r'project:\s*.*(?=$|\s)', f'project: {newProjectName}', newFrontMatter)
+        if note.project == oldProjectName:
+            newFrontMatter = re.sub(f'project:\\s{oldProjectName}(?=$|\\s)', f'project: {newProjectName}', newFrontMatter)
 
         #replace project name tags in front matter
         oldTag = myTools.generate_tag_from_projectName(oldProjectName)
