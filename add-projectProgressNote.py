@@ -17,8 +17,8 @@ The script handles two modes:
 """
 
 
-
 import os
+import sys
 from datetime import datetime
 
 #my stuff
@@ -32,8 +32,11 @@ from _library import VersionControl as myVersionControl
 template_pathRoot = myPreferences.root_templates()
 
 
-def main():
-    projects, selectedProjectName, selectedProjectIndex = myInputs.select_project_name_withDict(showNewProjectOption=False)
+
+def main(selectedProjectName=""):
+
+    if selectedProjectName == "":
+        projects, selectedProjectName, selectedProjectIndex = myInputs.select_project_name_withDict(showNewProjectOption=False)
     
     if selectedProjectName is None or selectedProjectName == "":
         print(f"{myTerminal.ERROR}No project selected. Please select a project first.{myTerminal.RESET}")
@@ -116,5 +119,12 @@ def main():
         os.system(f'{myPreferences.default_editor()} "{output_path}"')
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 1:
+        #print ("debug args:",' '.join(sys.argv[1:]))
+        args = sys.argv[1:]
+        selectedProjectName = args[0].replace('"','')
+        main(selectedProjectName)
+    else:
+        main("")
+
     print(f"{myTerminal.SUCCESS}Done{myTerminal.RESET}")
