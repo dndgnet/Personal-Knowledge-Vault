@@ -385,6 +385,8 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
             templateTagValue = selectedProjectName
         elif templateTag in ("Current User","User","Username","Author","author"):
             templateTagValue = myPreferences.author_name()
+        elif templateTag.upper() in ("CHECKBOX_UNCHECKED","CHECKBOX_EMPTY", "TASK CHECKBOX"):
+            templateTagValue = "- [ ]"
         elif templateTag in ["tags","Tags","TAGS"]:
             if myPreferences.show_tag_prompt():
                 #ask the user for tags
@@ -399,6 +401,9 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
                 templateTagValue = ""
         else:
             templateTagValue = input(f"{myTerminal.INPUTPROMPT}Enter value for [{templateTag}]: {myTerminal.RESET}").strip()
+            
+            if templateTag.upper() in ("ASSIGNED TO","TASK OWNER", "OWNER") and templateTagValue == "":
+                templateTagValue = myPreferences.author_name()
 
         note_Content = note_Content.replace(f"[{templateTag}]", templateTagValue)
         

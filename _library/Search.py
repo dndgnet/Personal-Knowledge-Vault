@@ -40,12 +40,17 @@ def search_project(notes: List[NoteData], searchPart = "") -> Tuple[str, List[No
         selectedProject = searchPart
 
     results = []
+    projectTag = myTools.generate_tag_from_projectName(selectedProject).replace("#","")
+
     if selectedProject is None or selectedProject == "":
         return "none, no project selected", notes
     else:
         for note in notes:
             if note.project == selectedProject:
                 results.append(note)
+            elif projectTag in note.tags:
+                results.append(note)
+
         return f"project = {selectedProject}", results
 
 def search_no_project(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:

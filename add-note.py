@@ -58,7 +58,12 @@ def main():
     os.makedirs(newNote_directory, exist_ok=True)
 
    #collect information that should be seeded into the note fields
-    selectedDateTime, title = myInputs.get_datetime_and_title_from_user("Enter the date and time for the note (or leave blank for system default):",datetime.now())
+    if noteType in ("task","milestone"):
+        selectedDateTime, title = myInputs.get_datetime_and_title_from_user("Enter the date and time for the note (or leave blank for system default):",datetime.now(),
+                                                                            titlePrompt="Enter a task/milestone short title")
+    else:
+        selectedDateTime, title = myInputs.get_datetime_and_title_from_user("Enter the date and time for the note (or leave blank for system default):",datetime.now())
+    
     timestamp_id = selectedDateTime.strftime(myPreferences.timestamp_id_format())
     timestamp_date = selectedDateTime.strftime(myPreferences.date_format())
     timestamp_full = selectedDateTime.strftime(myPreferences.datetime_format())
