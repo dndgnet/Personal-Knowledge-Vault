@@ -72,7 +72,7 @@ if input_string.isdigit() and 1 <= int(input_string) <= fileIndex:
     newNoteBody = selectedNote.noteBody
     if selectedNoteId != 0:
         if "### Attachments" not in selectedNote.noteBody:
-            newNoteBody +=  "\n\n### Attachments\n\n"
+            newNoteBody +=  "\n\n\n### Attachments\n\n"
         
         newNoteBody += f"""\n\n[{selected_file}](./_Attachments/{attachment_file_name})\n"""
 

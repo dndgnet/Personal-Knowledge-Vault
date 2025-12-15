@@ -415,7 +415,7 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
         selectedFile, attachmentTagValue = select_attachment_from_user(projectName=selectedProjectName, uniqueIdentifier=timestamp_id)
         if attachmentTagValue != "":
             if attachmentCount == 0:
-                note_Content += "\n#### Attachments\n"
+                note_Content += "\n\n#### Attachments\n"
             
             attachmentCount += 1
             note_Content += f"\n[{selectedFile}](./_Attachments/{attachmentTagValue})\n"
