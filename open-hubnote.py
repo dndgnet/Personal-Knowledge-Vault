@@ -5,7 +5,7 @@ from _library import Terminal as myTerminal
 from _library import Inputs as myInputs
 
 
-selectedNoteIndex, note = myInputs.select_recent_note(noteTypeContains="Hub",  showActionItems=True)
+selectedNoteIndex, note = myInputs.select_recent_note(noteTypeContains="Hub",  showActionItems=True, DaysToGoBack=3000)
 
 if selectedNoteIndex != 0:
     #open the preferences file in the default editor

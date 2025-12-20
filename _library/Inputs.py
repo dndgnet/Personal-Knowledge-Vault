@@ -279,13 +279,17 @@ def select_attachment_from_user(projectName="", uniqueIdentifier = "") -> tuple[
     return selected_file,newFileName
 
 def select_recent_note(noteTypeContains = "",  showActionItems = False, 
-                       groupByProject = True) -> tuple[int, NoteData]:
+                       groupByProject = True,
+                       DaysToGoBack = None) -> tuple[int, NoteData]:
     """
     Get the most recent note from the user.
     Returns the note ID and the NoteData object.
     """
-    
+    if DaysToGoBack is None:
+        DaysToGoBack = maxNumberOfDaysToGoBackWhenShowingNotes
+
     numberOfNotesToShow = maxNumberOfNotesToShow
+
 
     allNotes = myTools.get_Notes_as_list(myPreferences.root_pkv())
     sortedNotes = sorted(allNotes, key=lambda note: (note.project, note.date), reverse=True)
@@ -305,7 +309,7 @@ def select_recent_note(noteTypeContains = "",  showActionItems = False,
     project = ""
     for note in sortedNotes:
         if (noteTypeContains == "Any" or noteTypeContains.upper() == "ANY" 
-            or (noteTypeContains.upper() in note.type.upper()) and note.noteBody != "") and note.archived is False and note.date > (datetime.now() - timedelta(days=maxNumberOfDaysToGoBackWhenShowingNotes)).strftime(myPreferences.datetime_format()):
+            or (noteTypeContains.upper() in note.type.upper()) and note.noteBody != "") and note.archived is False and note.date > (datetime.now() - timedelta(days=DaysToGoBack)).strftime(myPreferences.datetime_format()):
             displayedNotes.append(note)
             noteIndex += 1
 

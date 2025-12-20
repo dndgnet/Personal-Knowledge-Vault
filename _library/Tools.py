@@ -348,9 +348,12 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
         configBody = {
                     "ProjectFolderName": f"{projectName}",
                     "ProjectName": f"{projectName}",
+                    "Programs": [],
                     "Archived": False,
                     "Sync": False,
-                    "PublicShareFolder": ""
+                    "PublicShareFolder": "",
+                    "Needs Weekly Progress Update": False,
+                    "Needs Monthly Progress Update": False
                     }
         with open(os.path.join(projectPath, ".ProjectConfig.json"), 'w', encoding='utf-8') as f:
             json.dump(configBody, f, indent=4)
