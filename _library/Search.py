@@ -102,7 +102,7 @@ def search_no_private_notes(notes: List[NoteData]) -> Tuple[str, List[NoteData]]
     for note in notes:
         if note.private is False:
             results.append(note)
-    return "notes are not private", results
+    return "no private notes", results
 
 def search_only_private_notes(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
     """

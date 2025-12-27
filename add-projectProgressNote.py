@@ -27,11 +27,10 @@ from _library import Inputs as myInputs
 from _library import Terminal as myTerminal
 from _library import Tools as myTools
 from _library import VersionControl as myVersionControl
+import re
 
 # Define the template and output paths
 template_pathRoot = myPreferences.root_templates()
-
-
 
 def main(selectedProjectName=""):
 
@@ -64,7 +63,7 @@ def main(selectedProjectName=""):
     os.makedirs(newNote_directory, exist_ok=True)
 
 
-   #collect information that should be seeded into the note fields
+    #collect information that should be seeded into the note fields
     selectedDateTime, title = datetime.now(), "Progress" #myInputs.get_datetime_and_title_from_user("Enter the date and time for the note (or leave blank for system default):",datetime.now())
     timestamp_id = selectedDateTime.strftime(myPreferences.timestamp_id_format())
     timestamp_date = selectedDateTime.strftime(myPreferences.date_format())
@@ -97,6 +96,59 @@ def main(selectedProjectName=""):
         note_Content = newFrontMatter+ "\n\n" + newNoteBody
         
     else:
+        if progressNoteExists:
+            # Extract summary section from the last progress note
+            sectionStart = lastProgressNote.noteBody.find("## Summary")
+            if sectionStart != -1:
+                # Find the next ## heading after Summary
+                nextHeadingStart = lastProgressNote.noteBody.find("##", sectionStart + 10)
+                if nextHeadingStart != -1:
+                    summarySection = lastProgressNote.noteBody[sectionStart:nextHeadingStart]
+                else:
+                    summarySection = lastProgressNote.noteBody[sectionStart:]
+                
+                # Remove content inside angle brackets
+                lastSummary = re.sub(r'<[^>]*>', '', summarySection).strip()
+                lastSummary = lastSummary.replace("## Summary", "").strip()
+            else:
+                lastSummary = ""
+
+            # Extract summary section from the last issues note
+            sectionStart = lastProgressNote.noteBody.find("## Issues and Impediments")
+            if sectionStart != -1:
+                # Find the next ## heading after Summary
+                nextHeadingStart = lastProgressNote.noteBody.find("##", sectionStart + 10)
+                if nextHeadingStart != -1:
+                    lastIssues = lastProgressNote.noteBody[sectionStart:nextHeadingStart]
+                else:
+                    lastIssues = lastProgressNote.noteBody[sectionStart:]
+                
+                # Remove content inside angle brackets
+                lastIssues = re.sub(r'<[^>]*>', '', lastIssues).strip()
+                lastIssues = lastIssues.replace("## Issues and Impediments", "").strip()
+            else:
+                lastIssues = ""
+
+            # Extract summary section from the last next Steps
+            sectionStart = lastProgressNote.noteBody.find("## Next Steps")
+            if sectionStart != -1:
+                # Find the next ## heading after Summary
+                nextHeadingStart = lastProgressNote.noteBody.find("##", sectionStart + 10)
+                if nextHeadingStart != -1:
+                    lastNextSteps = lastProgressNote.noteBody[sectionStart:nextHeadingStart]
+                else:
+                    lastNextSteps = lastProgressNote.noteBody[sectionStart:]
+                
+                # Remove content inside angle brackets
+                lastNextSteps = re.sub(r'<[^>]*>', '', lastNextSteps).strip()
+                lastNextSteps = lastNextSteps.replace("## Next Steps", "").strip()
+            else:
+                lastNextSteps = ""
+        else:
+            lastSummary = ""
+            lastIssues = ""
+            lastNextSteps = ""
+
         # Read the template content
         templateBody = myTools.read_templateBody(selectedTemplatePath)
         
@@ -104,6 +156,11 @@ def main(selectedProjectName=""):
                                                                 timestamp_full,selectedProjectName,
                                                                 title,
                                                                 templateBody)
+        
+        note_Content = note_Content.replace("<last summary>", lastSummary)
+        note_Content = note_Content.replace("<last Impediments>", lastIssues)
+        note_Content = note_Content.replace("<last next steps>", lastNextSteps)
+
     # Construct the output filename and path
     output_filename = f"{uniqueIdentifier}.md"
     output_path = os.path.join(newNote_directory, output_filename)

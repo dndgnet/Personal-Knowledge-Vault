@@ -348,6 +348,7 @@ def get_pkv_projects() -> dict:
     
     return projects
 
+dictProjectConfigs = {}
 def get_ProjectConfig_as_dict(projectName: str) -> dict:
     """
     Returns the project configuration for a given project name.
@@ -355,10 +356,14 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
     Args:
         projectName (str): The name of the project.
     """
+    global dictProjectConfigs
+    if projectName in dictProjectConfigs:
+        return dictProjectConfigs[projectName]
+    
     projectPath = os.path.join(myPreferences.root_projects(), projectName)
     
     if not os.path.isdir(projectPath):
-        print(f"{myTerminal.ERROR}Project '{projectName}' does not exist.{myTerminal.RESET}")
+        print(f"{myTerminal.ERROR}Project '{projectName}' path does not exist.{myTerminal.RESET}")
         return {}
 
     if not os.path.exists(os.path.join(projectPath, ".ProjectConfig.json")):
@@ -382,6 +387,7 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
     with open(configPath, 'r', encoding='utf-8') as f:
         try:
             config = json.load(f)
+            dictProjectConfigs[projectName] = config    
             return config
         except json.JSONDecodeError:
             print(f"{myTerminal.ERROR}Error decoding JSON from {configPath}{myTerminal.RESET}")

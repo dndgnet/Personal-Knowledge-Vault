@@ -85,7 +85,8 @@ line [{line.strip(', ')}]
 def generate_summary(summaryTitle: str, searchDescription: str, 
                      notes: list[NoteData],
                      includeBodyInTimeline: bool, 
-                     includeBackLinkInTimeline: bool, includeGannt: bool) -> str:
+                     includeBackLinkInTimeline: bool, includeGannt: bool, 
+                     includeTimelineAsList: bool) -> str:
     """
     Generate a project summary for the selected project based on the provided notes.
 
@@ -99,6 +100,7 @@ def generate_summary(summaryTitle: str, searchDescription: str,
 
     timeLine = ""
     gantt = ""
+    timelineAsList = ""
 
     for note in notes:
         note: NoteData = note  # type hint for better IDE support
@@ -118,6 +120,9 @@ def generate_summary(summaryTitle: str, searchDescription: str,
         if includeGannt: 
             gantt += f"{ myTools.letters_and_numbers_only(note.title)} : {note.date}, 1d\n"
 
+        if includeTimelineAsList:
+            timelineAsList += f"\n{note.date}\n-{note.title}\n"   
+
     if includeGannt:
         gantt = f"""
         
@@ -134,7 +139,13 @@ gantt
     
 ```
 """
-
+        
+    if includeTimelineAsList:
+        timelineAsList = f"""
+## Timeline as List 
+{timelineAsList}
+"""
+        
     summary = f"""
 # {summaryTitle} \n\n
 
@@ -143,6 +154,8 @@ gantt
 **search description**: {searchDescription}
 
 {gantt}
+
+{timelineAsList}
 
 ## Notes
 {timeLine}

@@ -81,7 +81,8 @@ def listSearchResults(searchResult, feedbackMessage=""):
             notes = searchResult,
             includeBodyInTimeline = True,
             includeBackLinkInTimeline = True,
-            includeGannt = True
+            includeGannt = True,
+            includeTimelineAsList = True
         )
 
         # use the dot prefix to hide the file in the project directory (at least in civilized file managers)
@@ -225,7 +226,7 @@ while continueSearch:
     print ("\t   u)  undo - undo the last search")
     print ("\t   l)  list - list current search results")
     print ("\t   x)  export - export and open results in editor")
-    print ("\t  q)  quit - Quit the search")
+    print ("\t   q)  quit - Quit the search")
     print ("\t","-"*20)
     
     inputChoice = input("Enter your choice: ").strip().lower()

@@ -45,21 +45,33 @@ Not stated, On Track, At Risk, Complete, Cancelled
 **Effort Actuals:**
 
 ## Summary
+<!--hidden last summary>
+<last summary>
+-->
 
 ## Achievements:
 <!-- hidden hints
 - Key milestones or deliverables.
+
+<last Achievements>
+
 -->
 
 
 ## Issues and Impediments:
 <!-- hidden hints
 - Challenges or blockers encountered.
+
+<last Impediments>
+
 -->
 
 
 ## Next Steps:
 <!-- hidden hints
   - briefly describe the next period or sprint
+
+<last next steps>
+
 -->
 
