@@ -85,8 +85,10 @@ def listSearchResults(searchResult, feedbackMessage=""):
             includeTimelineAsList = True
         )
 
-        # use the dot prefix to hide the file in the project directory (at least in civilized file managers)
-        output_path = os.path.join(myPreferences.root_pkv(), "_" + datetime.datetime.now().strftime("%Y-%m-%d") + " Search Timeline.md" )
+        # save the search restults timeline summary to _Search Timeline.md in the root_pkv directory
+        # by design, overwrite any existing _Search Timeline.md file, do not include a date or unique identifier in the filename
+        # or else there will be multiple files created over time that clog up the root_pkv directory and search results
+        output_path = os.path.join(myPreferences.root_pkv(), "_Search Timeline.md" )
 
         if os.path.exists(output_path):
             print(f"{myTerminal.WARNING}Search TimeLine already exists: {output_path}{myTerminal.RESET}")
@@ -330,7 +332,7 @@ date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
             searchResultBody += f"**Tags:** {', '.join(note.tags) if note.tags else 'No tags'}\n"
             searchResultBody += f"**Link:** [[{note.id}]]\n"
             searchResultBody += "\n\n"
-            searchResultBody += f"{note.noteBody.replace('---','')}\n\n"
+            # searchResultBody += f"{note.noteBody.replace('---','')}\n\n"
         
         searchResultFilePath = os.path.join(myPreferences.root_pkv(), ".SearchResults.md")
         with open(searchResultFilePath, 'w',encoding='utf-8') as file:

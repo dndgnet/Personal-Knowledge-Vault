@@ -662,13 +662,19 @@ def get_note_frontMatter(noteBody: str) -> str:
     Returns:
         str: The front matter of the note, if present; otherwise, an empty string.
     """
-    
-    frontMatter_match = re.search(r'^---\n(.*?)\n---', noteBody, re.DOTALL)
-    if frontMatter_match:
-        return frontMatter_match.group(1).strip()
-    
-    return ""
+    frontMatterStart = noteBody.find('---')
+    frontMatterEnd = noteBody.find('---', frontMatterStart + 3)
 
+    if frontMatterStart != -1 and frontMatterEnd != -1:
+        return noteBody[frontMatterStart + 3:frontMatterEnd].strip()
+    
+    return ""   
+    
+    # frontMatter_match = re.search(r'^---\n(.*?)\n---', noteBody, re.DOTALL)
+    # if frontMatter_match:
+    #     return frontMatter_match.group(1).strip()
+    
+    
 def get_note_body(noteBody: str) -> str:
     """
     Extracts the content of a note, excluding the front matter.
@@ -684,8 +690,9 @@ def get_note_body(noteBody: str) -> str:
     
     body = noteBody.replace(f"---\n{frontMatter}\n---", "").strip()
     
-    if "---" in body:
-        body = body.split("---", 1)[-1].strip()
+    #Removing this as some notes may not have front matter but still use --- to separate sections
+    # if "---" in body:
+    #     body = body.split("---", 1)[-1].strip()
     
     return body 
 
