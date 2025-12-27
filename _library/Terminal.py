@@ -29,3 +29,16 @@ def clearTerminal() -> None:
     This function works on both Windows and Unix-like systems.
     """
     os.system('cls' if os.name == 'nt' else 'clear')
+
+
+def getTerminalWidth() -> int:
+    """
+    Get the width of the terminal window in characters.
+    
+    Returns:
+        int: The width of the terminal window. Defaults to 80 if unable to determine.
+    """
+    try:
+        return os.get_terminal_size().columns
+    except OSError:
+        return 80  # Default width if terminal size cannot be determined

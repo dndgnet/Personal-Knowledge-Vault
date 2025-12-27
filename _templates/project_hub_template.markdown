@@ -104,7 +104,11 @@ gantt
 
 **Budget Amount:** $1000.00
 
+**Budget Hours:** 40
+
 **Contingency:** 10%
+
+**Time Tracker Code:** tbd
 
 
 # Risks

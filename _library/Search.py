@@ -70,6 +70,58 @@ def search_no_project(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
             results.append(note)
     return "project = None", results
 
+def search_no_archived_project(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
+    """
+    Search for notes in the given list that are not assigned to an archived project.
+
+    Args:
+        notes (List[NoteData]): List of NoteData objects.
+
+    Returns:
+        Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
+    """
+    
+    results = []
+    for note in notes:
+        if note.archivedProject is False:
+            results.append(note)
+    return "project is not archived", results
+
+def search_no_private_notes(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
+    """
+    Search for notes in the given list that are not marked as private.
+
+    Args:
+        notes (List[NoteData]): List of NoteData objects.
+
+    Returns:
+        Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
+    """
+    
+    results = []
+    for note in notes:
+        if note.private is False:
+            results.append(note)
+    return "notes are not private", results
+
+def search_only_private_notes(notes: List[NoteData]) -> Tuple[str, List[NoteData]]:
+    """
+    Search for only private notes
+
+    Args:
+        notes (List[NoteData]): List of NoteData objects.
+
+    Returns:
+        Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
+    """
+    
+    results = []
+    for note in notes:
+        if note.private is True:
+            results.append(note)
+
+    return "only private notes", results
+
 def search_date(notes: List[NoteData], startDate = "", endDate = "") -> Tuple[str, List[NoteData]]:
     """
     Search for notes in the given list that match the specified date range.

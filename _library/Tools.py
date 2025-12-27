@@ -33,6 +33,7 @@ class NoteData:
     actionItemsWithComments: dict = field(default_factory=dict)
 
     private: bool = False # indicates that note is only for the vault owner's use
+    archivedProject: bool = False # indicates that note belongs to an archived project
 
     def to_dict(self):
         return {
@@ -55,7 +56,8 @@ class NoteData:
             "archived": self.archived,
             "hasActionItems": self.hasActionItems,
             "actionItems": self.actionItems,
-            "actionItemsWithComments": self.actionItemsWithComments 
+            "actionItemsWithComments": self.actionItemsWithComments,
+            "archivedProject": self.archivedProject
         }
       
     def __str__(self):
@@ -201,6 +203,13 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
         uniqueIdentifier = noteFileName.split(".")[0].split("_")[0]  # Use the file name without extension as the unique identifier
 
     project = get_stringValue_from_frontMatter("project", frontMatter)
+    archivedProject = False
+    if project != "":
+        #todo cache project configs to avoid multiple reads
+        projectConfig = get_ProjectConfig_as_dict(project)
+        if projectConfig.get("Archived", False) is True:
+            archivedProject = True
+
     type = get_stringValue_from_frontMatter("type", frontMatter)
     if type == "":
         type = "unknown"
@@ -209,8 +218,9 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
     keywords = get_listValue_from_frontMatter("keywords",frontMatter)
     retention = get_stringValue_from_frontMatter("retention", frontMatter)
     author = get_stringValue_from_frontMatter("author", frontMatter)
-    private = False if get_stringValue_from_frontMatter("private", frontMatter).lower in ("false","f","no","n") else True
+    private = True if get_stringValue_from_frontMatter("private", frontMatter).lower() in ("true","t","yes","y","positive") else False
     archived = True if get_stringValue_from_frontMatter("archived", frontMatter) == "True" else False
+    
 
     if title == "" or title is None:
         title = uniqueIdentifier
@@ -268,6 +278,7 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
         type = type,
         title = title,
         project = project,
+        archivedProject = archivedProject,
         tags = tags,
         keywords = keywords,
         retention = retention,
@@ -284,7 +295,7 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
 
     return note
 
-def get_Notes_as_list(target_dir: str, includePrivateNotes = True) -> list[NoteData]:
+def get_Notes_as_list(target_dir: str, includePrivateNotes = True, includeArchivedProjects = True) -> list[NoteData]:
     """
     Workhorse method to return a list of NoteData objects from the target directory.
     """
@@ -297,6 +308,12 @@ def get_Notes_as_list(target_dir: str, includePrivateNotes = True) -> list[NoteD
                 
                 if note.private is True and includePrivateNotes is False:
                     pass  # skip private notes if not including them
+                elif note.project != "" and includeArchivedProjects is False:
+                    projectConfig = get_ProjectConfig_as_dict(note.project)
+                    if projectConfig.get("Archived", False) is True:
+                        pass  # skip notes from archived projects
+                    else:
+                        noteList.append(note)
                 else:
                     noteList.append(note)
                     
