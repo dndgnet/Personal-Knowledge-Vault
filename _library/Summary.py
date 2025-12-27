@@ -121,7 +121,7 @@ def generate_summary(summaryTitle: str, searchDescription: str,
             gantt += f"{ myTools.letters_and_numbers_only(note.title)} : {note.date}, 1d\n"
 
         if includeTimelineAsList:
-            timelineAsList += f"\n{note.date[:10]}\n -{note.title}\n"   
+            timelineAsList += f"\n{note.date[:10]}\n- {note.title}\n"   
 
     if includeGannt:
         gantt = f"""
