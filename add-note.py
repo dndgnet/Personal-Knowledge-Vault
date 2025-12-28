@@ -68,7 +68,6 @@ def main():
     timestamp_date = selectedDateTime.strftime(myPreferences.date_format())
     timestamp_full = selectedDateTime.strftime(myPreferences.datetime_format())
     
-    titleLettersAndNumbers = myTools.letters_and_numbers_only(title)  # Limit to 200 characters and remove special characters
     uniqueIdentifier = myTools.generate_unique_identifier(timestamp_id, noteType, titleLettersAndNumbers)
 
     # Read the template content

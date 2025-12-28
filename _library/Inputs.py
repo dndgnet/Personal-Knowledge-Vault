@@ -58,7 +58,7 @@ def get_datetime_and_title_from_user(datePrompt = "enter a date time", defaultIf
     
     return d, title
     
-def select_project_name_withDict(showNewProjectOption = True, showNoProjectOption = True) -> tuple[dict,str, int]:
+def select_project_name_withDict(showNewProjectOption = True, showNoProjectOption = True, hideArchivedProjects = True) -> tuple[dict,str, int]:
     """
     Prompt the user to select a project from a list of available projects.
     If the user selects "No Project", return an empty string.
@@ -92,7 +92,7 @@ def select_project_name_withDict(showNewProjectOption = True, showNoProjectOptio
     for filename in sorted(os.listdir(myPreferences.root_projects())):
         if os.path.isdir(os.path.join(myPreferences.root_projects(), filename)):
             projectConfig = myTools.get_ProjectConfig_as_dict(filename)
-            if projectConfig.get("Archived", False):
+            if projectConfig.get("Archived", False) and hideArchivedProjects:
                 continue  # Skip archived projects
             else:
                 projectIndex += 1

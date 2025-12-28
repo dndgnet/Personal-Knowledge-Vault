@@ -82,6 +82,33 @@ _exampleEmptyPreferences = {
 
 ## Front Matter
 
+```
+---
+title: Event BU requests more transparent UTC to PST conversion statement
+id: 20251002000000 
+type: project-event
+created: 2025-10-02 12:31:20 
+modified: 2025-10-02 12:31:20 
+start date: 2025-10-01 00:00:00
+end date: 2025-10-05 00:00:00
+retention: Long
+tags: #p_UTC_Project
+keywords: 
+project: UTC Project
+author: dgordon
+private: No
+---
+```
+
+### Private
+
+Each note is determined to be private/public based on the front matter `private` property.  A front matter *private* property of 'True', 'Yes', or 'Y' will be seen as true and the note will not be included in public exports such as the project summary or progress reports.  A null or missing front matter private property, for example if your template does not include a private property, will be interpreted as *no, this note is not private*.
+
+
+
+
+
+
 TODO: talk about Zettelkasten basics
 - emphasize the importance of a YYYYMMDD date format 
 - explain tags vs. keywords
@@ -89,10 +116,31 @@ TODO: talk about Zettelkasten basics
 - explain retention
   - Short, Medium, and Long: at some point we will need a command to delete notes based on the retention.  The logic is tbd so for now just record the author's intent.
 
+
+
+
 ## Projects
 
 TODO: explain why projects get their own folders
 - expect that a project might have to be exported or share with other users
+
+### Project Configuration 
+
+```json
+{
+    "ProjectFolderName": "UTC Project",
+    "ProjectName": "UTC Project",
+    "Archived": true,
+    "Sync": false,
+    "PublicShareFolder": "",
+    "Needs Weekly Progress Update": false,
+    "Needs Monthly Progress Update": true
+}
+```
+
+The `Archived` property is intended be a 'cold storage' for content that you are pretty sure you won't need in the immediate future. The `Archived` property does not move or destroy content, it only makes it less visible to your search/export behavior to keep your notes cleaner.  
+
+
 
 ### TODO: explain the project summary
 
@@ -108,6 +156,7 @@ The script `build-projectSummary.py` generates a summary report for a selected p
 - **Graph Generation**: Creates visual graphs (using Mermaid syntax) for actual expenses and progress over time if enough data is available.
 - **Timeline & Gantt Chart**: Builds a timeline of project notes and optionally a Gantt chart.
   - private notes are not included
+  - if the note duration, based on start/end date is 1 day or less the Gantt visualization presents as a 1 day event.
 - **Summary File Creation**: Compiles all the above into a Markdown summary file (`.ProjectSummary.md`) in the project’s folder.
 - **Output**: Opens the summary in your default editor and browser for review.
 The script is interactive and designed to help you quickly visualize and review the status and history of a project.
@@ -241,28 +290,69 @@ These commands will brows the default attachment and screen capture pick up loca
 todo: 
 
 ```zsh
-david@Davids-Laptop Personal-Knowledge-Vault % ./Search-Notes.py
+david@Davids-Laptop Personal-Knowledge-Vault % ./search-notes.py
 
-Search list results
-40 notes found.
+Found 351 notes matching the search criteria.
 
 Search options:
-	 p)  project - Search by project
-	 d)  date range - Search by note date
-	 ta) tags - Search by tags
-	 ti) title - Search by title
-	 b)  body - Search by body text
+	   d)  date range - Search by note date
+	  ta) tags - Search by tags
+	  ti) title - Search by title
+	  b)  body - Search by body text
+
+	   p)  project - Search by project
+	  np) No project - Search for notes not attached to  project
+	 nap) Not an archived project - Search for notes not attached to an archived project
+
+	 npn) No private notes - Search excluding private notes
+	 opn) Only private notes - Search for only private notes
 	 --------------------
 Commands:
-	 h)  history - show search history
-	 u)  undo - undo the last search
-	 l)  list - list current search results
-	 x)  export - export and open results in editor
-	 q)  quit - Quit the search
+	   h)  history - show search history
+	   u)  undo - undo the last search
+	   l)  list - list current search results
+	   x)  export - export and open results in editor
+	   q)  quit - Quit the search
 	 --------------------
+Enter your choice: 
 ```
 
-todo explain that title and body search are now case insensitive.
+### Search behavior
+
+Searches are cumulative, each search applies within the previous search results.  
+
+For example, to find any where a *UTC Project* note makes reference to *Fred* and *Python* - 
+
+```mermaid
+graph LR
+    A[project = 'UTC Project'] --pipes into--> B[body contains 'Fred']
+    B --pipes into--> C[body contains 'Python'] --> R(Results)
+```
+
+The `undo` command completely undoes the last search. Each subsequent `undo` goes one step back in the search history.  This makes it possible to truly search and discover history.  Consider limiting notes to a project.  From there body/undo searches can be mixed to search for key words until you find the pattern you want.
+
+The `project` search limits search results notes from the selected project **and** notes that include the project tag.  For example, a *UTC Project* search will find notes written directly under that project heading as well as staff one on ones where the staff mention the project (and you used the `#p_UTC_Project` tag.)
+
+The `no project` search limits results to notes that are not directly under a project.  It does **not** exclude notes that include a project tag.
+
+The `not archived project` search limits search results to active projects.  
+
+> hint: use the [project config file](ReadMe.md#project-configuration) to archive a project when you are done with it. 
+
+`No Private Notes` and `Only Private notes` limit search results based on the note private property.  
+
+The `export` command will export a *simple* human readable list of your search criteria and search results before closing the search.
+
+The `list` command will display an itemized list of your search results.  Once displayed you can open individual notes, export a *complicated* search results document including timelines and note bodies before continuing the search.
+
+
+todo: explain parameter injection
+
+Including parameters at the when the search is invoked potentially lets the user complete a search in a single step
+
+`search-notes.py -lastweek` returns notes from last week based on the note start/create date.  Also have `[today, yesterday, lastweek, lastmonth]`.
+
+`search-notes.y -b UTC project` returns notes that include the case insensitive string *utc project* in the note body.
 
 
 
@@ -302,4 +392,4 @@ Open vault in terminal
 `git init` to initialize the vault.
 `git add .` to add all of the existing notes.
 `git commit -m"my initial commit after starting to use version control in my vault` to commit your existing notes.
-edit your prferences and change `use_versionControl = "True"`
+edit your preferences and change `use_versionControl = "True"`

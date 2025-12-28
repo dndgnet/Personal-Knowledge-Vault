@@ -321,16 +321,24 @@ while continueSearch:
 title: Search Results 
 date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 ---
+# Search Steps
 
+"""
+        for search in searchLog.splitlines()[1:]:
+            searchResultBody += f"- {search}\n"
+
+        
+        searchResultBody += f"""
 # Search Results {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 """
+
         for note in searchResult:
             searchResultBody += f"\n## {note.title}\n"
             searchResultBody += f"**Project:** {note.project}\n"
             searchResultBody += f"**Date:** {note.date}\n"
             searchResultBody += f"**Tags:** {', '.join(note.tags) if note.tags else 'No tags'}\n"
-            searchResultBody += f"**Link:** [[{note.id}]]\n"
+            searchResultBody += f"**Link:** [[{note.fileName}]]\n"
             searchResultBody += "\n\n"
             # searchResultBody += f"{note.noteBody.replace('---','')}\n\n"
         
@@ -338,7 +346,7 @@ date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         with open(searchResultFilePath, 'w',encoding='utf-8') as file:
             file.write(searchResultBody)
         
-        continueSearch = False    
+        continueSearch = True    
         print(f"{myTerminal.INFORMATION}Search results saved to {searchResultFilePath}{myTerminal.RESET}")
         os.system(f"""{myPreferences.default_editor()} "{searchResultFilePath}" """)
 

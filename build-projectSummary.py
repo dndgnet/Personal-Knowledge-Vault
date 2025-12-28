@@ -171,6 +171,10 @@ dictProgress = {}
 for note in notes:
     note: NoteData = note  # type hint for better IDE support
     
+    if note.private:
+        # skip private notes
+        continue
+
     # find the hub note status update note, put it at the top of the output
     if hubNote == "" and (note.type == "hub" or note.type == "project-hub"):
         budgetStr = myTools.get_stringValue_from_noteBody("**Budget Amount:**", note.noteBody)
@@ -212,7 +216,10 @@ for note in notes:
         timeLine += f"""\n<div style="margin-left:2em">[[{note.fileName}]]\n</div>\n"""
     
     if includeGannt: 
-        gantt += f"{ myTools.letters_and_numbers_only(note.title)} : {note.date}, 1d\n"
+        if note.endDate == "" or note.date[:10] == note.endDate[:10]:
+            gantt += f"{ myTools.letters_and_numbers_only(note.title)} : {note.date[:10]}, 1d\n"
+        else:
+            gantt += f"{ myTools.letters_and_numbers_only(note.title)} : {note.date[:10]}, {note.endDate[:10]}\n"
 
     #debug
     #print(f"{myTerminal.INFORMATION}{note.date:<20} {note.project[:30]:<31} {note.title[:30]:<31}{myTerminal.RESET}")

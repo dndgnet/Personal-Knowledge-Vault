@@ -31,10 +31,11 @@ class NoteData:
     archived: bool = False
     hasActionItems: bool = False
     actionItemsWithComments: dict = field(default_factory=dict)
-
+    
     private: bool = False # indicates that note is only for the vault owner's use
     archivedProject: bool = False # indicates that note belongs to an archived project
-
+    endDate: str = ""  # optional end date for gantt charts
+    
     def to_dict(self):
         return {
             "id": self.id,
@@ -57,7 +58,8 @@ class NoteData:
             "hasActionItems": self.hasActionItems,
             "actionItems": self.actionItems,
             "actionItemsWithComments": self.actionItemsWithComments,
-            "archivedProject": self.archivedProject
+            "archivedProject": self.archivedProject,
+            "endDate": self.endDate
         }
       
     def __str__(self):
@@ -192,7 +194,8 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
     frontMatter = get_note_frontMatter(noteContent)
     
     osFileDateTime = datetime.datetime.fromtimestamp(os.path.getmtime(notePathAndFile)).strftime("%Y-%m-%d %H:%M:%S")
-    date = get_note_date_from_frontMatter(frontMatter)
+    date = get_note_date_from_frontMatter(frontMatter, dateProperty = "start date")
+    dateEnd = get_note_date_from_frontMatter(frontMatter, dateProperty = "end date")
     
     if date == "":
         # If no date in front matter, use the file's last modified date
@@ -290,7 +293,8 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
         archived = archived,
         hasActionItems = hasActionItems,
         actionItems = actionItems,
-        actionItemsWithComments = actionItemsWithComments
+        actionItemsWithComments = actionItemsWithComments,
+        endDate = dateEnd
     )
 
     return note
@@ -710,9 +714,10 @@ def get_note_backlinks(noteBody: str) -> list:
     backlinks = re.findall(r'\[\[([^\]]+)\]\]', noteBody)
     return [backlink.strip() for backlink in backlinks if backlink.strip()]
 
-def get_note_date_from_frontMatter(frontMatter: str) -> str:
+def get_note_date_from_frontMatter(frontMatter: str, dateProperty ="start date") -> str:
     """
-    Extracts the date from the front matter of a note.
+    Extracts the desired date from the front matter of a note.  If the date is not found
+    the created date is returned.  If the note is created with PKV, the created date is always present.
     
     Args:
         frontMatter (str): The front matter of the note.
@@ -721,7 +726,7 @@ def get_note_date_from_frontMatter(frontMatter: str) -> str:
         str: The date of the note, if present; otherwise, an empty string.
     """
     
-    date_match = re.search(r'date:\s*(.*)', frontMatter.replace("*",""))
+    date_match = re.search(rf'{dateProperty}:\s*(.*)', frontMatter.replace("*",""))
     if date_match:
         return date_match.group(1).strip()
     
