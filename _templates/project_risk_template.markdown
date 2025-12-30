@@ -18,8 +18,14 @@ private: No
 
 ## Risk:
 **Impact**: [Impact (High/Medium/Low)]
+<!-- hidden hints
+High, Medium, Low
+-->
 
 **Likelihood**: [Likelihood (High/Medium/Low)]
+<!-- hidden hints
+High, Medium, Low
+-->
 
 **Description**: 
 

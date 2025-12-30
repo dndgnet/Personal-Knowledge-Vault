@@ -1,7 +1,7 @@
 ---
 title: Task [Title]
 id: [YYYYMMDDHHMMSS] 
-type: project-event
+type: project-task
 created: [YYYY-MM-DD HH:MM:SS] 
 modified: [YYYY-MM-DD HH:MM:SS]
 start date: [YYYY-MM-DD HH:MM:SS] 
@@ -12,10 +12,17 @@ keywords:
 project: [Project Name]
 author: [Current User]
 private: No
+ticket:
 ---
+
 # [Title]
 
 ## Task Management Details
+
+**State:**: Not Started
+<!-- hidden hints
+Not Started, In-progress, Testing, Complete, Cancelled
+-->
 
 **Planned Start**: [Date]
 
@@ -26,17 +33,29 @@ private: No
 **Actual End**: 
 
 **Estimated Effort**: 
+<!-- hidden hints
+effort in days
+-->
+
+**Percent Complete**:
+<!-- hidden hints
+estimate percent complete as a number
+-->
+
 
 **Actual Effort**:
 
 **Assigned to**: [Assigned To]
 
 
-## Task
+## Task 
 
 [CHECKBOX_UNCHECKED] [Title]
+<comments>
 
 [Task detail]
 
+</comments>
 
 ## Notes
+

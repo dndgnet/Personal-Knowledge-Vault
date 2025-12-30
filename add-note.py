@@ -36,7 +36,7 @@ def main():
 
     if selectedProjectName != "":
         noteTypeExists, existingNote = myTools.get_Note_Last_Project_Note_ByType(selectedProjectName, noteType)
-        if noteTypeExists and noteType not in ("event","email","chat","issue","idea"):
+        if noteTypeExists and noteType not in ("event","email","chat","issue","idea","task"):
             print(f"{myTerminal.WARNING} A note of type '{noteType}' already exists in project '{selectedProjectName}'{myTerminal.RESET}")
             print(f"  - {existingNote}")
             clone = myInputs.ask_yes_no("Do you want to clone this note?", default= False)
@@ -68,6 +68,7 @@ def main():
     timestamp_date = selectedDateTime.strftime(myPreferences.date_format())
     timestamp_full = selectedDateTime.strftime(myPreferences.datetime_format())
     
+    titleLettersAndNumbers = myTools.letters_and_numbers_only(title)  # Limit to 200 characters and remove special characters
     uniqueIdentifier = myTools.generate_unique_identifier(timestamp_id, noteType, titleLettersAndNumbers)
 
     # Read the template content

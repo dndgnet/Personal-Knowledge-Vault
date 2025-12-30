@@ -163,7 +163,6 @@ def get_Note_from_id(noteId: str) -> NoteData:
 
     return NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)   
 
-
 def get_Note_from_fileName(noteFileName: str) -> NoteData:
     """
     Returns a NoteData object from a note file name.
@@ -179,7 +178,41 @@ def get_Note_from_fileName(noteFileName: str) -> NoteData:
             return note
 
     return NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)   
+
+def get_Notes_from_Project(projectName: str) -> list[NoteData]:
+    """
+    Returns a list of NoteData objects from a project name.
     
+    Args:
+        projectName (str): The name of the project.
+
+        """
+    
+    notesInProject = []
+    notes = get_Notes_as_list(myPreferences.root_pkv())
+    for note in notes:
+        if note.project == projectName:
+            notesInProject.append(note)
+
+    return notesInProject
+
+def get_TaskNotes_from_Project(projectName: str) -> list[NoteData]:
+    """
+    Returns a list of NoteData objects of type 'task' from a project name.
+    
+    Args:
+        projectName (str): The name of the project.
+
+        """
+    
+    taskNotesInProject = []
+    notes = get_Notes_as_list(myPreferences.root_pkv())
+    for note in notes:
+        if note.project == projectName and note.type.lower() == "project-task":
+            taskNotesInProject.append(note)
+
+    return taskNotesInProject
+  
 def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
     
     notePathAndFile = os.path.join(notePath, noteFileName)
@@ -352,6 +385,7 @@ def get_pkv_projects() -> dict:
     
     return projects
 
+#global declaration for caching project configs
 dictProjectConfigs = {}
 def get_ProjectConfig_as_dict(projectName: str) -> dict:
     """
@@ -678,7 +712,6 @@ def get_note_frontMatter(noteBody: str) -> str:
     # if frontMatter_match:
     #     return frontMatter_match.group(1).strip()
     
-    
 def get_note_body(noteBody: str) -> str:
     """
     Extracts the content of a note, excluding the front matter.
@@ -811,7 +844,21 @@ def get_stringValue_from_noteBody(valueLabel:str,noteBody: str) -> str:
     
     # match = re.search(pattern, frontMatter)
     if match:
-        return match.group(1).strip()
+        # most label/value pairs will be in the format of "**Label**: value"
+        # or "**Label:** value" so we need to remove the leading colon and asterisks
+        value = match.group(1).strip()
+        if value.startswith("**:"):
+            value = value[3:].strip()
+        elif value.startswith("*:"):
+            value = value[2:].strip()   
+        elif value.startswith(":"):
+            value = value[1:].strip()
+        elif value.startswith(":**"):
+            value = value[3:].strip()
+        elif value.startswith(":*"):
+            value = value[2:].strip()   
+
+        return value
     else:
         return ""
 
@@ -1001,6 +1048,7 @@ def get_Note_Last_Project_Note_ByType(projectName: str, noteType: str) -> tuple[
             return True, note  # Return the first matching note
            
     return False, NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)
+
 # todo at some point dumping and loading notes to/from JSON files would be useful
 # for now, at least with small vaults, the entire vault can be loaded into memory 
 # so quickly that we don't need to get fancy.
