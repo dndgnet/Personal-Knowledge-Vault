@@ -30,7 +30,16 @@ def clearTerminal() -> None:
     """
     os.system('cls' if os.name == 'nt' else 'clear')
 
-
+def print_separator(separator: str = "-", length: int = 80) -> None:
+    """
+    Prints a separator line to the console.
+    
+    Args:
+        separator (str): The character to use for the separator. Default is '-'.
+        length (int): The length of the separator line. Default is 80 characters.
+    """
+    print(separator * length)
+    
 def getTerminalWidth() -> int:
     """
     Get the width of the terminal window in characters.

@@ -7,6 +7,7 @@ import json
 import os
 import re
 import datetime
+import csv
 from decimal import Decimal
 from dataclasses import field  
 
@@ -84,15 +85,6 @@ def clearTerminal() -> None:
     """
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def print_separator(separator: str = "-", length: int = 80) -> None:
-    """
-    Prints a separator line to the console.
-    
-    Args:
-        separator (str): The character to use for the separator. Default is '-'.
-        length (int): The length of the separator line. Default is 80 characters.
-    """
-    print(separator * length)
 
 def letters_and_numbers_only(input_string: str, maxLength = 400) -> str:
     """
@@ -146,6 +138,27 @@ def obsidian_Encode_for_URI(input_string: str) -> str:
     """
     encoded_string = input_string.replace(" ", "%20").replace("#", "%23").replace(":", "%3A").replace("/", "%2F").replace("%", "%25")
     return encoded_string
+
+def read_csv_to_dict(full_path):
+    data = []
+    # Try different encodings
+    encodings = ['utf-8-sig', 'utf-8', 'latin-1', 'cp1252', 'iso-8859-1']
+    
+    for encoding in encodings:
+        try:
+            with open(full_path, mode='r', encoding=encoding) as csvFile:
+                reader = csv.DictReader(csvFile)
+                for row in reader:
+                    data.append(row)
+            print(f"Successfully read file using {encoding} encoding")
+            return data
+        except UnicodeDecodeError:
+            continue
+        except Exception as e:
+            print(f"Error with {encoding}: {e}")
+            continue
+    raise ValueError(f"Could not decode file with any of the attempted encodings: {encodings}")
+
 
 def get_Note_from_id(noteId: str) -> NoteData:
     """
