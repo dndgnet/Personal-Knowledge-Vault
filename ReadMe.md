@@ -80,6 +80,8 @@ _exampleEmptyPreferences = {
 >**WARNING**: consider backing up your preferences file before you make changes and make sure you understand your changes.  For example, if you provide a new `pkv_root` value you will essentially be creating a new vault and if you change the `timestamp_id_format` you will fundamentally alter how new unique ids are generated.
 
 
+>**WARNING**: Regional settings and data formats can be tricky. The United States, Mexico, Saudi Arabia, and others probably have good reasons for using the M-D-Y format, but the ISO 8601 pattern YYYY-MM-DD makes life so much easier and more predictable when working with dates in text form. While it is possible to adjust the PKV preferences to match a specific region, everything will go more smoothly if you stick to the default ISO 8601 pattern.
+
 ## Front Matter
 
 ```
