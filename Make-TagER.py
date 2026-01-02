@@ -96,7 +96,7 @@ output_path = os.path.join(myPreferences.root_pkv(),".TagERDiagram.md")
 
 if os.path.exists(output_path):
     print(f"{myTerminal.WARNING}Tag diagram already exists: {output_path}{myTerminal.RESET}")
-    if not myInputs.ask_yes_no("Do you want to overwrite it?", default=True):
+    if not myInputs.ask_yes_no_from_user("Do you want to overwrite it?", default=True):
         print(f"{myTerminal.INFORMATION}Exiting without changes.{myTerminal.RESET}")
         exit(0)
 

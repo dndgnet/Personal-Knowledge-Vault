@@ -41,6 +41,7 @@ from _library.Tools import NoteData
 from _library import Preferences as myPreferences
 from _library import Inputs as myInputs 
 from _library import HTML as myHTML
+from _library.Notes import sort_Notes_by_date
 
 def actuals_graph(actuals: dict, budget: Decimal) -> str:
     """
@@ -145,11 +146,11 @@ for note in notesAll:
         notes.append(note)
         print("debug project is a note", note.title)
 
-notes = myTools.sort_Notes_by_date(notes, descending=True)
+notes = sort_Notes_by_date(notes, descending=True)
 
-includeBodyInTimeline = myInputs.ask_yes_no("Include body in timeline?", default=False)
-includeBackLinkInTimeline = myInputs.ask_yes_no("Include backlinks in timeline?", default=False)
-includeGannt = myInputs.ask_yes_no("Include Gantt chart?", default=False)
+includeBodyInTimeline = myInputs.ask_yes_no_from_user("Include body in timeline?", default=False)
+includeBackLinkInTimeline = myInputs.ask_yes_no_from_user("Include backlinks in timeline?", default=False)
+includeGantt = myInputs.ask_yes_no_from_user("Include Gantt chart?", default=False)
  
 hubNote = ""
 progressBody = ""
@@ -215,7 +216,7 @@ for note in notes:
     if includeBackLinkInTimeline:
         timeLine += f"""\n<div style="margin-left:2em">[[{note.fileName}]]\n</div>\n"""
     
-    if includeGannt: 
+    if includeGantt: 
         if note.endDate == "" or note.date[:10] == note.endDate[:10]:
             gantt += f"{ myTools.letters_and_numbers_only(note.title)} : {note.date[:10]}, 1d\n"
         else:
@@ -224,7 +225,7 @@ for note in notes:
     #debug
     #print(f"{myTerminal.INFORMATION}{note.date:<20} {note.project[:30]:<31} {note.title[:30]:<31}{myTerminal.RESET}")
 
-if includeGannt:
+if includeGantt:
     gantt = f"""
     
 
@@ -287,7 +288,7 @@ output_path = os.path.join(myPreferences.root_projects(), selectedProject, ".Pro
 
 if os.path.exists(output_path):
     print(f"{myTerminal.WARNING}Project summary already exists: {output_path}{myTerminal.RESET}")
-    if not myInputs.ask_yes_no("Do you want to overwrite it?", default=True):
+    if not myInputs.ask_yes_no_from_user("Do you want to overwrite it?", default=True):
         print(f"{myTerminal.INFORMATION}Exiting without changes.{myTerminal.RESET}")
         exit(0)
 

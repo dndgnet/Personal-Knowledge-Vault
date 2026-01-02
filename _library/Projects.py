@@ -1,5 +1,5 @@
-from matplotlib.pyplot import title
-from . import Tools as myTools, Preferences as myPreferences, Inputs as myInputs, Terminal as myTerminal
+from . import Tools as myTools, Preferences as myPreferences, Inputs as myInputs, Terminal as myTerminal, Notes as myNotes
+from .Templates import read_Template, merge_template_with_values
 
 from dataclasses import dataclass
 from typing import List
@@ -7,9 +7,8 @@ from decimal import Decimal
 from dataclasses import field
 
 import os
-import sys
 import json 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 # KanBan board columns that we recognize
@@ -26,11 +25,12 @@ kanBanBoardColumns = {
 #desiredColumn:[list of possible synonyms in import file]
 importTaskColumnTranslation = {"ID":["ID","Task Identifier","Task Identifier","Task ID","TaskID","Task Id","Task id","Task_Id","Ticket","Ticket Number"],
     "Title":["Title","Task Name","Task","Task Title","Task_Title","Task_Name","Ticket Title","Ticket_Title"],
-    "Status":["Status","Task Status","Ticket Status","Ticket_Status"],
+    "Status":["State","Status","Task Status","Ticket Status","Ticket_Status"],
     "Start Date":["Start Date","Task Start Date","Start_Date","Task_Start_Date","Ticket Start Date","Ticket_Start_Date"],
     "Due Date":["Due Date","Task Due Date","Due_Date","Task_Due_Date","Ticket Due Date","Ticket_Due_Date"],
     "Assigned To":["Assigned To","Task Assigned To","Assigned_To","Task_Assigned_To","Ticket Assigned To","Ticket_Assigned_To"],
     "Closed Date":["Closed Date","Task Closed Date","Closed_Date","Task_Closed_Date","Ticket Closed Date","Ticket_Closed_Date"],
+    "Task Detail":["Task Detail","Task Details","Task_Detail","Task_Details","Ticket Detail","Ticket_Detail","Acceptance Criteria"],
     }
 
 @dataclass
@@ -106,12 +106,12 @@ class TaskData:
 # --- end dataclass ---
 
 
-def get_ProjectTasks(projectName: str) -> List[TaskData]:
+def load_ProjectTasks(projectName: str) -> List[TaskData]:
     """Returns a list of TaskData objects for the specified project."""
 
     allTasks: List[TaskData] = []
 
-    allNotes = myTools.get_TaskNotes_from_Project(projectName)
+    allNotes = myNotes.get_TaskNotes_from_Project(projectName)
 
     for note in allNotes:
         if note.project == projectName:
@@ -119,7 +119,6 @@ def get_ProjectTasks(projectName: str) -> List[TaskData]:
             allTasks.append(task)
 
     return allTasks
-
 
 def loadTaskFromNote(note) -> TaskData:
     """Loads a TaskData object from a Note object."""
@@ -141,11 +140,11 @@ def loadTaskFromNote(note) -> TaskData:
     stateString = myTools.get_stringValue_from_noteBody("State", note.noteBody)
     if stateString == "":
         stateString = "Not Started"
-    elif stateString.lower() in ["todo", "to do", "pending"]:
+    elif stateString.lower() in ["todo", "to do", "pending","new"]:
         stateString = "Not Started"
-    elif stateString.lower() in ["doing", "in progress", "ongoing"]:
+    elif stateString.lower() in ["doing", "in progress", "ongoing","active"]:
         stateString = "In Progress"
-    elif stateString.lower() in ["done", "completed", "finished"]:
+    elif stateString.lower() in ["done", "completed", "finished","closed", "ready for stakeholder review", "resolved"]:
         stateString = "Completed"
     elif stateString.lower() in ["cancelled", "canceled", "abandoned"]:
         stateString = "Cancelled"
@@ -165,7 +164,7 @@ def loadTaskFromNote(note) -> TaskData:
             "Actual Start", note.noteBody
         ),
         plannedEnd=myTools.get_stringValue_from_noteBody("Planned End", note.noteBody),
-        endDate=myTools.get_stringValue_from_noteBody("End Date", note.noteBody),
+        endDate=myTools.get_stringValue_from_noteBody("Actual End", note.noteBody),
         estimatedEffort=myTools.get_stringValue_from_noteBody(
             "Estimated Effort", note.noteBody
         ),
@@ -180,12 +179,26 @@ def loadTaskFromNote(note) -> TaskData:
 
     return task
 
-def kanban_diagram_by_state(project_name: str, ticketBaseUrl:str = "") -> str:
+def sort_Tasks_by_date(tasks: list[TaskData], descending: bool = True) -> list[TaskData]:
+    """
+    Sorts a list of TaskData objects by date.
+    
+    Args:
+        tasks (list[TaskData]): The list of TaskData objects to sort.
+        reverse (bool): If True, sorts in descending order; if False, sorts in ascending order. Default is True.
+        
+    Returns:
+        list[TaskData]: The sorted list of TaskData objects.
+    """
+    
+    return sorted(tasks, key=lambda task: task.date, reverse=descending)
+
+def diagram_kanban_by_state(project_name: str, ticketBaseUrl:str = "") -> str:
     """Generates a KanBan diagram data structure for tasks in a project, grouped by state.
     if ticketBaseUrl is provided, it will be used to create links for tickets in the diagram.
     """
 
-    tasks = get_ProjectTasks(project_name)
+    tasks = load_ProjectTasks(project_name)
 
     projectBoardBuckets = {}
     cardStart = "@{"
@@ -230,13 +243,12 @@ kanban
 
     return board
 
-
-def kanban_diagram_by_assigned(project_name: str, ticketBaseUrl:str = "") -> str:
+def diagram_kanban_by_assigned(project_name: str, ticketBaseUrl:str = "") -> str:
     """Generates a KanBan diagram data structure for tasks in a project, grouped by assigned to.
     if ticketBaseUrl is provided, it will be used to create links for tickets in the diagram.
     """
 
-    tasks = get_ProjectTasks(project_name)
+    tasks = load_ProjectTasks(project_name)
 
     projectBoardBuckets = {}
     cardStart = "@{"
@@ -272,8 +284,6 @@ kanban:
 ---
 kanban
 """
-
-
     #add cards to board
     for bucket, cardString in projectBoardBuckets.items():
         board += f"{bucket}\n{cardString}\n"
@@ -285,7 +295,72 @@ kanban
 
     return board
 
-def translate_TaskImport_Columns(FullPath) -> list:
+def diagram_Gantt_tasks(project_name: str) -> str:    
+    """Generates a Gantt diagram data structure for tasks in a project.
+    """
+
+    tasks = load_ProjectTasks(project_name)
+    tasks = sort_Tasks_by_date(tasks, descending=False)
+
+    gantt = f""" 
+```mermaid      
+gantt
+    dateFormat  YYYY-MM-DD
+    title {project_name} - Project Tasks Gantt Chart
+    excludes    weekends
+"""
+    for task in tasks:
+        startDate = (task.plannedStart if task.plannedStart != "" else task.actualStart)[:10]
+        endDate = (task.plannedEnd if task.plannedEnd != "" else task.endDate)[:10]
+        if endDate == "" and startDate != "":
+            #endDate = (datetime.strptime(startDate, "%Y-%m-%d") + timedelta(days=15)).strftime("%Y-%m-%d")
+            endDate = (datetime.now() + timedelta(days=5)).strftime("%Y-%m-%d")
+
+        if task.state.lower() in ["completed", "done", "finished"] :
+            state = "done"
+        elif task.state.lower() in ["in progress", "ongoing", "doing"]:
+            state = "active"
+        else:
+            state = "planned"        
+
+        if startDate != "" and endDate != "":
+            gantt += f"    {myTools.letters_and_numbers_only(task.title)} :{state}, {task.id}, {startDate}, {endDate}\n"
+
+    gantt += """
+```
+""" 
+    return gantt    
+
+def diagram_Gantt_notes(project_name: str, includePrivateNotes: bool) -> str:    
+    """Generates a Gantt diagram data structure for notes in a project.
+    """
+
+    notes = myNotes.get_Notes_from_Project(project_name)
+    notes = myNotes.sort_Notes_by_date(notes, descending=False)
+
+    gantt = f""" 
+```mermaid      
+gantt
+    dateFormat  YYYY-MM-DD
+    title {project_name} - Project Tasks Gantt Chart
+    excludes    weekends
+"""
+    for note in notes:
+        if includePrivateNotes or not note.private :
+            startDate = note.date[:10]
+            endDate = (note.endDate if (note.endDate != "" and note.endDate != note.date) else "1d")[:10]
+            
+            state = "done"
+            
+            if startDate != "" and endDate != "":
+                gantt += f"    {myTools.letters_and_numbers_only(note.title)} :{state}, {note.id}, {startDate}, {endDate}\n"
+
+    gantt += """
+```
+""" 
+    return gantt   
+
+def _translate_TaskImport_Columns(FullPath) -> list:
     """
     Translates imported column names to desired column names based on synonyms.
     Assumes, hopes that dates are provided in yyyy-mm-dd format.
@@ -311,7 +386,7 @@ def translate_TaskImport_Columns(FullPath) -> list:
 
     return translatedTasks
 
-def make_task_note_content_from_imported_task(selectedProjectName: str, importedTask: dict) -> bool:
+def _make_task_note_content_from_imported_task(selectedProjectName: str, importedTask: dict) -> bool:
     """
     Creates the content for a task note from an imported task dictionary.
     """
@@ -343,73 +418,123 @@ def make_task_note_content_from_imported_task(selectedProjectName: str, imported
     newNote_directory = os.path.join(myPreferences.root_projects(), selectedProjectName)    
     os.makedirs(newNote_directory, exist_ok=True)
 
-
     #collect information that should be seeded into the note fields
-    selectedDateTime, title = datetime.now(), importedTask.get("Title", "Untitled Task") #myInputs.get_datetime_and_title_from_user("Enter the date and time for the note (or leave blank for system default):",datetime.now())
+    selectedDateTime = datetime.now()
     timestamp_id = selectedDateTime.strftime(myPreferences.timestamp_id_format())
-    timestamp_date = selectedDateTime.strftime(myPreferences.date_format())
     timestamp_full = selectedDateTime.strftime(myPreferences.datetime_format())
+
+    # Read the template content
+    templateBody = read_Template(selectedTemplatePath)
     
-    titleLettersAndNumbers = myTools.letters_and_numbers_only(title)  # Limit to 200 characters and remove special characters
-    uniqueIdentifier = myTools.generate_unique_identifier(timestamp_id, noteType, titleLettersAndNumbers)
+    noteDict = {"Title": importedTask.get("Title","Untitled Task"),
+                "tags": "",
+                "Project Name": selectedProjectName,
+                "State - Not Started, In-progress, Testing, Complete, Cancelled": importedTask.get("Status","Not Started"),
+                "ticket number": importedTask.get("ID",""),
+                "plannedStart": importedTask.get("Start Date","").replace("a.m.","").replace("p.m.",""),
+                "actualStart": importedTask.get("Start Date","").replace("a.m.","").replace("p.m.",""),
+                "plannedEnd": importedTask.get("Due Date","").replace("a.m.","").replace("p.m.",""),
+                "actualEnd": importedTask.get("Closed Date","").replace("a.m.","").replace("p.m.",""),
+                "Assigned To": importedTask.get("Assigned To","Unassigned"),
+                "Task detail": importedTask.get("Task Detail",""),
+                }
+
+    uniqueIdentifier, note_Content = merge_template_with_values(timestamp_id, timestamp_full, selectedProjectName, 
+                               template = templateBody, 
+                               mergeData = noteDict,
+                               runSilent = True)
+    
     # Construct the output filename and path
     output_filename = f"{uniqueIdentifier}.md"
     output_path = os.path.join(newNote_directory, output_filename)
-
-    # Read the template content
-    templateBody = myTools.read_templateBody(selectedTemplatePath)
-    
-    noteDict = {"Project Name": selectedProjectName,
-                "actualStart": importedTask.get("Start Date",""),
-                "plannedEnd": importedTask.get("Due Date",""),
-                "Closed Date": importedTask.get("Closed Date",""),
-                "Title": importedTask.get("Title","Untitled Task"),
-                "Task detail": "",
-                "State - Not Started, In-progress, Testing, Complete, Cancelled": importedTask.get("Status","Not Started"),
-                "Assigned To": importedTask.get("Assigned To","Unassigned"),
-                }
-
-    timestamp_id, title, note_Content = myInputs.get_templateMerge_Values_From_ExistingData(noteDict,templateBody)
-
-    note_Content = myInputs.get_templateMerge_Values_From_User(timestamp_id,timestamp_date,
-                                                            timestamp_full,selectedProjectName,
-                                                            title,
-                                                            templateBody) 
- 
-  
 
     # Save the new note
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(note_Content)
 
-    print(f"{myTerminal.SUCCESS}Note created:{myTerminal.RESET} {output_path}")
+    print(f"\t{myTerminal.SUCCESS}Note created:{myTerminal.RESET}")
+    return True
+
+def _update_existing_task_from_csv_import(projectName:str,csvTaskDict: dict, pkvTask: TaskData) -> bool:
+    """
+    Updates an existing project task from an imported task dictionary.
+    """
+    containsChange = False
+    print (f"Task: {csvTaskDict['Title']} ({csvTaskDict['ID']}) already exists.")
+    if pkvTask.assignedTo.strip() != csvTaskDict['Assigned To'].strip():
+        containsChange = True
+        print("\tAssigned To changed:")
+        print (f"\t\t{pkvTask.assignedTo} -> \n\t\t{csvTaskDict['Assigned To']}")
+    
+    if pkvTask.state.strip() != csvTaskDict['Status'].strip():
+        containsChange = True
+        print("\tStatus changed:")
+        print (f"\t\t{pkvTask.state} -> \n\t\t{csvTaskDict['Status']}")
+    
+    if pkvTask.actualStart.strip() != csvTaskDict['Start Date'].replace('a.m.','').replace('p.m.','').strip():
+        containsChange = True
+        print("\tActual Start changed:")
+        print (f"\t\t{pkvTask.actualStart} -> \n\t\t{csvTaskDict['Start Date'].replace('a.m.','').replace('p.m.','')}")
+    
+    if pkvTask.plannedEnd.strip() != csvTaskDict['Due Date'].replace('a.m.','').replace('p.m.','').strip():
+        containsChange = True
+        print("\tPlanned End changed:")
+        print (f"\t\t{pkvTask.plannedEnd} -> \n\t\t{csvTaskDict['Due Date'].replace('a.m.','').replace('p.m.','')}")
+    
+    if pkvTask.endDate.strip() != csvTaskDict['Closed Date'].replace('a.m.','').replace('p.m.','').strip():
+        containsChange = True
+        print ("\tActual End changed:")
+        print (f"\t\t{pkvTask.endDate} -> \n\t\t{csvTaskDict['Closed Date'].replace('a.m.','').replace('p.m.','')}")
+    
+    if not containsChange:
+        print ("\tNo changes detected.")
+        return True        
+    proceed = myInputs.ask_yes_no_from_user("Update this task?", default=True)
+    
+    if proceed:
+        noteBody = myNotes.read_Note_from_path(pkvTask.filePath)
+        noteBody = myNotes.replace_lineLabelValue_in_noteBody("**Assigned To**:", csvTaskDict['Assigned To'], noteBody)
+        noteBody = myNotes.replace_lineLabelValue_in_noteBody("**State**:", csvTaskDict['Status'], noteBody)
+        noteBody = myNotes.replace_lineLabelValue_in_noteBody("**Planned Start**:", csvTaskDict['Start Date'].replace("a.m.","").replace("p.m.",""), noteBody)
+        noteBody = myNotes.replace_lineLabelValue_in_noteBody("**Actual Start**:", csvTaskDict['Start Date'].replace("a.m.","").replace("p.m.",""), noteBody)
+        noteBody = myNotes.replace_lineLabelValue_in_noteBody("**Planned End**:", csvTaskDict['Due Date'].replace("a.m.","").replace("p.m.",""), noteBody)
+        noteBody = myNotes.replace_lineLabelValue_in_noteBody("**End Date**:", csvTaskDict['Closed Date'].replace("a.m.","").replace("p.m.",""), noteBody)
+        noteBody = myNotes.replace_lineLabelValue_in_noteBody("modified:", myTools.now_YYYY_MM_DD_HH_MM_SS() , noteBody)
+
+        if myNotes.write_Note_to_path(pkvTask.filePath, noteBody):
+            print (f"Task '{csvTaskDict['Title']}' updated successfully.\n")
     return True
 
 def import_or_update_tasks_from_CSV(FullPath, projectName: str) -> None:
     """
     Imports or updates tasks from a CSV file into the specified project.
     """
-    importTasks = translate_TaskImport_Columns(FullPath)
-    projectTasks = get_ProjectTasks(projectName)
+    #tasks from DevOps, Jira, Trello, etc
+    csvTasks = _translate_TaskImport_Columns(FullPath)
+    
+    print (f"Importing or updating {len(csvTasks)} tasks into project: {projectName}")
+    if len(csvTasks) == 0:
+        print (f"{myTerminal.ERROR}No tasks found to import from {FullPath}{myTerminal.RESET}")
+        return
 
-    for importTask in importTasks:
-        for projectTask in projectTasks:
-            if projectTask.ticket == importTask["ID"]:
-                print (f"Task: {importTask['Title']} with Ticket ID: {importTask['ID']} already exists in project {projectName}, updating note.")
-                print (f"{projectTask.assignedTo} -> {importTask['Assigned To']}")
-                print (f"{projectTask.state} -> {importTask['Status']}")
-                print (f"{projectTask.actualStart} -> {importTask['Start Date']}")
-                print (f"{projectTask.plannedEnd} -> {importTask['Due Date']}")
-                print (f"{projectTask.title} -> {importTask['Title']}")
-                print (f"{projectTask.endDate} -> {importTask['Closed Date']}")
-            else:
-                print (f"Importing new task: {importTask['Title']} with Ticket ID: {importTask['ID']} into project {projectName}.")
-                make_task_note_content_from_imported_task(projectName, importTask)
-                return  
+    #existing PKV project tasks
+    pkvTasks = load_ProjectTasks(projectName)
 
+    for csvTask in csvTasks:
+        taskExists = False
+        for pkvTask in pkvTasks:
+            if pkvTask.ticket.strip() == csvTask["ID"]:
+              taskExists = True
+              _update_existing_task_from_csv_import(projectName, csvTask, pkvTask)
+        
+        if not taskExists:
+            print (f"New task found: {csvTask['Title']} ({csvTask['ID']}) assigned to '{csvTask['Assigned To']}'")
+            proceed = myInputs.ask_yes_no_from_user("Import this task?", default=True)
+            if proceed:
+                if _make_task_note_content_from_imported_task(projectName, csvTask):
+                    print (f"\tTask '{csvTask['Title']}' imported successfully\n")
 
-
-"""=== Project Methods From Tools ==="""
+#=== Project Methods From Tools
 
 def get_pkv_projects() -> dict:
     """

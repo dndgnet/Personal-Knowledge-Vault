@@ -27,6 +27,7 @@ from _library import Inputs as myInputs
 from _library import Terminal as myTerminal
 from _library import Tools as myTools
 from _library import VersionControl as myVersionControl
+from _library.Templates import read_Template
 import re
 
 # Define the template and output paths
@@ -75,7 +76,7 @@ def main(selectedProjectName=""):
     #check for an existing progress note
     progressNoteExists, lastProgressNote = myTools.load_MostRecentProjectProgressNote(selectedProjectName)
     if (progressNoteExists and 
-        myInputs.ask_yes_no(f"{myTerminal.INPUTPROMPT}'{selectedProjectName}' has a progress note from {lastProgressNote.date}. Do you want to clone the last note?{myTerminal.RESET}")):
+        myInputs.ask_yes_no_from_user(f"{myTerminal.INPUTPROMPT}'{selectedProjectName}' has a progress note from {lastProgressNote.date}. Do you want to clone the last note?{myTerminal.RESET}")):
     
         print(f"{myTerminal.BLUE}Cloning last progress note...{myTerminal.RESET}")
         
@@ -150,7 +151,7 @@ def main(selectedProjectName=""):
             lastNextSteps = ""
 
         # Read the template content
-        templateBody = myTools.read_templateBody(selectedTemplatePath)
+        templateBody = read_Template(selectedTemplatePath)
         
         note_Content = myInputs.get_templateMerge_Values_From_User(timestamp_id,timestamp_date,
                                                                 timestamp_full,selectedProjectName,

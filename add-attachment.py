@@ -76,7 +76,8 @@ if input_string.isdigit() and 1 <= int(input_string) <= fileIndex:
         
         newNoteBody += f"""\n\n[{selected_file}](./_Attachments/{attachment_file_name})\n"""
 
-        _ = input(f"{myTerminal.WARNING} Make sure you have saved the note '{selectedNote.title}' before continuing (pressing enter).{myTerminal.RESET}")
+        #assume that the user has the Visual Studio autosave on, so the note is already saved
+        #_ = input(f"{myTerminal.WARNING} Make sure you have saved the note '{selectedNote.title}' before continuing (pressing enter).{myTerminal.RESET}")
         
         # Save the fleeting note with the new atomic thought link
         with open(selectedNote.filePath, 'w', encoding='utf-8') as f:

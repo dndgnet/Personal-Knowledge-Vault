@@ -19,7 +19,7 @@ template_pathRoot = os.path.join(os.getcwd(),"_templates")
 maxNumberOfNotesToShow = 99
 maxNumberOfDaysToGoBackWhenShowingNotes = 10  # Number of days to go back when showing recent notes
 
-def ask_yes_no(prompt: str, default: bool = True) -> bool:
+def ask_yes_no_from_user(prompt: str, default: bool = True) -> bool:
     """
     Ask the user a yes/no question and return True for yes, False for no.
     If the user presses Enter without typing anything, return the default value.
@@ -35,9 +35,21 @@ def ask_yes_no(prompt: str, default: bool = True) -> bool:
         return False
     else:
         print(f"{myTerminal.ERROR}Invalid input. Please enter 'Y' or 'N'.{myTerminal.RESET}")
-        return ask_yes_no(prompt, default)
+        return ask_yes_no_from_user(prompt, default)
 
-def get_datetime_and_title_from_user(datePrompt = "enter a date time", defaultIfNone = datetime.now(), 
+def ask_for_template_Tag_Value_from_user(tagName: str, defaultValue: str = "") -> str:
+    """
+    Ask the user for a value for a specific template tag.
+    If the user presses Enter without typing anything, return the default value.
+    """
+    response = input(f"{myTerminal.INPUTPROMPT}Enter value for '{tagName}' (enter for default '{defaultValue}'): {myTerminal.RESET}").strip()
+    
+    if response == "":
+        return defaultValue
+    else:
+        return response
+
+def ask_datetime_and_title_from_user(datePrompt = "enter a date time", defaultIfNone = datetime.now(), 
                                      titlePrompt = "enter note title", titleDefault = "untitled" ) -> tuple[datetime,str]:
     """
     Get a datetime from the user.
@@ -57,7 +69,27 @@ def get_datetime_and_title_from_user(datePrompt = "enter a date time", defaultIf
         print(f"\t{myTerminal.YELLOW}Using default title: {title}{myTerminal.RESET}")
     
     return d, title
+
+def ask_for_list_selection_from_user(prompt: str, options: dict, no_selection_made_value: int = -99) -> int:
+    """
+    Prompt the user to select an option from a list.
+    Returns the selected option value.
+    """
+    print(f"{myTerminal.INPUTPROMPT}{prompt}{myTerminal.RESET}")
+    for index, option in options.items():
+        print(f"\t{myTerminal.INPUTPROMPT}{index}: {option}{myTerminal.RESET}")
     
+    selection = input(f"{myTerminal.INPUTPROMPT}Select an option (1-{len(options)}): {myTerminal.RESET}").strip()
+    if selection == "":
+        print(f"{myTerminal.ERROR}No selection made.")
+        return no_selection_made_value
+    
+    if not selection.isdigit() or int(selection) not in options:
+        print(f"{myTerminal.ERROR}Invalid selection. Please select a valid option number.{myTerminal.RESET}")
+        return ask_for_list_selection_from_user(prompt, options, no_selection_made_value)
+    
+    return int(selection)
+
 def select_project_name_withDict(showNewProjectOption = True, showNoProjectOption = True, hideArchivedProjects = True) -> tuple[dict,str, int]:
     """
     Prompt the user to select a project from a list of available projects.

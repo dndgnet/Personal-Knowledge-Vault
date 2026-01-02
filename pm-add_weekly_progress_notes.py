@@ -16,7 +16,7 @@ for projectName in projects.keys():
             if not projectConfig.get("Archived",False) and projectConfig.get("Needs Weekly Progress Update", False):
                 projectThatNeedsWeeklyProgressNoteFound = True
                 print(f"{projectName} is active and should get a weekly progress note.")
-                if myInputs.ask_yes_no(f"Do you want to add a progress note for project '{projectName}'?", default = True):
+                if myInputs.ask_yes_no_from_user(f"Do you want to add a progress note for project '{projectName}'?", default = True):
                     os.system(f'./add-projectProgressNote.py "{projectName}"')
     else:
         print(f"Project path does not exist: {projectPath}")

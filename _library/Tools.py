@@ -1,73 +1,14 @@
 from . import Preferences as myPreferences
 from . import Terminal as myTerminal
-from . import VersionControl as myVersionControl
-from dataclasses import dataclass
-from typing import List
 import json
 import os
 import re
 import datetime
 import csv
 from decimal import Decimal
-from dataclasses import field  
 
-@dataclass
-class NoteData:
-    id: str # Unique identifier for the note, typically a timestamp or unique string
-    fileName: str
-    filePath: str = field(metadata={"description": "os.path.join(notePath, noteFileName) full file name and path"})
-    date: str
-    osFileDateTime: str
-    type: str
-    title: str
-    project: str
-    tags: List[str]
-    keywords: List[str]
-    retention: str
-    author: str
-    frontMatter: str 
-    noteBody: str
-    backLinks: List[str]
-    actionItems: List[str]
-    archived: bool = False
-    hasActionItems: bool = False
-    actionItemsWithComments: dict = field(default_factory=dict)
-    
-    private: bool = False # indicates that note is only for the vault owner's use
-    archivedProject: bool = False # indicates that note belongs to an archived project
-    endDate: str = ""  # optional end date for gantt charts
-    
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "fileName": self.fileName,
-            "filePath": self.filePath,
-            "date": self.date,
-            "osFileDateTime": self.osFileDateTime,
-            "type": self.type,
-            "title": self.title,
-            "project": self.project,
-            "tags": self.tags,
-            "keywords": self.keywords,
-            "retention": self.retention,
-            "author": self.author,
-            "private": self.private,
-            "frontMatter": self.frontMatter,
-            "noteBody": self.noteBody,
-            "backLinks": self.backLinks,
-            "archived": self.archived,
-            "hasActionItems": self.hasActionItems,
-            "actionItems": self.actionItems,
-            "actionItemsWithComments": self.actionItemsWithComments,
-            "archivedProject": self.archivedProject,
-            "endDate": self.endDate
-        }
-      
-    def __str__(self):
-        if self.project != "":
-            return f"{self.title} ({self.date}) from {self.project}"
-        else:
-            return f"{self.title} ({self.date})"
+# Import NoteData from Notes module
+from .Notes import NoteData, get_Notes_as_list, get_note_tags
 
 _datetime_formats = (
     "%Y-%m-%d %H:%M:%S",    # Full datetime with seconds
@@ -84,7 +25,6 @@ def clearTerminal() -> None:
     This function works on both Windows and Unix-like systems.
     """
     os.system('cls' if os.name == 'nt' else 'clear')
-
 
 def letters_and_numbers_only(input_string: str, maxLength = 400) -> str:
     """
@@ -126,6 +66,24 @@ def datetime_fromString(date_string: str) -> tuple [bool,datetime.datetime]:
     
     return isDateTime, d
 
+def now_YYYY_MM_DD_HH_MM_SS() -> str:
+    """
+    Returns the current date and time in the format 'YYYY-MM-DD HH:MM:SS'.
+    
+    Returns:
+        str: The current date and time as a formatted string.
+    """
+    return datetime.datetime.now().strftime(myPreferences.datetime_format())
+
+def now_YYYY_MM_DD() -> str:
+    """
+    Returns the current date in the format 'YYYY-MM-DD'.
+    
+    Returns:
+        str: The current date as a formatted string.
+    """
+    return datetime.datetime.now().strftime(myPreferences.date_format())
+
 def obsidian_Encode_for_URI(input_string: str) -> str:
     """
     Encodes a string for use in an Obsidian URI.
@@ -139,7 +97,7 @@ def obsidian_Encode_for_URI(input_string: str) -> str:
     encoded_string = input_string.replace(" ", "%20").replace("#", "%23").replace(":", "%3A").replace("/", "%2F").replace("%", "%25")
     return encoded_string
 
-def read_csv_to_dict(full_path):
+def read_csv_to_dict_list(full_path):
     data = []
     # Try different encodings
     encodings = ['utf-8-sig', 'utf-8', 'latin-1', 'cp1252', 'iso-8859-1']
@@ -158,230 +116,6 @@ def read_csv_to_dict(full_path):
             print(f"Error with {encoding}: {e}")
             continue
     raise ValueError(f"Could not decode file with any of the attempted encodings: {encodings}")
-
-
-def get_Note_from_id(noteId: str) -> NoteData:
-    """
-    Returns a NoteData object from a note Id.
-    
-    Args:
-        note id (str): The name of the note id.
-
-        """
-    
-    notes = get_Notes_as_list(myPreferences.root_pkv())
-    for note in notes:
-        if note.id == noteId:
-            return note
-
-    return NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)   
-
-def get_Note_from_fileName(noteFileName: str) -> NoteData:
-    """
-    Returns a NoteData object from a note file name.
-    
-    Args:
-        noteFileName (str): The name of the note file.
-
-        """
-    
-    notes = get_Notes_as_list(myPreferences.root_pkv())
-    for note in notes:
-        if note.fileName == noteFileName:
-            return note
-
-    return NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)   
-
-def get_Notes_from_Project(projectName: str) -> list[NoteData]:
-    """
-    Returns a list of NoteData objects from a project name.
-    
-    Args:
-        projectName (str): The name of the project.
-
-        """
-    
-    notesInProject = []
-    notes = get_Notes_as_list(myPreferences.root_pkv())
-    for note in notes:
-        if note.project == projectName:
-            notesInProject.append(note)
-
-    return notesInProject
-
-def get_TaskNotes_from_Project(projectName: str) -> list[NoteData]:
-    """
-    Returns a list of NoteData objects of type 'task' from a project name.
-    
-    Args:
-        projectName (str): The name of the project.
-
-        """
-    
-    taskNotesInProject = []
-    notes = get_Notes_as_list(myPreferences.root_pkv())
-    for note in notes:
-        if note.project == projectName and note.type.lower() == "project-task":
-            taskNotesInProject.append(note)
-
-    return taskNotesInProject
-  
-def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
-    
-    notePathAndFile = os.path.join(notePath, noteFileName)
-
-    if os.path.exists(notePathAndFile) is False:
-        print(f"{myTerminal.ERROR}Note file '{notePathAndFile}' does not exist.{myTerminal.RESET}")
-        return NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)
-
-    with open(os.path.join(notePath, noteFileName), 'r', encoding='utf-8') as f:
-                    noteContent = f.read()
-                    
-    frontMatter = get_note_frontMatter(noteContent)
-    
-    osFileDateTime = datetime.datetime.fromtimestamp(os.path.getmtime(notePathAndFile)).strftime("%Y-%m-%d %H:%M:%S")
-    date = get_note_date_from_frontMatter(frontMatter, dateProperty = "start date")
-    dateEnd = get_note_date_from_frontMatter(frontMatter, dateProperty = "end date")
-    
-    if date == "":
-        # If no date in front matter, use the file's last modified date
-        date = osFileDateTime
-    
-    uniqueIdentifier = get_stringValue_from_frontMatter("id", frontMatter) 
-    if uniqueIdentifier == "":
-        uniqueIdentifier = noteFileName.split(".")[0].split("_")[0]  # Use the file name without extension as the unique identifier
-
-    project = get_stringValue_from_frontMatter("project", frontMatter)
-    archivedProject = False
-    if project != "":
-        #todo cache project configs to avoid multiple reads
-        projectConfig = get_ProjectConfig_as_dict(project)
-        if projectConfig.get("Archived", False) is True:
-            archivedProject = True
-
-    type = get_stringValue_from_frontMatter("type", frontMatter)
-    if type == "":
-        type = "unknown"
-    title = get_stringValue_from_frontMatter("title", frontMatter)
-    tags = get_tags_from_noteText(noteContent)
-    keywords = get_listValue_from_frontMatter("keywords",frontMatter)
-    retention = get_stringValue_from_frontMatter("retention", frontMatter)
-    author = get_stringValue_from_frontMatter("author", frontMatter)
-    private = True if get_stringValue_from_frontMatter("private", frontMatter).lower() in ("true","t","yes","y","positive") else False
-    archived = True if get_stringValue_from_frontMatter("archived", frontMatter) == "True" else False
-    
-
-    if title == "" or title is None:
-        title = uniqueIdentifier
-        
-    body = get_note_body(noteContent)
-    backLinks = get_note_backlinks(noteContent)
-    hasActionItems = True if "[ ]" in body else False
-    actionItems = [] 
-    actionItemsWithComments = {}
-    for actionItem in re.findall(r'\[ \](.*)', body):  # Find all action items in the note body
-        actionItems.append(actionItem.strip())
-       
-        # Extract details that follow the action item until the next "- [" or blank line
-        action_item_pattern = re.escape(actionItem)
-        # Find the position of this action item in the body
-        match = re.search(rf'\[ \]\s?{action_item_pattern}', body)
-        if match:
-            start_pos = match.end()
-            remaining_text = body[start_pos:]
-            nextLine = remaining_text.splitlines()[1].strip() if len(remaining_text.splitlines()) > 1 else ""
-            if "<comment>" in nextLine:
-                # Extract comment from <comment></comment> tags if present
-                comment_match = re.search(r'<comment>(.*?)</comment>',remaining_text, re.DOTALL)
-                actionItemComment = comment_match.group(1).strip() if comment_match else ""
-            else:
-                actionItemComment = ""
-
-        # # Extract details that follow the action item until the next "- [" or blank line
-        # action_item_pattern = re.escape(actionItem)
-        # # Find the position of this action item in the body
-        # match = re.search(rf'\[ \]\s?{action_item_pattern}', body)
-        # if match:
-        #     start_pos = match.end()
-        #     # Extract text from after the action item to the next "- [" or blank line
-        #     remaining_text = body[start_pos:]
-        #     # Find the end position (next "- [" or double newline)
-        #     end_match = re.search(r'(\n\s*- \[|\n\s*\n)', remaining_text)
-        #     if end_match:
-        #         actionItemDetails = remaining_text[:end_match.start()].strip()
-        #     else:
-        #         actionItemDetails = remaining_text.strip()
-        # else:
-        #     actionItemDetails = ""
-
-            actionItemsWithComments[actionItem.strip()] = actionItemComment
-        
-
-    # Replace the dictionary with an instance of the Note dataclass
-    note = NoteData(
-        id=uniqueIdentifier,
-        fileName = noteFileName,
-        filePath = os.path.join(notePath, noteFileName),
-        date = date,
-        osFileDateTime = osFileDateTime,
-        type = type,
-        title = title,
-        project = project,
-        archivedProject = archivedProject,
-        tags = tags,
-        keywords = keywords,
-        retention = retention,
-        author = author,
-        private = private,
-        frontMatter = frontMatter,
-        noteBody = body,
-        backLinks = backLinks,
-        archived = archived,
-        hasActionItems = hasActionItems,
-        actionItems = actionItems,
-        actionItemsWithComments = actionItemsWithComments,
-        endDate = dateEnd
-    )
-
-    return note
-
-def get_Notes_as_list(target_dir: str, includePrivateNotes = True, includeArchivedProjects = True) -> list[NoteData]:
-    """
-    Workhorse method to return a list of NoteData objects from the target directory.
-    """
-    noteList = []
-    for root, dirs, files in os.walk(target_dir, topdown=True):
-        for file in files:
-            if not file.startswith('.') and not file.startswith('_') and file.endswith('.md'):  # Skip hidden files and non markdown files
-                
-                note = get_Note_from_path(root, file)
-                
-                if note.private is True and includePrivateNotes is False:
-                    pass  # skip private notes if not including them
-                elif note.project != "" and includeArchivedProjects is False:
-                    projectConfig = get_ProjectConfig_as_dict(note.project)
-                    if projectConfig.get("Archived", False) is True:
-                        pass  # skip notes from archived projects
-                    else:
-                        noteList.append(note)
-                else:
-                    noteList.append(note)
-                    
-    return noteList
-
-def sort_Notes_by_date(notes: list[NoteData], descending: bool = True) -> list[NoteData]:
-    """
-    Sorts a list of NoteData objects by date.
-    
-    Args:
-        notes (list[NoteData]): The list of NoteData objects to sort.
-        reverse (bool): If True, sorts in descending order; if False, sorts in ascending order. Default is True.
-        
-    Returns:
-        list[NoteData]: The sorted list of NoteData objects.
-    """
-    
-    return sorted(notes, key=lambda note: note.date, reverse=descending)
 
 def get_pkv_projects() -> dict:
     """
@@ -461,63 +195,6 @@ def get_pkv_attachments() -> dict:
             _attachments[filename] = attachmentPath
     
     return _attachments
-
-def get_note_tags(noteFileNameAndPath: str) -> tuple [str,list]:
-    """
-    Extracts tags from a note file.
-    
-    Args:
-        noteFileNameAndPath (str): The path to the note file.
-        
-    Returns:
-        filename: The name of the note file.
-        set: A set of unique tags found in the note file.
-    """
-    
-    filename =  noteFileNameAndPath.split("/")[-1]
-    
-    if not filename.endswith(".md"):
-        return filename, list()  # return empty set if not a markdown file
-    
-    # Read the template content
-    with open(noteFileNameAndPath, 'r', encoding='utf-8') as f:
-        note  = f.read()
-
-    allTags = get_tags_from_noteText(note)
-    
-    return filename, allTags
-
-def get_tags_from_noteText(note: str) -> list:
-    """
-    Extracts tags from a note content.
-    
-    Args:
-        note (str): the note content as a string
-        
-    Returns:
-        filename: The name of the note file.
-        set: A set of unique tags found in the note file.
-    """
-    
-    allTags = set()
-    #get front matter tags
-    frontMatterTags_match = re.search(r'tags:\s*(.*)', note)
-    frontMatterTagsString = frontMatterTags_match.group(1).strip() if frontMatterTags_match else ""
-    frontMatterTagsString = frontMatterTagsString.replace('#', ',')
-    for tag in frontMatterTagsString.split(','):
-        tag = tag.strip()
-        if tag != "" and  ":" not in tag:
-            allTags.add(tag)  
-
-    #get other tags
-    otherTags = re.findall(r'#(\w+)', note)
-    for tag in otherTags:
-        tag = tag.strip()
-        if tag.startswith("#"):
-            tag = tag[1:]  # Remove the leading hash if present
-        allTags.add(tag)
-
-    return list(allTags)  # Convert set to list for consistency
 
 def get_project_tags(projectName: str) -> dict:
     """
@@ -604,104 +281,6 @@ def generate_tag_from_projectName(projectName: str) -> str:
         tag = f"#{tag}"
     
     return tag
-
-def read_templateBody(templatePath: str) -> str:
-    """
-    Reads the content of a template file.
-    
-    Args:
-        templatePath (str): The path to the template file.
-        
-    Returns:
-        str: The content of the template file.
-        
-    Raises:
-        FileNotFoundError: If the template file does not exist.
-    """
-    
-    if os.path.exists(templatePath) is False:
-        print (f"{myTerminal.ERROR}Template file '{templatePath}' does not exist.{myTerminal.RESET}")
-        return ""
-    else:
-        with open(templatePath, 'r', encoding='utf-8') as f:
-            return f.read()
-
-def merge_template_with_values(timestamp_id, timestamp_full, selectedProjectName, templateBody: str, mergeData: dict) -> str:
-    """
-    Merges a template string with values from a dictionary.
-    
-    Args:
-        template (str): The template string containing placeholders.
-        values (dict): A dictionary containing values to replace the placeholders.
-        
-    Returns:
-        str: The merged string with placeholders replaced by actual values.
-    """
-     
-    #handle the common date tags with hard coded values 
-    timestamp_id = timestamp_id.split("_")[0]  # Ensure timestamp_id is just the date part
-    templateBody = templateBody.replace("[YYYYMMDDHHMMSS]", timestamp_id)
-    templateBody = templateBody.replace("[TIMESTAMP_ID]", timestamp_id)
-    templateBody = templateBody.replace("[YYYY-MM-DD HH:MM:SS]", timestamp_full)
-    templateBody = templateBody.replace("[DATETIME]", timestamp_full)
-    templateBody = templateBody.replace("[YYYY-MM-DD]", timestamp_full.split(" ")[0])
-    templateBody = templateBody.replace("[DATE]", timestamp_full.split(" ")[0])
-
-    #handle the project, author and tags with synonyms    
-    projectTag_synonyms = ["Project Name", "ProjectName", "Project"]
-    authorTag_synonyms = ["Current User", "User", "Username", "Author", "author"]
-    tagTag_synonyms = ["tags", "Tags", "TAGS"]
-    title = ""
-    for key, value in mergeData.items():
-        if key in projectTag_synonyms:
-            for synonym in projectTag_synonyms:
-                placeholder = f"[{synonym}]"
-                templateBody = templateBody.replace(placeholder, value)
-        elif key in authorTag_synonyms:
-            for synonym in authorTag_synonyms:
-                placeholder = f"[{synonym}]"
-                templateBody = templateBody.replace(placeholder, value)
-        elif key in tagTag_synonyms:
-            for synonym in tagTag_synonyms:
-                placeholder = f"[{synonym}]"
-                templateBody = templateBody.replace(placeholder, value)
-                tags = ""
-                for tag in value.split(","):
-                    tag = tag.strip().replace(" ","_")
-                    tags += f"#{tag} "
-                templateBody = templateBody.replace(placeholder, tags.strip())
-        else:
-            if key.upper() == "TITLE":
-                title = value
-            placeholder = f"[{key}]"
-            # Case-insensitive replace for placeholders
-            pattern = re.compile(re.escape(placeholder), re.IGNORECASE)
-            templateBody = pattern.sub(str(value), templateBody)
-    
-    #make sure the new note directory directory exists
-    if selectedProjectName == "" or selectedProjectName is None:
-        #project selected, save in the project folder
-        newNote_directory = myPreferences.root_pkv()
-    else:
-        #project not selected, save in the root of the PKV            
-        newNote_directory = os.path.join(myPreferences.root_projects(), selectedProjectName)
-
-    titleLettersAndNumbers = letters_and_numbers_only(title)  # Limit to 200 characters and remove special characters
-    uniqueIdentifier = generate_unique_identifier(timestamp_id, "atomic", titleLettersAndNumbers)
-
-    output_filename = f"{uniqueIdentifier}.md"
-    output_path = os.path.join(newNote_directory, output_filename)
-
-    # Save the new note
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(templateBody)
-    
-    myVersionControl.add_and_commit(output_path, f"create atomic note note: {title} from a fleeting note on {timestamp_full}")
-
-    print(f"{myTerminal.SUCCESS}Note created:{myTerminal.RESET} {output_path}")
-    #os.system(f'{myPreferences.default_editor()} "{output_path}"')
-    
-    return uniqueIdentifier
 
 def get_note_frontMatter(noteBody: str) -> str:
     """
@@ -963,214 +542,6 @@ def get_pkv_tags() -> dict:
                 tags[tag] = existing_tags
     
     return tags
-
-def get_Note_with_TODO(target_dir: str) -> list[NoteData]:
-    """
-    Returns a dictionary of notes that contain TODO items.
-    value dictionary contains keys "notePathAndFile" and "frontMatter".
-    """
-    filteredNotes = []
-    for note in get_Notes_as_list(target_dir):
-        if "#TODO" in note.noteBody:
-            filteredNotes.append(note)
-    
-    return filteredNotes
-
-def get_Note_with_INCOMPLETE(target_dir: str) -> list[NoteData]:
-    """
-    Returns a dictionary of notes that contain INCOMPLETE items.
-    """
-    filteredNotes = []
-    for note in get_Notes_as_list(target_dir):
-        if "#INCOMPLETE" in note.noteBody:
-            filteredNotes.append(note)
-    
-    return filteredNotes
-
-def get_Note_with_ActionItems(target_dir: str) -> list[NoteData]:
-    """
-    Returns a dictionary of notes that contain Action items.
-    value dictionary contains keys "notePathAndFile" and "frontMatter".
-    """
-    
-    filteredNotes = []
-    for note in get_Notes_as_list(target_dir):
-        if "[ ]" in note.noteBody:
-            filteredNotes.append(note)
-    
-    filteredNotes = sorted(
-            filteredNotes,
-            key=lambda item: item.date,
-            reverse=False
-        )
-    
-    return filteredNotes
-
-    files_dict = {}
-    for root, dirs, files in os.walk(target_dir, topdown=True):
-        for file in files:
-            if not file.startswith('.') and file.endswith(".md"):  # skip hidden files
-                notePathAndFile = os.path.join(root, file)
-                with open(notePathAndFile, 'r', encoding='utf-8') as f:
-                    noteBody  = f.read()
-                    if "[ ]" in noteBody:  
-                        uniqueIdentifier = file.split(".")[0]
-                        frontMatter = get_note_frontMatter(noteBody)
-                        files_dict[uniqueIdentifier] = {"notePathAndFile": notePathAndFile,
-                                                        "date": get_note_date_from_frontMatter(frontMatter),
-                                                        "title": get_stringValue_from_frontMatter("title", frontMatter),
-                                                        "project": get_stringValue_from_frontMatter("project", frontMatter),
-                                                        "frontMatter": get_note_frontMatter(noteBody)}
-    
-    files_dict = dict(
-        sorted(
-            files_dict.items(),
-            key=lambda item: item[1].get("date", ""),
-            reverse=False
-        )
-    )
-         
-    return files_dict
-
-def get_Note_Last_Project_Note_ByType(projectName: str, noteType: str) -> tuple[bool,NoteData]:
-    """
-    Returns the most recent note of a specific type for a given project.
-    
-    Args:
-        projectName (str): The name of the project.
-        noteType (str): The type of note to filter by.
-        
-    Returns:
-        tuple: A tuple containing a boolean indicating success and the NoteData object if found.
-    """
-    if projectName == "" or projectName is None:
-        #if there is no project name, return notes from the root PKV
-        allNotes = get_Notes_as_list(myPreferences.root_pkv(), True)
-    else:
-        #if there is a project name, only return notes for that project
-        allNotes = get_Notes_as_list(os.path.join(myPreferences.root_projects(), projectName), True)
-
-    sortedNotes = sorted(allNotes, key=lambda note: (note.project, note.date), reverse=True)
-
-    if not sortedNotes:
-        print(f"{myTerminal.ERROR}No notes found.{myTerminal.RESET}")
-        return False, NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)
-    
-    for note in sortedNotes:
-        if note.project.upper() == projectName.upper() and noteType.upper() in note.type.upper():        
-            return True, note  # Return the first matching note
-           
-    return False, NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)
-
-# todo at some point dumping and loading notes to/from JSON files would be useful
-# for now, at least with small vaults, the entire vault can be loaded into memory 
-# so quickly that we don't need to get fancy.
-def dump_notes_to_json(notes: List[NoteData], file_path: str, indent: int = 2) -> bool:
-    """
-    Dumps a list of Note objects to a JSON file.
-    
-    Args:
-        notes (List[Note]): List of Note objects to serialize.
-        file_path (str): Path where the JSON file will be saved.
-        indent (int): Number of spaces for JSON indentation. Default is 2.
-        
-    Returns:
-        bool: True if successful, False otherwise.
-    """
-    try:
-        # Convert Note objects to dictionaries
-        notes_data = [note.to_dict() for note in notes]
-        
-        # Write to JSON file
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(notes_data, f, indent=indent, ensure_ascii=False)
-        
-        return True
-    except Exception as e:
-        print(f"Error writing notes to JSON file: {e}")
-        return False
-    
-def load_notes_from_json(file_path: str) -> List[NoteData]:
-
-    """
-    Loads Note objects from a JSON file.
-    
-    Args:
-        file_path (str): Path to the JSON file to load.
-        
-    Returns:
-        List[Note]: List of Note objects loaded from the file.
-    """
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            notes_data = json.load(f)
-        
-        # Convert dictionaries back to Note objects
-        notes = [NoteData(**note_dict) for note_dict in notes_data]
-        
-        return notes
-    except Exception as e:
-        print(f"Error loading notes from JSON file: {e}")
-        return []
-
-def clone_note(sourceNotePath) -> str:
-    """
-    Clones an existing note to a new note with a unique identifier.
-    
-    Args:
-        sourceNotePath (str): The path to the source note file.
-        
-    Returns:
-        str: The path to the newly created cloned note.
-    """
-    
-    if not os.path.isfile(sourceNotePath):
-        print(f"{myTerminal.ERROR}Source note '{sourceNotePath}' does not exist.{myTerminal.RESET}")
-        return ""
-    
-    notePath = os.path.dirname(sourceNotePath)
-
-    with open(sourceNotePath, 'r', encoding='utf-8') as f:
-        noteContent = f.read()
-        
-    frontMatter = get_note_frontMatter(noteContent)
-    body = get_note_body(noteContent)
-    
-    date = get_note_date_from_frontMatter(frontMatter)
-    if date == "":
-        date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    newBody = body
-    # Replace the date line in the body with the current date
-    date_pattern = r'\*\*Date:\*\*.*'
-    replacement_date = f"**Date:** {date}"
-    newBody = re.sub(date_pattern, replacement_date, body)
-    
-    oldId = get_stringValue_from_frontMatter("id", frontMatter)
-    oldCreated = get_stringValue_from_frontMatter("created", frontMatter)
-    oldModified = get_stringValue_from_frontMatter("modified", frontMatter)
-    oldTitle = get_stringValue_from_frontMatter("title", frontMatter)
-    oldType = get_stringValue_from_frontMatter("type", frontMatter)
-
-    timestamp_id = datetime.datetime.now().strftime(myPreferences.timestamp_id_format())
-    selectedDateTime = datetime.datetime.now()
-    timestamp_date = selectedDateTime.strftime(myPreferences.date_format())
-    timestamp_full = selectedDateTime.strftime(myPreferences.datetime_format())
-    
-
-    newFileName = generate_unique_identifier(timestamp_id, "", oldTitle) + ".md"
-    
-    newFrontMatter = frontMatter
-    newFrontMatter = re.sub(r'id:\s*.*', f'id: {timestamp_id}', newFrontMatter)  # Update the id in front matter
-    newFrontMatter = re.sub(r'created:\s*.*', f'created: {timestamp_full}', newFrontMatter)  # Update the created in front matter
-    newFrontMatter = re.sub(r'modified:\s*.*', f'modified: {timestamp_full}', newFrontMatter)  # Update the modified in front matter
-
-    newNoteContent = f"---\n{newFrontMatter}\n---\n\n{newBody}"
-
-    with open(os.path.join(notePath, newFileName), 'w', encoding='utf-8') as f:
-        f.write(newNoteContent)
-
-    return os.path.join(notePath, newFileName)
         
 def open_note_in_editor(notePath: str):
     """
@@ -1190,3 +561,22 @@ def open_note_in_editor(notePath: str):
         encodedFileName = obsidian_Encode_for_URI(fileName)
         openCmd = f"obsidian://advanced-uri?vault={vaultName}&filepath={encodedFileName}&openmode=true"
         os.system(f'open "{openCmd}"')
+
+def write_text_to_file(filePath: str, textContent: str) -> bool:
+    """
+    Writes text content to a file.
+    
+    Args:
+        filePath (str): The path to the file.
+        textContent (str): The text content to write.
+        
+    Returns:
+        bool: True if the write operation is successful, False otherwise.
+    """
+    try:
+        with open(filePath, 'w', encoding='utf-8') as f:
+            f.write(textContent)
+        return True
+    except Exception as e:
+        print(f"{myTerminal.ERROR}Error writing to file '{filePath}': {e}{myTerminal.RESET}")
+        return False

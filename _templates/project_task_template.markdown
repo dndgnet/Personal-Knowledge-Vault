@@ -12,25 +12,25 @@ keywords:
 project: [Project Name]
 author: [Current User]
 private: No
-ticket:
+ticket: [ticket number]
 ---
 
 # [Title]
 
 ## Task Management Details
 
-**State:**: Not Started
+**State:**: [State - Not Started, In-progress, Testing, Complete, Cancelled]
 <!-- hidden hints
 Not Started, In-progress, Testing, Complete, Cancelled
 -->
 
-**Planned Start**: [Date]
+**Planned Start**: [plannedStart]
 
-**Actual Start**: [Date]
+**Actual Start**: [actualStart]
 
 **Planned End**: [plannedEnd]
 
-**Actual End**: 
+**Actual End**: [actualEnd]
 
 **Estimated Effort**: 
 <!-- hidden hints

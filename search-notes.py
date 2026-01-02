@@ -4,17 +4,18 @@ import os
 
 from _library import Preferences as myPreferences, Tools as myTools, Terminal as myTerminal, Inputs as myInputs, HTML as myHTML, Summary as mySummary
 from _library import Search as mySearch
+from _library import Notes as myNotes
 import sys
 
 # build a dictionary of all notes in the root_pkv directory
 allNotes = myTools.get_Notes_as_list(myPreferences.root_pkv(),includePrivateNotes=True, includeArchivedProjects=True)
-if not myTools.dump_notes_to_json(notes=allNotes, file_path=os.path.join(myPreferences.root_pkv(), "AllNotes.json"), indent=4):
+if not myNotes.dump_notes_to_json(notes=allNotes, file_path=os.path.join(myPreferences.root_pkv(), "AllNotes.json"), indent=4):
     print(f"{myTerminal.ERROR}Failed to create AllNotes.json.{myTerminal.RESET}")
     exit(-1)
 
 #retrieve the dictionary of all notes from AllNotes.json
 allNotes = []
-allNotes = myTools.load_notes_from_json(file_path = os.path.join(myPreferences.root_pkv(), "AllNotes.json"))
+allNotes = myNotes.load_notes_from_json(file_path = os.path.join(myPreferences.root_pkv(), "AllNotes.json"))
 
 print(f"{len(allNotes)} notes loaded, start providing search criteria.")
 print("")
@@ -81,7 +82,7 @@ def listSearchResults(searchResult, feedbackMessage=""):
             notes = searchResult,
             includeBodyInTimeline = True,
             includeBackLinkInTimeline = True,
-            includeGannt = True,
+            includeGantt = True,
             includeTimelineAsList = True
         )
 
@@ -92,7 +93,7 @@ def listSearchResults(searchResult, feedbackMessage=""):
 
         if os.path.exists(output_path):
             print(f"{myTerminal.WARNING}Search TimeLine already exists: {output_path}{myTerminal.RESET}")
-            if not myInputs.ask_yes_no("Do you want to overwrite it?", default=True):
+            if not myInputs.ask_yes_no_from_user("Do you want to overwrite it?", default=True):
                 print(f"{myTerminal.INFORMATION}Exiting without changes.{myTerminal.RESET}")
                 exit(0)
 

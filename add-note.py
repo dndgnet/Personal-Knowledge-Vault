@@ -8,7 +8,9 @@ from _library import Preferences as myPreferences
 from _library import Inputs as myInputs
 from _library import Terminal as myTerminal
 from _library import Tools as myTools
+from _library import Notes as myNotes
 from _library import VersionControl as myVersionControl
+from _library.Templates import read_Template
 
 # Define the template and output paths
 template_pathRoot = myPreferences.root_templates()
@@ -35,16 +37,16 @@ def main():
         noteType = noteType.replace(part, "")
 
     if selectedProjectName != "":
-        noteTypeExists, existingNote = myTools.get_Note_Last_Project_Note_ByType(selectedProjectName, noteType)
+        noteTypeExists, existingNote = myNotes.get_Note_Last_Project_Note_ByType(selectedProjectName, noteType)
         if noteTypeExists and noteType not in ("event","email","chat","issue","idea","task"):
             print(f"{myTerminal.WARNING} A note of type '{noteType}' already exists in project '{selectedProjectName}'{myTerminal.RESET}")
             print(f"  - {existingNote}")
-            clone = myInputs.ask_yes_no("Do you want to clone this note?", default= False)
+            clone = myInputs.ask_yes_no_from_user("Do you want to clone this note?", default= False)
             if clone:
                 print("Cloning the existing note.")
-                clonedNotePath = myTools.clone_note(existingNote.filePath)
+                clonedNotePath = myNotes.clone_note(existingNote.filePath)
                 #os.system(f'{myPreferences.default_editor()} "{clonedNotePath}"')
-                myTools.open_note_in_editor(clonedNotePath)
+                myNotes.open_note_in_editor(clonedNotePath)
                 exit(0)
 
     #make sure the new note directory directory exists
@@ -59,10 +61,10 @@ def main():
 
    #collect information that should be seeded into the note fields
     if noteType in ("task","milestone"):
-        selectedDateTime, title = myInputs.get_datetime_and_title_from_user("Enter the date and time for the note (or leave blank for system default):",datetime.now(),
+        selectedDateTime, title = myInputs.ask_datetime_and_title_from_user("Enter the date and time for the note (or leave blank for system default):",datetime.now(),
                                                                             titlePrompt="Enter a task/milestone short title")
     else:
-        selectedDateTime, title = myInputs.get_datetime_and_title_from_user("Enter the date and time for the note (or leave blank for system default):",datetime.now())
+        selectedDateTime, title = myInputs.ask_datetime_and_title_from_user("Enter the date and time for the note (or leave blank for system default):",datetime.now())
     
     timestamp_id = selectedDateTime.strftime(myPreferences.timestamp_id_format())
     timestamp_date = selectedDateTime.strftime(myPreferences.date_format())
@@ -72,7 +74,7 @@ def main():
     uniqueIdentifier = myTools.generate_unique_identifier(timestamp_id, noteType, titleLettersAndNumbers)
 
     # Read the template content
-    templateBody = myTools.read_templateBody(selectedTemplatePath)
+    templateBody = read_Template(selectedTemplatePath)
 
     note_Content = myInputs.get_templateMerge_Values_From_User(timestamp_id,timestamp_date,
                                                                timestamp_full,selectedProjectName,

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import os
 from _library import Preferences as myPreferences
-from _library import Terminal as myTerminal
 from _library import Inputs as myInputs
 
 

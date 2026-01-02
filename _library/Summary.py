@@ -1,10 +1,8 @@
-
-import os 
 import datetime
 from decimal import Decimal
 
-from . import Preferences as myPreferences, Inputs as myInputs, Terminal as myTerminal, Tools as myTools
-from .Tools import NoteData
+from . import Preferences as myPreferences, Tools as myTools
+from .Notes import NoteData, sort_Notes_by_date
 
 def actuals_graph(actuals: dict, budget: Decimal) -> str:
     """
@@ -85,7 +83,7 @@ line [{line.strip(', ')}]
 def generate_summary(summaryTitle: str, searchDescription: str, 
                      notes: list[NoteData],
                      includeBodyInTimeline: bool, 
-                     includeBackLinkInTimeline: bool, includeGannt: bool, 
+                     includeBackLinkInTimeline: bool, includeGantt: bool, 
                      includeTimelineAsList: bool) -> str:
     """
     Generate a project summary for the selected project based on the provided notes.
@@ -96,7 +94,7 @@ def generate_summary(summaryTitle: str, searchDescription: str,
     """
 
     #make sure notes are sorted by date descending
-    notes = myTools.sort_Notes_by_date(notes, descending=True)
+    notes = sort_Notes_by_date(notes, descending=True)
 
     timeLine = ""
     gantt = ""
@@ -117,13 +115,13 @@ def generate_summary(summaryTitle: str, searchDescription: str,
         if includeBackLinkInTimeline:
             timeLine += f"\n[[{note.fileName}]]\n"
         
-        if includeGannt: 
+        if includeGantt: 
             gantt += f"{ myTools.letters_and_numbers_only(note.title)} : {note.date}, 1d\n"
 
         if includeTimelineAsList:
             timelineAsList += f"\n{note.date[:10]} - {note.title}\n\n"   
 
-    if includeGannt:
+    if includeGantt:
         gantt = f"""
         
 ## Timeline

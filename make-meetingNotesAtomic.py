@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
-from _library import Preferences as myPreferences, Tools as myTools, Inputs as myInputs, Terminal as myTerminal, VersionControl as myVersionControl
+from _library import Preferences as myPreferences, Inputs as myInputs, Terminal as myTerminal, VersionControl as myVersionControl, Notes as myNote
+from _library.Templates import merge_template_with_values, read_Template
 
 '''
 This script processes a meeting note, extracting sections that can be converted into atomic thought notes.
@@ -39,15 +40,20 @@ def makeAtomicNote(newNoteBody, atomicBody, h3, note) -> tuple[bool, str]:
                         "body": atomicBodyWithLink,
                     }
         
-        atomicNoteIdentifier = myTools.merge_template_with_values (timestamp_id, timestamp_full, selectedProjectName, atomicNoteTemplateBody, atomicNoteData)
+        atomicNoteIdentifier,noteBody = merge_template_with_values (timestamp_id, timestamp_full, selectedProjectName, 
+                                                           atomicNoteTemplateBody, atomicNoteData, 
+                                                           runSilent=True, processUnPopulatedNoteBodyMergeTags = False)
+        atomicNoteFileName = f"{atomicNoteIdentifier}.md"
+
+        myNote.write_Note_to_path(os.path.join(myPreferences.root_projects(), selectedProjectName, atomicNoteFileName), noteBody)
+
         tempNote = newNoteBody
-        s = atomicBody[-1:]
         if atomicBody[-3:] == "\n\n":
             atomicBody = atomicBody[:-4]
         elif atomicBody[-1:] == "\n":
             atomicBody = atomicBody[:-2]
 
-        newNoteBody = newNoteBody.replace(f"### {h3}\n{atomicBody}", f"### {h3}\n\n[[{atomicNoteIdentifier}]]\n\n")
+        newNoteBody = newNoteBody.replace(f"### {h3}\n{atomicBody}", f"### {h3}\n\n[[{atomicNoteFileName}]]\n\n")
         
         if tempNote == newNoteBody:
             print(f"{myTerminal.WARNING}No changes made to the fleeting note body.{myTerminal.RESET}")
@@ -55,11 +61,10 @@ def makeAtomicNote(newNoteBody, atomicBody, h3, note) -> tuple[bool, str]:
         # Save the fleeting note with the new atomic thought link
         with open(note.filePath, 'w', encoding='utf-8') as f:
             f.write(f"""---\n{note.frontMatter}\n---\n\n {newNoteBody}""")
-        myVersionControl.add_and_commit(note.filePath, f"moved '{h3}' section from fleeting note {note.title} to {atomicNoteIdentifier} on {timestamp_full}")
+        myVersionControl.add_and_commit(note.filePath, f"moved '{h3}' section from fleeting note {note.title} to {atomicNoteFileName} on {timestamp_full}")
             
     h3 = line[4:].strip()
     atomicBody = ""
-
     return atomicNoteCreated,newNoteBody
 
 
@@ -75,7 +80,7 @@ if selectedNoteId == 0:
     print(f"{myTerminal.WARNING}No meeting notes found in the selected note.{myTerminal.RESET}")
     exit(1)
 
-atomicNoteTemplateBody = myTools.read_templateBody(os.path.join(myPreferences.root_templates(), "atomic_template.markdown"))
+atomicNoteTemplateBody = read_Template(os.path.join(myPreferences.root_templates(), "atomic_template.markdown"))
 h2 = ""
 h3 = ""
 atomicBody = ""
