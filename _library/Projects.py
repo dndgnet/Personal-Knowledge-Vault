@@ -105,6 +105,19 @@ class TaskData:
 
 # --- end dataclass ---
 
+def standardize_state(state: str) -> str:
+    """Standardizes the state string to a known set of states."""
+    state = state.strip().lower()
+    if state in ["not started", "pending", "to do", "todo"]:
+        return "Not Started"
+    elif state in ["in progress", "ongoing", "doing","active"]:
+        return "In Progress"
+    elif state in ["completed", "done", "finished"]:
+        return "Completed"
+    elif state in ["cancelled", "canceled", "abandoned","ready for stakeholder review", "resolved"]:
+        return "Cancelled"
+    else:
+        return "Unknown"
 
 def load_ProjectTasks(projectName: str) -> List[TaskData]:
     """Returns a list of TaskData objects for the specified project."""
@@ -137,18 +150,8 @@ def loadTaskFromNote(note) -> TaskData:
     if assignedToString == "":
         assignedToString = "Unassigned"
 
-    stateString = myTools.get_stringValue_from_noteBody("State", note.noteBody)
-    if stateString == "":
-        stateString = "Not Started"
-    elif stateString.lower() in ["todo", "to do", "pending","new"]:
-        stateString = "Not Started"
-    elif stateString.lower() in ["doing", "in progress", "ongoing","active"]:
-        stateString = "In Progress"
-    elif stateString.lower() in ["done", "completed", "finished","closed", "ready for stakeholder review", "resolved"]:
-        stateString = "Completed"
-    elif stateString.lower() in ["cancelled", "canceled", "abandoned"]:
-        stateString = "Cancelled"
-
+    stateString = standardize_state(myTools.get_stringValue_from_noteBody("State", note.noteBody))
+    
     task = TaskData(
         id=note.id,
         fileName=note.fileName,
@@ -381,6 +384,11 @@ def _translate_TaskImport_Columns(FullPath) -> list:
                         else:
                             translatedTask[desiredColumn] = importTask[synonym]
                         break
+                
+                if desiredColumn == "State":
+                    translatedTask[desiredColumn] = standardize_state(translatedTask[desiredColumn])
+                    
+
         translatedTasks.append(translatedTask)
     
 
@@ -466,7 +474,7 @@ def _update_existing_task_from_csv_import(projectName:str,csvTaskDict: dict, pkv
         print("\tAssigned To changed:")
         print (f"\t\t{pkvTask.assignedTo} -> \n\t\t{csvTaskDict['Assigned To']}")
     
-    if pkvTask.state.strip() != csvTaskDict['Status'].strip():
+    if standardize_state(pkvTask.state.strip()) != standardize_state(csvTaskDict['Status'].strip()):
         containsChange = True
         print("\tStatus changed:")
         print (f"\t\t{pkvTask.state} -> \n\t\t{csvTaskDict['Status']}")

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import os
-from _library import Terminal  as myTerminal, Preferences as myPreferences, Tools as myTools
+from _library import Terminal  as myTerminal, Preferences as myPreferences, Notes as myNotes
 
 
-todoNotes = myTools.get_Note_with_ActionItems(myPreferences.root_pkv())
+todoNotes = myNotes.get_Note_with_ActionItems(myPreferences.root_pkv())
 
 if not todoNotes:
     print(f"{myTerminal.GREEN}No Action items found.{myTerminal.RESET}")
