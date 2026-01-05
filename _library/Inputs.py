@@ -165,6 +165,7 @@ def select_template(templateType = "All") -> tuple[dict,str, str]:
     """ 
         Get the template from the user.
         exits if the user does not select a valid template
+        
         returns: dictionary of templates, selected template name, selected template key
     """  
     

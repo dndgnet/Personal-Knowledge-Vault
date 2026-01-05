@@ -30,7 +30,7 @@ importTaskColumnTranslation = {"ID":["ID","Task Identifier","Task Identifier","T
     "Due Date":["Due Date","Task Due Date","Due_Date","Task_Due_Date","Ticket Due Date","Ticket_Due_Date"],
     "Assigned To":["Assigned To","Task Assigned To","Assigned_To","Task_Assigned_To","Ticket Assigned To","Ticket_Assigned_To"],
     "Closed Date":["Closed Date","Task Closed Date","Closed_Date","Task_Closed_Date","Ticket Closed Date","Ticket_Closed_Date"],
-    "Task Detail":["Task Detail","Task Details","Task_Detail","Task_Details","Ticket Detail","Ticket_Detail","Acceptance Criteria"],
+    "Task Detail":["Task Detail","Task Details","Task_Detail","Task_Details","Ticket Detail","Ticket_Detail","Acceptance Criteria","Description"],
     }
 
 @dataclass
@@ -53,8 +53,8 @@ class TaskData:
     estimatedEffort: str
     percentComplete: Decimal
     assignedTo: str
-    state: str
-    ticket: str
+    state: str = field(metadata={"description": "Not Started, In Progress, Completed, Cancelled"})
+    ticket: str = field(metadata={"description": "Ticket or task tracking number from the 3rd party system"})
     dependantOn: List[str]
 
     def to_dict(self):
@@ -444,7 +444,7 @@ def _make_task_note_content_from_imported_task(selectedProjectName: str, importe
                 "plannedEnd": importedTask.get("Due Date","").replace("a.m.","").replace("p.m.",""),
                 "actualEnd": importedTask.get("Closed Date","").replace("a.m.","").replace("p.m.",""),
                 "Assigned To": importedTask.get("Assigned To","Unassigned"),
-                "Task detail": importedTask.get("Task Detail",""),
+                "Task Detail": importedTask.get("Task Detail",""),
                 }
 
     uniqueIdentifier, note_Content = merge_template_with_values(timestamp_id, timestamp_full, selectedProjectName, 

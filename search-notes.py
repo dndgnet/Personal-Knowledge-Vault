@@ -140,12 +140,28 @@ if len(sys.argv) > 1:
             searchHistory[searchIndex] = searchResult.copy()
             searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
             mySearch.describe_search_results(searchCriteria,searchResult)
+        
         elif args[p] == "-p":
             searchPart = args[p+1] if p+1 < len(sys.argv) else ""
             searchCriteria, searchResult = mySearch.search_project(searchResult, searchPart)
             searchHistory[searchIndex] = searchResult.copy()
             searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
             mySearch.describe_search_results(searchCriteria,searchResult)
+        
+        elif args[p] == "-ti":
+            searchPart = args[p+1] if p+1 < len(sys.argv) else ""
+            searchCriteria, searchResult = mySearch.search_title(searchResult, searchPart)
+            searchHistory[searchIndex] = searchResult.copy()
+            searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
+            mySearch.describe_search_results(searchCriteria,searchResult)
+        
+        elif args[p] == "-ty":
+            searchPart = args[p+1] if p+1 < len(sys.argv) else ""
+            searchCriteria, searchResult = mySearch.search_type(searchResult, searchPart)
+            searchHistory[searchIndex] = searchResult.copy()
+            searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
+            mySearch.describe_search_results(searchCriteria,searchResult)
+
         elif args[p] == "-np":
             searchCriteria, searchResult = mySearch.search_no_project(searchResult)
             searchHistory[searchIndex] = searchResult.copy()
@@ -185,6 +201,7 @@ if len(sys.argv) > 1:
             searchHistory[searchIndex] = searchResult.copy()
             searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
             mySearch.describe_search_results(searchCriteria,searchResult)
+        
         elif args[p] == "-lastmonth":
             startDate = datetime.date(datetime.datetime.now().year if datetime.datetime.now().month > 1 else datetime.datetime.now().year - 1, datetime.datetime.now().month - 1 if datetime.datetime.now().month > 1 else 12, 1).strftime('%Y-%m-%d')
             endDate = datetime.date(datetime.datetime.now().year, datetime.datetime.now().month, 1).strftime('%Y-%m-%d')
@@ -215,6 +232,7 @@ while continueSearch:
     print ("\t   d)  date range - Search by note date")
     print ("\t  ta) tags - Search by tags")
     print ("\t  ti) title - Search by title")
+    print ("\t  ty) type - Search by type")
     print ("\t  b)  body - Search by body text")
     print ("")
     print ("\t   p)  project - Search by project")
@@ -289,6 +307,13 @@ while continueSearch:
     elif inputChoice =='ti':
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_title(searchResult)
+        searchHistory[searchIndex] = searchResult.copy()
+        searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
+        mySearch.describe_search_results(searchCriteria,searchResult)
+
+    elif inputChoice =='ty':
+        searchIndex += 1
+        searchCriteria, searchResult = mySearch.search_type(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
         searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
         mySearch.describe_search_results(searchCriteria,searchResult)

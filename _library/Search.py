@@ -163,6 +163,32 @@ def search_date(notes: List[NoteData], startDate = "", endDate = "") -> Tuple[st
             
     return f"date range from {startDate} to {endDate}", results
 
+def search_type(notes: List[NoteData], searchPart = "") -> Tuple[str, List[NoteData]]:
+    """
+    Search for notes in the given list that match the specified type.
+
+    Args:
+        notes (List[NoteData]): List of NoteData objects.
+
+    Returns:
+        Tuple[str, List[NoteData]]: A tuple containing the search description and filtered notes.
+    """
+    if searchPart == "":
+        _, selectedType, _ = myInputs.select_template()
+    else:
+        selectedType = searchPart
+
+    selectedType = selectedType.replace("_template.markdown","").replace("pkv_","").replace("project_","")
+
+    results = []
+    if selectedType is None or selectedType == "":
+        return "none, no type selected", notes
+    else:
+        for note in notes:
+            if selectedType in note.type:
+                results.append(note)
+        return f"note type = {selectedType}", results
+    
 def search_title(notes: List[NoteData], searchPart = "") -> Tuple[str, List[NoteData]]:
     """
     Search for notes in the given list that match the specified title.

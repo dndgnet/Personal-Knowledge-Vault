@@ -1,7 +1,7 @@
 import datetime
 from decimal import Decimal
 
-from . import Preferences as myPreferences, Tools as myTools
+from . import Preferences as myPreferences, Tools as myTools, Projects as myProjects
 from .Notes import NoteData, sort_Notes_by_date
 
 def actuals_graph(actuals: dict, budget: Decimal) -> str:
@@ -102,24 +102,52 @@ def generate_summary(summaryTitle: str, searchDescription: str,
 
     for note in notes:
         note: NoteData = note  # type hint for better IDE support
-        
-        # build a timeline in descending order of date
-        if not includeBackLinkInTimeline and not includeBodyInTimeline:
-            timeLine += f"\n- {note.date[:10]} {note.type} {note.title}\n"
-        else:
-            timeLine += f"\n### {note.date[:10]} {note.type} {note.title}\n"
+        if "task" in note.type.lower():
+            task = myProjects.loadTaskFromNote(note)
+            startDate = task.plannedStart if task.actualStart == "" else task.actualStart
+            startDate = task.date[:10] if startDate == "" else startDate 
+            endDate = myTools.now_YYYY_MM_DD() if task.endDate == "" else task.endDate
             
-        if includeBodyInTimeline:
-            timeLine += f"\n{myTools.remove_noteHeaders(note.noteBody)}\n"
+            # build a timeline in descending order of date
+            if not includeBackLinkInTimeline and not includeBodyInTimeline:
+                timeLine += f"\n- {startDate} {note.type} {note.title}\n"
+            else:
+                timeLine += f"\n### {startDate} {note.type} {note.title}\n"
+                
+            if includeBodyInTimeline:
+                timeLine += f"\n{myTools.remove_noteHeaders(note.noteBody)}\n"
 
-        if includeBackLinkInTimeline:
-            timeLine += f"\n[[{note.fileName}]]\n"
-        
-        if includeGantt: 
-            gantt += f"{ myTools.letters_and_numbers_only(note.title)} : {note.date}, 1d\n"
+            if includeBackLinkInTimeline:
+                timeLine += f"\n[[{note.fileName}]]\n"
+            
+            if includeGantt: 
+                if startDate == endDate:
+                    gantt += f"{ myTools.letters_and_numbers_only(note.title)} : {startDate}, 1d\n"
+                else:
+                    gantt += f"{ myTools.letters_and_numbers_only(note.title)} : {startDate}, {endDate}\n"
 
-        if includeTimelineAsList:
-            timelineAsList += f"\n{note.date[:10]} - {note.title}\n\n"   
+            if includeTimelineAsList:
+                timelineAsList += f"\n{startDate} - {note.title}\n\n"   
+
+
+        else:
+            # build a timeline in descending order of date
+            if not includeBackLinkInTimeline and not includeBodyInTimeline:
+                timeLine += f"\n- {note.date[:10]} {note.type} {note.title}\n"
+            else:
+                timeLine += f"\n### {note.date[:10]} {note.type} {note.title}\n"
+                
+            if includeBodyInTimeline:
+                timeLine += f"\n{myTools.remove_noteHeaders(note.noteBody)}\n"
+
+            if includeBackLinkInTimeline:
+                timeLine += f"\n[[{note.fileName}]]\n"
+            
+            if includeGantt: 
+                gantt += f"{ myTools.letters_and_numbers_only(note.title)} : {note.date}, 1d\n"
+
+            if includeTimelineAsList:
+                timelineAsList += f"\n{note.date[:10]} - {note.title}\n\n"   
 
     if includeGantt:
         gantt = f"""

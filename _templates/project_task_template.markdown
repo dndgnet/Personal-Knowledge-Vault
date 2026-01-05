@@ -53,7 +53,7 @@ estimate percent complete as a number
 [CHECKBOX_UNCHECKED] [Title]
 <comments>
 
-[Task detail]
+[Task Detail]
 
 </comments>
 
