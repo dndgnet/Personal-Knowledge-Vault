@@ -374,7 +374,8 @@ def select_recent_note(noteTypeContains = "",  showActionItems = False,
     return int(selectedNoteId), selectedNote
     
 def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_full,
-                                       selectedProjectName,title,note_Content: str) -> str:
+                                       selectedProjectName,title,note_Content: str,
+                                       promptForAttachments = True) -> str:
     """
     Get the template merge values from the user.
     Returns the populated note content with user inputs replacing template tags.
@@ -445,22 +446,23 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
         note_Content = note_Content.replace(f"[{templateTag}]", templateTagValue)
         
     attachmentCount = 0
-    addAttachment = input(f"{myTerminal.INPUTPROMPT}Add attachment? (y/n): {myTerminal.RESET}").strip().upper()
+    if promptForAttachments:
+        addAttachment = input(f"{myTerminal.INPUTPROMPT}Add attachment? (y/n): {myTerminal.RESET}").strip().upper()
 
-    print("")
-    while addAttachment == "Y":
-        selectedFile, attachmentTagValue = select_attachment_from_user(projectName=selectedProjectName, uniqueIdentifier=timestamp_id)
-        if attachmentTagValue != "":
-            if attachmentCount == 0:
-                note_Content += "\n\n#### Attachments\n"
-            
-            attachmentCount += 1
-            note_Content += f"\n[{selectedFile}](./_Attachments/{attachmentTagValue})\n"
-            print(f"\t\t{myTerminal.SUCCESS}Attachment added '{selectedFile}'.{myTerminal.RESET}")
-            addAttachment = input(f"{myTerminal.INPUTPROMPT}Add another attachment? (y/n): {myTerminal.RESET}").strip().upper()
-        else:
-            print(f"\t\t{myTerminal.WARNING}No attachment selected.{myTerminal.RESET}")
-            addAttachment = "N"
+        print("")
+        while addAttachment == "Y":
+            selectedFile, attachmentTagValue = select_attachment_from_user(projectName=selectedProjectName, uniqueIdentifier=timestamp_id)
+            if attachmentTagValue != "":
+                if attachmentCount == 0:
+                    note_Content += "\n\n#### Attachments\n"
+                
+                attachmentCount += 1
+                note_Content += f"\n[{selectedFile}](./_Attachments/{attachmentTagValue})\n"
+                print(f"\t\t{myTerminal.SUCCESS}Attachment added '{selectedFile}'.{myTerminal.RESET}")
+                addAttachment = input(f"{myTerminal.INPUTPROMPT}Add another attachment? (y/n): {myTerminal.RESET}").strip().upper()
+            else:
+                print(f"\t\t{myTerminal.WARNING}No attachment selected.{myTerminal.RESET}")
+                addAttachment = "N"
                
     return note_Content
 

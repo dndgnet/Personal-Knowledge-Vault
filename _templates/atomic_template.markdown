@@ -1,5 +1,5 @@
 ---
-title: Idea [Title]
+title: Atomic [Title]
 id: [YYYYMMDDHHMMSS] 
 type: project-idea
 created: [YYYY-MM-DD HH:MM:SS] 
@@ -14,6 +14,6 @@ author: [Current User]
 private: No
 ---
 
-# [Title]
+**[Title]**
 
 [body]

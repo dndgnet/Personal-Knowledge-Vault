@@ -2,6 +2,7 @@
 import os
 from _library import Preferences as myPreferences, Inputs as myInputs, Terminal as myTerminal, VersionControl as myVersionControl, Notes as myNote
 from _library.Templates import merge_template_with_values, read_Template
+import re
 
 '''
 This script processes a meeting note, extracting sections that can be converted into atomic thought notes.
@@ -11,11 +12,11 @@ with "###", it prompts the user to decide whether to create an atomic thought no
 
 '''
 
-def makeAtomicNote(newNoteBody, atomicBody, h3, note) -> tuple[bool, str]:
+def makeAtomicNote(newNoteBody, atomicBody, h2, note) -> tuple[bool, str]:
     
     atomicNoteCreated = False
 
-    print (f"\n{myTerminal.SUCCESS}{h3}{myTerminal.RESET}\n{atomicBody}\n")
+    print (f"\n{myTerminal.SUCCESS}{h2}{myTerminal.RESET}\n{atomicBody}\n")
     makeAtomicNote = input("Should this be an atomic thought note? (y/n) ").upper().strip()
     
     if makeAtomicNote == "Y":
@@ -33,7 +34,7 @@ def makeAtomicNote(newNoteBody, atomicBody, h3, note) -> tuple[bool, str]:
         #add a backlink to the original note
         atomicBodyWithLink = atomicBody +  f"""\n\n[[{note.fileName}]] \n\n """
 
-        atomicNoteData = {"title": h3,
+        atomicNoteData = {"title": h2,
                         "project": selectedProjectName,
                         "author": note.author,
                         "tags": "",
@@ -53,23 +54,34 @@ def makeAtomicNote(newNoteBody, atomicBody, h3, note) -> tuple[bool, str]:
         elif atomicBody[-1:] == "\n":
             atomicBody = atomicBody[:-2]
 
-        newNoteBody = newNoteBody.replace(f"### {h3}\n{atomicBody}", f"### {h3}\n\n[[{atomicNoteFileName}]]\n\n")
-        
+        if selectedProjectName != "":
+            newNoteBody = re.sub(
+                rf"## {re.escape(h2)}\s*{re.escape(atomicBody)}", 
+                f"## {h2}\n\n![[./_Projects/{selectedProjectName}/{atomicNoteFileName}]]\n\n",
+                newNoteBody
+            )
+        else:
+            newNoteBody = re.sub(
+                rf"## {re.escape(h2)}\s*{re.escape(atomicBody)}", 
+                f"## {h2}\n\n![[./_Projects/{atomicNoteFileName}]]\n\n",
+                newNoteBody
+            )
+
         if tempNote == newNoteBody:
             print(f"{myTerminal.WARNING}No changes made to the fleeting note body.{myTerminal.RESET}")
             return atomicNoteCreated, newNoteBody
         # Save the fleeting note with the new atomic thought link
         with open(note.filePath, 'w', encoding='utf-8') as f:
             f.write(f"""---\n{note.frontMatter}\n---\n\n {newNoteBody}""")
-        myVersionControl.add_and_commit(note.filePath, f"moved '{h3}' section from fleeting note {note.title} to {atomicNoteFileName} on {timestamp_full}")
+        myVersionControl.add_and_commit(note.filePath, f"moved '{h2}' section from fleeting note {note.title} to {atomicNoteFileName} on {timestamp_full}")
             
-    h3 = line[4:].strip()
+    h2 = line[4:].strip()
     atomicBody = ""
     return atomicNoteCreated,newNoteBody
 
 
 
-selectedNoteId, note = myInputs.select_recent_note("meeting")
+selectedNoteId, note = myInputs.select_recent_note("")
 
 myTerminal.clearTerminal()
 print(f"""{myTerminal.YELLOW}Processing meeting note - {note.title} from {note.date}{myTerminal.RESET}""")
@@ -92,37 +104,47 @@ for line in noteBody.splitlines():
     if not atomicThoughtsAreaFound:
         #get to the noteBody part where atomic thoughts 
         #might be created
-        if (line.startswith("## Discussion Summary") or line.startswith("## Summary")
-            ) or (line.startswith("# Discussion Summary") or line.startswith("# Summary")):
+        if (line.startswith("## Discussion Summary") or line.startswith("## Summary") 
+            ) or (line.startswith("# Discussion Summary") or line.startswith("# Summary") or line.startswith("# Notes")):
             atomicThoughtsAreaFound = True   
         continue
-    
     elif atomicThoughtsAreaFound:
-        if line.startswith("## "):
-            h2 = line[3:].strip()
-            #ask if body should be a note 
-        elif line.startswith("### ") or line.startswith("#### Attachments"):
-            if atomicBody != "" and h3 != "":
-                atomicNoteMade, newNoteBody = makeAtomicNote(newNoteBody, atomicBody, h3, note)
-                
+        if line.startswith("## ") or line.startswith("### ") or line.startswith("#### Attachments"):
+            if h2 != "":
+                #copy the atomic part to new note
+                atomicNoteMade, newNoteBody = makeAtomicNote(newNoteBody, atomicBody, h2, note)
+
                 if atomicNoteMade:
                     countFoundAtomicThoughtNotes += 1
-            atomicBody = ""
-            h3 = line[4:].strip()
+                    #save the source note with the new links to atomic notes
+                    myNote.write_Note_to_path(note.filePath, f"""---\n{note.frontMatter}\n---\n\n {newNoteBody}""")
+                    
+                #reset for next atomic thought
+                atomicBody = ""
+                h2 = line[3:].strip()
+            
+            else:
+                #start an atomic thought
+                h2 = line[3:].strip()
+                atomicBody = ""
         else:
             atomicBody += line + "\n"
 
+    
 if atomicBody != "":
-    atomicNoteMade, newNoteBody = makeAtomicNote(newNoteBody, atomicBody, h3, note)
+    atomicNoteMade, newNoteBody = makeAtomicNote(newNoteBody, atomicBody, h2, note)
     if atomicNoteMade:
         countFoundAtomicThoughtNotes += 1
+        #save the source note with the new links to atomic notes
+        myNote.write_Note_to_path(note.filePath, f"""---\n{note.frontMatter}\n---\n\n {newNoteBody}""")
+        
 
 if countFoundAtomicThoughtNotes == 0:
     if atomicThoughtsAreaFound:
         print(f"{myTerminal.WARNING}No atomic thoughts were moved to atomic notes, no changes made.{myTerminal.RESET}")
     else:
         print(f"{myTerminal.WARNING}No atomic thoughts area found in the selected note, no changes made.{myTerminal.RESET}")
-        print("\t atomic thoughts area stars with '## Discussion Summary' or '## Summary'.\n")
+        print("\t atomic thoughts area stars with '## Discussion Summary' or '## Summary' or '# Notes'.\n")
 else:
     #open the fleeting note 
     os.system(f'{myPreferences.default_editor()} "{note.filePath}"')

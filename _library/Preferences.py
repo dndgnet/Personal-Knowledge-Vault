@@ -13,6 +13,9 @@ applicationNameRoot = "DNDG"
 #give each application or code snippet a unique preferences file name
 preferences_File = "Personal-Knowledge-Vault.json"
 
+#journal template name
+journal_template_name = "pkv_journal_template.markdown"
+
 #empty preferences file
 _exampleEmptyPreferences = {
     
