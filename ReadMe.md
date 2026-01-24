@@ -184,6 +184,7 @@ Consider `chmod +x *.py` to make the Python scripts in the root folder executabl
 | |<i><b>Vault Commands</b></i> |
 | open-vault | Opens the personal knowledge vault in the default editor|
 | open-hubNote | Displays a list of hub notes and opens the selected note|
+| open-journal | Opens todays journal note and if a journal note is not found a new note is created.<br/>Automatically records the start date|
 | Get-VaultDetails | Displays a summary of the vault preferences and vault details.|
 | edit-preferences | Opens the personal knowledge vault preferences in the default editor|
 | |<i><b>Follow-up Commands</b></i> |
@@ -198,7 +199,7 @@ Consider `chmod +x *.py` to make the Python scripts in the root folder executabl
 | Make-Table  | Asks for the column headings and then produces a blank markdown table that can be copied and used in a note.  |
 | search-notes  | Performs an iterative search by asking for search parameters such as project, tag, date and note body content.  |
 | build-projectSummary  | Selects a project and then prepares a summary putting the latest <i>progress</i> note at the top followed by a timeline of other notes.  |
-| make-meetingNotesAtomic | Splits a meeting note into atomic notes based on level three summary headings.|
+| make-AtomicNote | Splits a meeting note into atomic notes based on level two `##` summary headings in journal notes.|
 | |<i><b>Version Control</b></i> |
 | versioncontrol-commitAll  | Adds and commits any changes in the vault.  |
 | versioncontrol-showHistory  | Shows the git history  |

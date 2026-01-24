@@ -85,7 +85,7 @@ def printWithoutLineWrap (prefixText: str, textToAdd: str):
         printText = prefixText + "\n\t" + textToAdd[:terminalWidth - 8]
     else:
         if len(textToAdd) >= remainingLength:
-            printText = prefixText + ' ' + textToAdd[:remainingLength - 3] + '...'
+            printText = prefixText + ' ' + textToAdd[:remainingLength - 4] + '...'
         else:
             printText = prefixText + ' ' + textToAdd[:remainingLength]
     

@@ -15,6 +15,10 @@ with "###", it prompts the user to decide whether to create an atomic thought no
 def makeAtomicNote(newNoteBody, atomicBody, h2, note) -> tuple[bool, str]:
     
     atomicNoteCreated = False
+    if atomicBody.strip().startswith("![[") and atomicBody.strip().endswith(".md]]"):
+        #probably already converted this heading to an atomic note
+        return atomicNoteCreated, newNoteBody
+    
 
     print (f"\n{myTerminal.SUCCESS}{h2}{myTerminal.RESET}\n{atomicBody}\n")
     makeAtomicNote = input("Should this be an atomic thought note? (y/n) ").upper().strip()
@@ -32,7 +36,8 @@ def makeAtomicNote(newNoteBody, atomicBody, h2, note) -> tuple[bool, str]:
         timestamp_full = note.date 
         
         #add a backlink to the original note
-        atomicBodyWithLink = atomicBody +  f"""\n\n[[{note.fileName}]] \n\n """
+        #atomicBodyWithLink = atomicBody +  f"""\n\n<!--hidden\n[[{note.fileName}]] \n-->\n\n """
+        atomicBodyWithLink = atomicBody +  f"""\n\n[[{note.fileName}]]\n\n """
 
         atomicNoteData = {"title": h2,
                         "project": selectedProjectName,
@@ -49,11 +54,8 @@ def makeAtomicNote(newNoteBody, atomicBody, h2, note) -> tuple[bool, str]:
         myNote.write_Note_to_path(os.path.join(myPreferences.root_projects(), selectedProjectName, atomicNoteFileName), noteBody)
 
         tempNote = newNoteBody
-        if atomicBody[-3:] == "\n\n":
-            atomicBody = atomicBody[:-4]
-        elif atomicBody[-1:] == "\n":
-            atomicBody = atomicBody[:-2]
-
+        atomicBody = atomicBody.strip()
+        
         if selectedProjectName != "":
             newNoteBody = re.sub(
                 rf"## {re.escape(h2)}\s*{re.escape(atomicBody)}", 
@@ -79,9 +81,7 @@ def makeAtomicNote(newNoteBody, atomicBody, h2, note) -> tuple[bool, str]:
     atomicBody = ""
     return atomicNoteCreated,newNoteBody
 
-
-
-selectedNoteId, note = myInputs.select_recent_note("")
+selectedNoteId, note = myInputs.select_recent_note("journal",showActionItems=True, groupByProject=False, DaysToGoBack=8)
 
 myTerminal.clearTerminal()
 print(f"""{myTerminal.YELLOW}Processing meeting note - {note.title} from {note.date}{myTerminal.RESET}""")
@@ -100,6 +100,7 @@ atomicBody = ""
 
 atomicThoughtsAreaFound = False
 countFoundAtomicThoughtNotes = 0
+
 for line in noteBody.splitlines():    
     if not atomicThoughtsAreaFound:
         #get to the noteBody part where atomic thoughts 
@@ -109,7 +110,7 @@ for line in noteBody.splitlines():
             atomicThoughtsAreaFound = True   
         continue
     elif atomicThoughtsAreaFound:
-        if line.startswith("## ") or line.startswith("### ") or line.startswith("#### Attachments"):
+        if line.startswith("## ") or line.startswith("### Attachments") or line.startswith("#### Attachments"):
             if h2 != "":
                 #copy the atomic part to new note
                 atomicNoteMade, newNoteBody = makeAtomicNote(newNoteBody, atomicBody, h2, note)
