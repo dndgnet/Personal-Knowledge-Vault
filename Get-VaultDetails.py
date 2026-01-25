@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from _library import Preferences as myPreferences, Tools as myTools, Terminal as myTerminal
+from _library import Preferences as myPreferences, Tools as myTools, Terminal as myTerminal, Notes as myNotes
 import os 
 def main():
     
@@ -9,6 +9,11 @@ def main():
     for key, value in myPreferences._preferences.items():
         print(f"\t{key}: {value}")
     myTerminal.print_separator()
+
+    #get number of notes
+    notes = myNotes.get_Notes_as_list(target_dir=myPreferences.root_pkv())
+
+    print("Number of Notes in Vault:", len(notes))
 
     #get size on disk of the vault
     vault_size = 0
@@ -28,16 +33,19 @@ def main():
     print("Projects Directory:", myPreferences.root_projects())
     print("Number of Projects:", len(projects))
     for key, values in projects.items():
-        myTerminal.printWithoutLineWrap("    ",f"{key}: {values}")
+        myTerminal.printWithoutLineWrap(" ",f"{key}:")
+        myTerminal.printWithoutLineWrap("    ",f"{values}")
+        projectNotes = myNotes.get_Notes_as_list(target_dir=values)
+        myTerminal.printWithoutLineWrap("    ",f"Number of Notes in Vault: {len(projectNotes)}")
         print("")
 
-    myTerminal.print_separator()
-    attachments = myTools.get_pkv_attachments()
-    print("Attachments Directory:", myPreferences.root_attachments())
-    print("Number of Attachments:", len(attachments))
-    for key, value in attachments.items():
-        myTerminal.printWithoutLineWrap("    ",f"{key}")
-        print("")
+    # myTerminal.print_separator()
+    # attachments = myTools.get_pkv_attachments()
+    # print("Attachments Directory:", myPreferences.root_attachments())
+    # print("Number of Attachments:", len(attachments))
+    # for key, value in attachments.items():
+    #     myTerminal.printWithoutLineWrap("    ",f"{key}")
+    #     print("")
 
 
 if __name__ == "__main__":

@@ -104,12 +104,9 @@ private: No
 
 ### Private
 
-Each note is determined to be private/public based on the front matter `private` property.  A front matter *private* property of 'True', 'Yes', or 'Y' will be seen as true and the note will not be included in public exports such as the project summary or progress reports.  A null or missing front matter private property, for example if your template does not include a private property, will be interpreted as *no, this note is not private*.
+### Private
 
-
-
-
-
+Each note is determined to be private or public based on the front matter `private` property. A front matter *private* property of 'True', 'Yes', or 'Y' will be treated as true, and the note will not be included in public exports such as project summaries or progress reports. A null or missing front matter private property (for example, if your template does not include a private property) will be interpreted as *no, this note is not private*.
 
 TODO: talk about Zettelkasten basics
 - emphasize the importance of a YYYYMMDD date format 

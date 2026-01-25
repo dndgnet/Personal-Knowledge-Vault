@@ -58,6 +58,15 @@ Roles:
 Classification: Monitor, Keep Informed, Keep Satisfied, Manage Closely
 -->
 
+<!-- Hidden Section
+
+### Glossary of Common Terms
+
+- term 1
+- term 2
+
+-->
+
 
 ## Schedule
 
