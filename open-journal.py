@@ -2,6 +2,12 @@
 from datetime import datetime
 import os
 from _library import Terminal as myTerminal, Preferences as myPreferences, Notes as myNotes, Tools as myTools, Inputs as myInputs, Templates as myTemplates, VersionControl as myVersionControl
+
+#call the open-vault.py script to make sure the vault is open before we try to access it
+import subprocess
+subprocess.run(["python3", "open-vault.py"], check=True)
+
+
 #if today's journal exists, open it
 # if today's journal does not exist, create it and then open it
 
