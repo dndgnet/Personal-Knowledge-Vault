@@ -5,7 +5,10 @@ from _library import Terminal as myTerminal, Preferences as myPreferences, Notes
 
 #call the open-vault.py script to make sure the vault is open before we try to access it
 import subprocess
-subprocess.run(["python3", "open-vault.py"], check=True)
+if os.name == 'nt':  # For Windows
+    subprocess.run(["py", "open-vault.py"], check=True)
+else:
+    subprocess.run(["python3", "open-vault.py"], check=True)
 
 
 #if today's journal exists, open it
