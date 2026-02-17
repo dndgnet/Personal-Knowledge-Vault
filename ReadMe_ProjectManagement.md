@@ -27,6 +27,8 @@ Use the `get-actionItems` command to return incomplete action items.
 
 ## Tasks
 
+Use `project_tasks_from_CSV.py` to import tasks.
+
 Tasks can be imported and updated from remote sources such as DevOps, Jira, Trello, etc using the `project_tasks_from_CSV.py` command.
 
 Our project tasks expects a CSV file containing 

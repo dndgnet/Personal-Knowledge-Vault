@@ -393,3 +393,11 @@ Open vault in terminal
 `git add .` to add all of the existing notes.
 `git commit -m"my initial commit after starting to use version control in my vault` to commit your existing notes.
 edit your preferences and change `use_versionControl = "True"`
+
+
+
+# Print to PDF 
+
+https://marketplace.visualstudio.com/items?itemName=yzane.markdown-pdf 
+might need to configure mermaid to use https://unpkg.com/mermaid@10.4.0/dist/mermaid.js 
+and take `<span class='title'>` out of the header
