@@ -99,30 +99,34 @@ def main():
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(note_Content)
 
-        
+    if noteType in ("meeting","chat"):
+        notes = myNotes.get_Notes_as_list(myPreferences.root_pkv(), includePrivateNotes=True, includeArchivedProjects=False)
+        notes = sorted(notes, key=lambda x: x.date, reverse=True)
+
+        for journal in notes:
+            if journal.title == f"Daily Journal {selectedDateTime.strftime('%Y-%m-%d')}":
+                addToJournal = myInputs.ask_yes_no_from_user(f"Do you want to add this {noteType} note to the {selectedDateTime.strftime('%Y-%m-%d')} journal?", default= True)
+                if addToJournal:
+                    newNoteBody = journal.noteBody + "\n\n" + f"## {selectedDateTime.strftime('%H:%M')} {noteType} {title}\n\n"+ f"![[./_Projects/{selectedProjectName}/{output_filename}]]\n"
+                    with open(journal.filePath, 'w', encoding='utf-8') as f:
+                        f.write(f"""---\n{journal.frontMatter}\n---\n\n {newNoteBody}""")
+                    #myNotes.open_note_in_editor(journal.filePath)
+                    
+                    # Re-save the new note with a backlink to the journal
+                    note_Content += f"\n\n\nBacklink to journal: [[{journal.fileName}]]"
+                    with open(output_path, 'w', encoding='utf-8') as f:
+                        f.write(note_Content)
+                break
+
+    print(f"{myTerminal.SUCCESS}Note created:{myTerminal.RESET} {output_path}")
 
     myVersionControl.add_and_commit(output_path, f"Added new {noteType} note: {title} on {timestamp_full}")
 
-    print(f"{myTerminal.SUCCESS}Note created:{myTerminal.RESET} {output_path}")
     if noteType != "event" or myPreferences.automatically_open_event_notes():
         # os.system(f'{myPreferences.default_editor()} "{output_path}"')
         myTools.open_note_in_editor(output_path)
 
-    if noteType in ("meeting","chat"):
-        addToJournal = myInputs.ask_yes_no_from_user(f"Do you want to add this {noteType} note to the journal?", default= True)
-        if addToJournal:
-            notes = myNotes.get_Notes_as_list(myPreferences.root_pkv(), includePrivateNotes=True, includeArchivedProjects=False)
-            notes = sorted(notes, key=lambda x: x.date, reverse=True)
 
-            for journal in notes:
-                if journal.title == f"Daily Journal {datetime.now().strftime('%Y-%m-%d')}":
-                    myNotes.open_note_in_editor(journal.filePath)
-                    newNoteBody = journal.noteBody + "\n\n" + f"## {selectedDateTime.strftime('%H:%M')} {noteType}\n\n"+ f"![[./_Projects/{selectedProjectName}/{output_filename}]]\n"
-
-                    with open(journal.filePath, 'w', encoding='utf-8') as f:
-                        f.write(f"""---\n{journal.frontMatter}\n---\n\n {newNoteBody}""")
-
-                    exit()
 
 if __name__ == "__main__":
     main()
