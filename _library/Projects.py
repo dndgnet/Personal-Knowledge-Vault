@@ -26,7 +26,8 @@ kanBanBoardColumns = {
 importTaskColumnTranslation = {"ID":["ID","Task Identifier","Task Identifier","Task ID","TaskID","Task Id","Task id","Task_Id","Ticket","Ticket Number"],
     "Title":["Title","Task Name","Task","Task Title","Task_Title","Task_Name","Ticket Title","Ticket_Title"],
     "Status":["State","Status","Task Status","Ticket Status","Ticket_Status"],
-    "Start Date":["Start Date","Task Start Date","Start_Date","Task_Start_Date","Ticket Start Date","Ticket_Start_Date"],
+    "Start Date":["Activated Date", "Start Date","Task Start Date","Start_Date","Task_Start_Date","Ticket Start Date","Ticket_Start_Date"],
+    "Actual Start":["Activated Date"],
     "Due Date":["Due Date","Task Due Date","Due_Date","Task_Due_Date","Ticket Due Date","Ticket_Due_Date"],
     "Assigned To":["Assigned To","Task Assigned To","Assigned_To","Task_Assigned_To","Ticket Assigned To","Ticket_Assigned_To"],
     "Closed Date":["Closed Date","Task Closed Date","Closed_Date","Task_Closed_Date","Ticket Closed Date","Ticket_Closed_Date"],
@@ -215,7 +216,7 @@ def diagram_kanban_by_state(project_name: str, ticketBaseUrl:str = "") -> str:
         ticketStatement = ""
         if task.ticket != "":
             ticketStatement = f" ticket: '{task.ticket}', " 
-        projectBoardBuckets[task.KanBanColumn()] = projectBoardBuckets.get(task.KanBanColumn(), "") + f"\t{task.id}[{task.title}]{cardStart}{ticketStatement} assigned: '{task.assignedTo}'{cardEnd}\n"
+        projectBoardBuckets[task.KanBanColumn()] = projectBoardBuckets.get(task.KanBanColumn(), "") + f"\t{task.id}[{myTools.letters_and_numbers_only(task.title)}]{cardStart}{ticketStatement} assigned: '{task.assignedTo}'{cardEnd}\n"
 
     #start diagram
     if ticketBaseUrl == "":
@@ -269,7 +270,7 @@ def diagram_kanban_by_assigned(project_name: str, ticketBaseUrl:str = "") -> str
             ticketStatement = f" ticket: '{task.ticket}', " 
         for assignedTo in projectBoardBuckets.keys():
             if assignedTo.strip() in task.assignedTo:
-                projectBoardBuckets[assignedTo] = projectBoardBuckets.get(assignedTo, "") + f"\t{task.id}[{task.title}]{cardStart}{ticketStatement} assigned: '{task.state}'{cardEnd}\n"
+                projectBoardBuckets[assignedTo] = projectBoardBuckets.get(assignedTo, "") + f"\t{task.id}[{myTools.letters_and_numbers_only(task.title)}]{cardStart}{ticketStatement} assigned: '{task.state}'{cardEnd}\n"
 
     #start diagram
     if ticketBaseUrl == "":
@@ -324,10 +325,13 @@ gantt
         elif task.state.lower() in ["in progress", "ongoing", "doing"]:
             state = "active"
         else:
-            state = "planned"        
+            state = ""        
 
         if startDate != "" and endDate != "":
-            gantt += f"    {myTools.letters_and_numbers_only(task.title)} :{state}, {task.id}, {startDate}, {endDate}\n"
+            if state != "":
+                gantt += f"    {myTools.letters_and_numbers_only(task.title)} :{state}, {task.id}, {startDate}, {endDate}\n"
+            else:
+                gantt += f"    {myTools.letters_and_numbers_only(task.title)} : {task.id}, {startDate}, {endDate}\n"
 
     gantt += """
 ```
@@ -440,7 +444,7 @@ def _make_task_note_content_from_imported_task(selectedProjectName: str, importe
                 "State - Not Started, In-progress, Testing, Complete, Cancelled": importedTask.get("Status","Not Started"),
                 "ticket number": importedTask.get("ID",""),
                 "plannedStart": importedTask.get("Start Date","").replace("a.m.","").replace("p.m.",""),
-                "actualStart": importedTask.get("Start Date","").replace("a.m.","").replace("p.m.",""),
+                "actualStart": importedTask.get("Actual Start","").replace("a.m.","").replace("p.m.",""),
                 "plannedEnd": importedTask.get("Due Date","").replace("a.m.","").replace("p.m.",""),
                 "actualEnd": importedTask.get("Closed Date","").replace("a.m.","").replace("p.m.",""),
                 "Assigned To": importedTask.get("Assigned To","Unassigned"),
@@ -479,10 +483,15 @@ def _update_existing_task_from_csv_import(projectName:str,csvTaskDict: dict, pkv
         print("\tStatus changed:")
         print (f"\t\t{pkvTask.state} -> \n\t\t{csvTaskDict['Status']}")
     
-    if pkvTask.actualStart.strip() != csvTaskDict['Start Date'].replace('a.m.','').replace('p.m.','').strip():
+    if pkvTask.plannedStart.strip() != csvTaskDict['Start Date'].replace('a.m.','').replace('p.m.','').strip():
+        containsChange = True
+        print("\tPlanned Start changed:")
+        print (f"\t\t{pkvTask.plannedStart} -> \n\t\t{csvTaskDict['Start Date'].replace('a.m.','').replace('p.m.','')}")
+    
+    if pkvTask.actualStart.strip() != csvTaskDict['Actual Start'].replace('a.m.','').replace('p.m.','').strip():
         containsChange = True
         print("\tActual Start changed:")
-        print (f"\t\t{pkvTask.actualStart} -> \n\t\t{csvTaskDict['Start Date'].replace('a.m.','').replace('p.m.','')}")
+        print (f"\t\t{pkvTask.actualStart} -> \n\t\t{csvTaskDict['Actual Start'].replace('a.m.','').replace('p.m.','')}")
     
     if pkvTask.plannedEnd.strip() != csvTaskDict['Due Date'].replace('a.m.','').replace('p.m.','').strip():
         containsChange = True
