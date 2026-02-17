@@ -40,10 +40,13 @@ private: No
 ### Out of Scope:
 
 ## Stakeholders
+<div style="font-size: small;">
 
 | Name | Contact Info | Position | Role | Expectations | Classification |
 | --- | --- | --- | --- | --- | --- |
 |   |   |   |   |   |   |
+
+</div>
 
 <!-- Hidden hints
 Position vs. Role: Position is usually a job title, role is the stakeholder's role in the project.
@@ -77,7 +80,67 @@ Classification: Monitor, Keep Informed, Keep Satisfied, Manage Closely
 
 **Actual Completion Date:**
 
-### Milestones:
+
+
+## Budget
+
+**Budget Amount:** $1000.00
+
+**Budget Hours:** 40
+
+**Contingency:** 10%
+
+**Actual Hours:** tbd
+
+**Time Tracker Code:** tbd
+
+
+<div style="break-after: page;"></div>
+
+```mermaid
+---
+config:
+  themeVariables:
+    xyChart:
+      plotColorPalette: "#1ABC9C, #FF8C33, #3357FF, #F333FF"
+---
+xychart-beta
+    title "Budget, Actual and Progress Hours Burn Down"
+    x-axis [Jan-1, Jan-15, Jan-26, Feb-1, Feb-9, Feb-16, Mar-1, Mar-15, Apr-1]
+    y-axis "Available Hours" 0 --> 240
+    line "Budget Hours" [231, 200, 180, 160, 141, 23, 5, 0]
+    line "Actual Hours" [231, 225, 221, 205.46, 192.44 ]
+    line "Earned Value Inverse" [231,231,220, 146.5 ]
+```
+<span style="color: #1ABC9C; font-size: 10px">budget hours</span> - <span style="color: #FF8C33; font-size: 10px">actual hours</span> - <span style="color: #3357FF; font-size: 10px">progress hours</span>
+
+
+# Risks
+
+<div style="font-size: small;">
+
+| **Risk Description** | **Likelihood** | **Impact** | **Response Action(s)** | **Owner** |
+| --- | --- | --- | -- |-- |
+| Requirements expansion during build | Possible | Major | Define and sign off on scope document before build | Analyst |
+
+<!-- Hidden hints
+Likelihood - Unlikely, Possible, Likely, Almost Certain
+Impact - Minor, Moderate, Major, Significant
+-->
+
+</div>
+
+# Transition Plan
+
+<!-- hidden mermaid example
+
+- Document and Transfer Knowledge/Assets
+- Execute the Handover / Cutover
+- Evaluate and Ensure Ongoing Value Realization
+
+-->
+
+# Milestones:
 
 <!-- hidden mermaid example
 
@@ -96,6 +159,7 @@ gantt
     Implementation                      :p4, after p3, 25d
     Testing                             :p5, after p4, 5d
     Deployment                          :p6, after p5, 2d
+    Transition                          :p7, after p5, 5d
     Maintenance                         :crit,p7, after p6, 10d
 
     section Actual
@@ -106,35 +170,11 @@ gantt
     Implementation                      :a4, after p3, 25d
     Testing                             :a5, after p4, 5d
     Deployment                          :a6, after p5, 2d
+    Transition                          :a7, after p5, 2d
     Maintenance                         :crit,p7, after p6, 10d
 
 
 ```
 -->
-
-## Budget
-
-**Budget Amount:** $1000.00
-
-**Budget Hours:** 40
-
-**Contingency:** 10%
-
-**Time Tracker Code:** tbd
-
-
-# Risks
-
-
-| **Risk Description** | **Likelihood** | **Impact** | **Response Action(s)** |
-| --- | --- | --- | -- |
-| Requirements expansion during build | Possible | Major | Define and sign off on scope document before build |
-
-<!-- Hidden hints
-Likelihood - Unlikely, Possible, Likely, Almost Certain
-Impact - Minor, Moderate, Major, Significant
--->
-
-
 
 
