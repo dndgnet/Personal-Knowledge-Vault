@@ -58,7 +58,11 @@ Roles:
     Functional Manager: The person who has management authority over an organizational unit (like an IT or marketing department) and is often the one who assigns staff to the project team.
 
 
-Classification: Monitor, Keep Informed, Keep Satisfied, Manage Closely
+Classification: 
+	- high power, high influence - manage closely
+	- high power, low influence - keep satisfied
+	- low power, high influence - keep informed
+	- low power, low influence - not prioritized
 
 -->
 
