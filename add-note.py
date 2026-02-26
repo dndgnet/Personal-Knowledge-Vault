@@ -99,7 +99,7 @@ def main():
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(note_Content)
 
-    if noteType in ("meeting","chat"):
+    if noteType in ("meeting","chat","email","issue","idea","task"):
         notes = myNotes.get_Notes_as_list(myPreferences.root_pkv(), includePrivateNotes=True, includeArchivedProjects=False)
         notes = sorted(notes, key=lambda x: x.date, reverse=True)
 
