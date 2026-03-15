@@ -7,3 +7,12 @@ __pycache__/
 __pycache__*
 *.pyc
 .vscode/*
+cspell.json
+web.py
+working_Obsidian.py
+working.md
+working.py
+.continue/agents/new-config.yaml
+_troubleshoot_CSV Calc.ipynb
+_troubleshoot_load notes.ipynb
+_troubleshoot_work with tasks.ipynb
