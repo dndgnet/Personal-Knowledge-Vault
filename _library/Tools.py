@@ -10,6 +10,9 @@ from decimal import Decimal
 # Import NoteData from Notes module
 from .Notes import NoteData, get_Notes_as_list, get_note_tags
 
+divTagSmall ="""<div style="font-size: small;">\n"""
+divTagEnd = "\n</div>"
+
 _datetime_formats = (
     "%Y-%m-%d %H:%M:%S",    # Full datetime with seconds
     "%Y-%m-%d %H:%M",       # Full datetime without seconds

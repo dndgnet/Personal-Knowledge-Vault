@@ -44,7 +44,7 @@ Our project tasks expects a CSV file containing
 
 The following synonyms will be accepted for column names.
 
-``` 
+``` Python
 """Projects.py line 26, importTaskColumnTranslation
 
 {"ID":["ID","Task Identifier","Task Identifier","Task ID","TaskID","Task Id","Task id","Task_Id","Ticket","Ticket Number"],
@@ -65,8 +65,8 @@ On first import all of the columns are used to create a new task but on subseque
 
 Status and state are highly dependant on the source system.  The following shows how states are translated to KanBan board columns.
 
-```
-"""Projects.py line 87, def KanBanColumn(self)
+``` Python
+"""Projects.py line 87, def KanBanColumn(self)"""
 
 if state in ["not started", "pending", "to do"]:
     return kanBanBoardColumns.get("To Do", "To Do")
@@ -82,3 +82,68 @@ elif state in ["cancelled", "canceled", "abandoned"]:
     return kanBanBoardColumns.get("Cancelled", "Cancelled")
 else:
     return kanBanBoardColumns.get("Backlog", "Backlog")
+```
+
+
+# Burndown 
+
+If the project folder contains a `data_burndown.csv` file then a burndown style visualization is possible.
+
+## Columns
+
+- x-axis: must include a date, or at least a year month in the format `YYYY-MM-DD`.
+    - x-axis label will be displayed as MMM-DD for the first day of the month and then just DD to save space until the next month
+- Planned Budget: float values for your planned burn down.  The first record should be the full budget, the last record should be zero.
+- Actual: the actual hours reported, use zero to indicate that that the project hasn't reached that point yet
+- Earned Value: the calculated earned value based on the team's progress report.  For example if your total budget is 200 hours and the team reports that the project is 70% your earned value for this visualization is *140*. 
+
+### Example CSV
+```csv 
+x-axis,Planned Budget,Actual,Earned Value
+2026-01-04,231,0,0 
+2026-01-07,231,10.5,5
+2026-01-14,200,50,30
+2026-01-21,150,90,110
+2026-01-28,100,130,150
+2026-02-04,50,0,0
+2026-02-11,0,0,0
+
+```
+<div style="font-size: x-small;">
+
+| x-axis     |   Planned Budget |   Actual |   Earned Value |
+|:-----------|-----------------:|---------:|---------------:|
+| 2026-01-04 |              231 |      0   |              0 |
+| 2026-01-07 |              231 |     10.5 |              5 |
+| 2026-01-14 |              200 |     50   |             30 |
+| 2026-01-21 |              150 |     90   |            110 |
+| 2026-01-28 |              100 |    130   |            150 |
+| 2026-02-04 |               50 |      0   |              0 |
+| 2026-02-11 |                0 |      0   |              0 |
+
+</div>
+
+### Example visualization
+
+<div style="break-after: page;"></div>
+
+```mermaid
+---
+config:
+  themeVariables:
+    xyChart:
+      plotColorPalette: "#1ABC9C, #FF8C33, #3357FF, #F333FF"
+---
+xychart-beta
+    title "Budget, Actual and Progress Hours Burn Down"
+    x-axis [Jan-04, 07, 14, 21, 28, Feb-04, 11]
+    y-axis "Available Hours" 0 --> 240
+    line "Budget " [231.0, 231.0, 200.0, 150.0, 100.0, 50.0, 0.0]
+    line "Actual " [231.0, 220.5, 181.0, 141.0, 101.0]
+    line "Earned Value Inverse" [231.0, 226.0, 201.0, 121.0, 81.0]
+
+```
+
+<span style="color: #1ABC9C; font-size: 10px">budget</span> - <span style="color: #FF8C33; font-size: 10px">Actual</span> - <span style="color: #3357FF; font-size: 10px">earned value (progress hours)</span>
+
+<div style="break-after: page;"></div>

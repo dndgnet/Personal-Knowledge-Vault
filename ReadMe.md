@@ -401,3 +401,14 @@ edit your preferences and change `use_versionControl = "True"`
 https://marketplace.visualstudio.com/items?itemName=yzane.markdown-pdf 
 might need to configure mermaid to use https://unpkg.com/mermaid@10.4.0/dist/mermaid.js 
 and take `<span class='title'>` out of the header
+
+
+```mermaid
+---
+config:
+  theme: 'forest'
+---
+  graph TD
+    a --> b
+
+```

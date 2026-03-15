@@ -10,6 +10,10 @@ import os
 import json 
 from datetime import datetime, timedelta
 
+monthStringNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+dataTypeDictionary = {"BurnDown": "x-axis,Planned Budget,Actual,Earned Value",
+                      "Stakeholders": "Name,Title,Contact Info,Role,Expectations,Classification"}
 
 # KanBan board columns that we recognize
 kanBanBoardColumns = {
@@ -197,6 +201,27 @@ def sort_Tasks_by_date(tasks: list[TaskData], descending: bool = True) -> list[T
     
     return sorted(tasks, key=lambda task: task.date, reverse=descending)
 
+def open_ProjectData_in_Editor(projectName: str, dataType: str):
+    """Opens the project data file in the default editor based on the data type."""
+
+    if dataType in dataTypeDictionary.keys():
+        csvFileName = f"data_{dataType}.csv"
+        csvFilePath = os.path.join(myPreferences.root_projects(), projectName, csvFileName)
+        
+        if not os.path.exists(csvFilePath):
+            csvFileName = f"data_{dataType}.csv"
+            with open(csvFilePath, "w") as csvFile:
+                csvFile.write(f"{dataTypeDictionary[dataType]}\n")  
+    
+            print(f"""{myTerminal.ERROR}CSV file not found at {csvFilePath}.{myTerminal.RESET}
+                \nAn empty CSV file with the appropriate headers has been created. Please populate the CSV file with data and run the script again.{myTerminal.RESET}""")
+            
+
+        myTools.open_note_in_editor(csvFilePath)    
+    
+    else:
+        print(f"{myTerminal.ERROR}Data type '{dataType}' not recognized. No file to open.{myTerminal.RESET}")   
+
 def diagram_kanban_by_state(project_name: str, ticketBaseUrl:str = "") -> str:
     """Generates a KanBan diagram data structure for tasks in a project, grouped by state.
     if ticketBaseUrl is provided, it will be used to create links for tickets in the diagram.
@@ -366,6 +391,120 @@ gantt
 ```
 """ 
     return gantt   
+
+def diagram_Burndown(projectName: str) -> str:   
+    """Generates a Burndown diagram data structure for a project.
+    Expects a CSV file in the project folder with columns: Date, Planned Budget, Actual, Earned Value
+    """
+    csvFileName = "data_BurnDown.csv"
+    csvFilePath = os.path.join(myPreferences.root_projects(), projectName, csvFileName)
+
+    if not os.path.exists(csvFilePath):
+        #create an empty CSV file with the appropriate headers
+        with open(csvFilePath, "w") as csvFile:
+            csvFile.write("x-axis,Planned Budget,Actual,Earned Value\n")  
+        print(f"""{myTerminal.ERROR}CSV file not found at {csvFilePath}.{myTerminal.RESET}
+            \nAn empty CSV file with the appropriate headers has been created. Please populate the CSV file with data and run the script again.{myTerminal.RESET}""")
+        myTools.open_note_in_editor(csvFilePath)    
+
+    # Read the CSV file into a burndown dictionary
+    burndown_data = {}
+    with open(csvFilePath, "r") as csvFile:
+        headers = csvFile.readline().strip().split(",")
+        for line in csvFile:
+            values = line.strip().split(",")
+            burndown_data[values[0]] = dict(zip(headers[1:],  map(float, values[1:])))
+
+    #get max budget for y-axis scaling
+    if len(burndown_data) == 0:
+        print(f"{myTerminal.WARNING}No data found in CSV file.{myTerminal.RESET}")
+        return f"No data found in '{csvFilePath}'."
+    
+    max_budget = max(entry["Planned Budget"] for entry in burndown_data.values())
+    # make max_budget a multiple of 10 for better visualization
+    max_budgetLabel = ((int(max_budget) // 10) + 1) * 10
+
+    xaxis_List = []
+    xaxis_Labels = ""
+    # for each date in the burndown data dictionary, format the date as "MM/DD" if 
+    # the date is the same month as the previous date, otherwise format it as "DD"
+    previous_month = None
+    for date in burndown_data.keys():
+        year, month, day = date.split("-")
+        if month == previous_month:
+            xaxis_List.append(day)
+            xaxis_Labels += f"{day}, "
+        else:
+            xaxis_List.append(f"{monthStringNames[int(month)-1]}-{day}")
+            xaxis_Labels += f"{monthStringNames[int(month)-1]}-{day}, "
+            previous_month = month
+    #remove trailing comma and space from xaxis_Labels
+    xaxis_Labels = xaxis_Labels.strip(", ")
+
+    budget_List = []
+    budget_Labels = ""
+    for date in burndown_data.keys():
+        budget_List.append(burndown_data[date]["Planned Budget"]) 
+        budget_Labels += f"{burndown_data[date]['Planned Budget']}, "
+    #remove trailing comma and space from budget_Labels
+    budget_Labels = budget_Labels.strip(", ")
+
+    actual_List = []
+    actual_Labels = ""
+    for date in burndown_data.keys():
+        if sum(actual_List) > 0 and burndown_data[date]["Actual"] == 0:
+            #assume that the actual values for this period have not been entered and should not be plotted
+            pass
+        else:
+            actual_List.append(max_budget - burndown_data[date]["Actual"]) 
+            actual_Labels += f"{max_budget - burndown_data[date]['Actual']}, "
+        
+    #remove trailing comma and space from actual_Labels
+    actual_Labels = actual_Labels.strip(", ")
+
+
+    earnedValue_List = []
+    earnedValue_Labels = ""
+    for date in burndown_data.keys():
+        if sum(earnedValue_List) > 0 and burndown_data[date]["Earned Value"] == 0:
+            #assume that the earned value for this period has not been entered and should not be plotted
+            pass
+        else:        
+            earnedValue_List.append(max_budget - burndown_data[date]["Earned Value"]) 
+            earnedValue_Labels += f"{max_budget - burndown_data[date]['Earned Value']}, "
+
+    #remove trailing comma and space from earnedValue_Labels
+    earnedValue_Labels = earnedValue_Labels.strip(", ")
+
+
+    burnDownVisualization = f"""
+<div style="break-after: page;"></div>
+
+```mermaid
+---
+config:
+  themeVariables:
+    xyChart:
+      plotColorPalette: "#1ABC9C, #FF8C33, #3357FF, #F333FF"
+---
+xychart-beta
+    title "Budget, Actual and Progress Hours Burn Down"
+    x-axis [{xaxis_Labels}]
+    y-axis "Available Hours" 0 --> {max_budgetLabel}
+    line "Budget " [{budget_Labels}]
+    line "Actual " [{actual_Labels}]
+    line "Earned Value Inverse" [{earnedValue_Labels}]
+
+```
+
+<span style="color: #1ABC9C; font-size: 10px">budget</span> - <span style="color: #FF8C33; font-size: 10px">Actual</span> - <span style="color: #3357FF; font-size: 10px">earned value (progress hours)</span>
+
+<div style="break-after: page;"></div>
+
+"""
+
+    return burnDownVisualization
+    
 
 def _translate_TaskImport_Columns(FullPath) -> list:
     """

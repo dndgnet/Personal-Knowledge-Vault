@@ -16,7 +16,7 @@ private: Yes
 
 # Chat [Title]
 
-## Meeting logistics:
+## Chat logistics:
 
 **Date**: [YYYY-MM-DD]
 

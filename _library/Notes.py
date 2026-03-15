@@ -199,6 +199,53 @@ def write_Note_to_path(notePathAndFile: str, noteContent: str) -> bool:
         print(f"{myTerminal.ERROR}Failed to write to note file '{notePathAndFile}': {e}{myTerminal.RESET}")
         return False
 
+def replace_text_between_tags(areaName: str, noteBody: str, newContent: str) -> tuple[bool,str]:
+    """
+    Updates a specific area of a note body defined by <!--Start_areaName--> and <!--End_areaName--> tags.
+    
+    Args:
+        areaName (str): The name of the area to update.
+        noteBody (str): The original note body containing the area tags.
+        newContent (str): The new content to insert into the area.
+        
+    Returns:
+        bool: True if the update was successful, False otherwise.
+    """
+    
+    startTag = f"<!--Start_{areaName}-->"
+    endTag = f"<!--End_{areaName}-->"
+    
+    if startTag in noteBody and endTag in noteBody:
+        updatedBody = noteBody.split(startTag)[0] + startTag + "\n" + newContent + "\n" + endTag + noteBody.split(endTag)[1]
+        return True, updatedBody
+    else:
+        print(f"{myTerminal.WARNING}Area tags not found for '{areaName}'.{myTerminal.RESET}")
+        return False, ""
+
+def update_NoteBody(note: NoteData, newBody: str) -> bool:
+    """
+    Updates the body of a note file while preserving the front matter.
+    
+    Args:
+        note (NoteData): The NoteData object representing the note to update.
+        newNoteBody (str): The new content to write to the note body.
+        
+    Returns:
+        bool: True if the update was successful, False otherwise.
+    """
+    try:
+        
+        newNoteContent = f"---\n{note.frontMatter}\n---\n\n{newBody}"
+
+        with open(os.path.join(note.filePath), 'w', encoding='utf-8') as f:
+            f.write(newNoteContent)
+    
+    except Exception as e:
+        print(f"{myTerminal.ERROR}Failed to update note body for '{note.filePath}': {e}{myTerminal.RESET}")
+        return False
+
+    return True
+
 def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
     """
     Loads a NoteData object from a file path.

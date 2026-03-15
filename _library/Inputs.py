@@ -2,6 +2,8 @@
 Collect inputs from users for specific tasks.
 """
 
+from pandas import options
+
 from . import Preferences as myPreferences
 from . import Tools as myTools
 from . import Terminal as myTerminal
@@ -152,6 +154,27 @@ def select_project_name_withDict(showNewProjectOption = True, showNoProjectOptio
         
     print(f"{myTerminal.SUCCESS}Selected project: {projects[int(selectedProject)]}{myTerminal.RESET}\n")
     return projects, projects[int(selectedProject)], int(selectedProject)
+
+def select_dictionary_Item_from_user(prompt: str, options: dict) -> tuple[bool, str]:
+    
+    """
+        Prompt the user to select an option from a dictionary of options.
+        Returns a tuple of (success, selected option value).    
+    """
+    i = 0
+    print(prompt)
+
+    for  key, value in options.items():
+        print(f"\t{myTerminal.INPUTPROMPT}{i}) {key}{myTerminal.RESET}")    
+        i += 1
+    
+    selection = input(f"\t{myTerminal.INPUTPROMPT}{prompt} (0-{i-1}): {myTerminal.RESET}").strip()
+    
+    if not selection.isdigit() or int(selection) not in range(0,i):
+        print(f"{myTerminal.ERROR}Invalid selection. Please select a valid option number.{myTerminal.RESET}")
+        return False, ""
+
+    return True, list(options.keys())[int(selection)]
 
 def select_project_name(showNewProjectOption = True, showNoProjectOption = True) -> str:
     """
