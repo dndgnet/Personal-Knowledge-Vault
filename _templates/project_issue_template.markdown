@@ -1,7 +1,8 @@
 ---
 title: Issue [Title]
 id: [YYYYMMDDHHMMSS] 
-type: project-event
+sub id: [sub id]
+type: project-issue
 created: [YYYY-MM-DD HH:MM:SS] 
 modified: [YYYY-MM-DD HH:MM:SS]
 start date: [YYYY-MM-DD HH:MM:SS] 
@@ -14,17 +15,36 @@ author: [Current User]
 private: No
 ---
 
-# Issue: [Title]
+## [Title]
 
-**Date:** [DATE]
+**Identified:** [DATE]
 
 **Stakeholder:** [Issue Stakeholder]
 
-**Description:** [Issue Description]
+**Issue Owner:** [Issue Owner]
+
+**Source Risk:** n/a
+
+**Impact**: [Impact (high/medium/low)]
+<!-- hidden hints
+High, Medium, Low
+-->
+
+## Description
+
+[Issue Description]
 
 ## Resolution
 
+**Issue Status:** New
+<!-- hidden hints
+New, Active, Resolved, Will not be resolved
+-->
+
 **Resolution Date:**
 
-**Resolution Description:** Not yet resolved
+
+### Resolution Description
+
+Not yet resolved
 

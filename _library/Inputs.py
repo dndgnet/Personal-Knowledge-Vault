@@ -2,7 +2,7 @@
 Collect inputs from users for specific tasks.
 """
 
-from pandas import options
+#from pandas import options
 
 from . import Preferences as myPreferences
 from . import Tools as myTools
@@ -395,10 +395,32 @@ def select_recent_note(noteTypeContains = "",  showActionItems = False,
 
     selectedNote = displayedNotes[int(selectedNoteId) - 1]
     return int(selectedNoteId), selectedNote
-    
+
+def generate_subId(selectedProject: str, noteType: str) -> str:
+    """
+    Generate a unique sub ID for a note based on the project name, note type, and current timestamp.
+    """
+    count = 0
+    if selectedProject is None or selectedProject == "":
+        noteList = myTools.get_Notes_as_list(myPreferences.root_pkv(),True, includeArchivedProjects=False)
+        for note in noteList:
+            if note.type.endswith(noteType) and note.project == "":
+                count += 1
+    else:
+        noteList = myTools.get_Notes_as_list(os.path.join(myPreferences.root_projects(), selectedProject),True, includeArchivedProjects=False)
+        for note in noteList:
+            if note.type.endswith(noteType) and note.project == selectedProject:
+                count += 1
+        
+    count += 1
+    returnValue = f"{count:03d}"
+
+    return returnValue
+
 def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_full,
                                        selectedProjectName,title,note_Content: str,
-                                       promptForAttachments = True) -> str:
+                                       promptForAttachments = True,
+                                       noteType = "") -> str:
     """
     Get the template merge values from the user.
     Returns the populated note content with user inputs replacing template tags.
@@ -436,6 +458,8 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
             pass  # skip malformed tags and images
         if templateTag.strip() == "":
             pass
+        elif templateTag.upper() in ("SUBID","SUB ID","SUB-ID"):
+            templateTagValue = generate_subId(selectedProjectName, noteType)
         elif templateTag.upper() in ("YYYYMMDDHHMMSS", "TIMESTAMP_ID"):
             templateTagValue = timestamp_id
         elif templateTag.upper() in ("YYYY-MM-DD HH:MM:SS","DATETIME"):
@@ -463,6 +487,9 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
         else:
             templateTagValue = input(f"{myTerminal.INPUTPROMPT}Enter value for [{templateTag}]: {myTerminal.RESET}").strip()
             
+            if templateTag in ("Impact (high/medium/low)","Impact (high/medium/low)","Nature (mandatory/discretionary)","Origin (internal/external)"):
+                templateTagValue = templateTagValue.lower()
+
             if templateTag.upper() in ("ASSIGNED TO","TASK OWNER", "OWNER") and templateTagValue == "":
                 templateTagValue = myPreferences.author_name()
 

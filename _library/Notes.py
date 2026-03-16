@@ -39,7 +39,8 @@ class NoteData:
     private: bool = False # indicates that note is only for the vault owner's use
     archivedProject: bool = False # indicates that note belongs to an archived project
     endDate: str = ""  # optional end date for gantt charts
-    
+    subId: str = ""  # optional sub-identifier for notes of specific types
+
     def to_dict(self):
         return {
             "id": self.id.strip(),
@@ -63,7 +64,8 @@ class NoteData:
             "actionItems": self.actionItems,
             "actionItemsWithComments": self.actionItemsWithComments,
             "archivedProject": self.archivedProject,
-            "endDate": self.endDate.strip()
+            "endDate": self.endDate.strip(),
+            "subId": self.subId.strip()
         }
       
     def __str__(self):
@@ -301,7 +303,7 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
     author = get_stringValue_from_frontMatter("author", frontMatter)
     private = True if get_stringValue_from_frontMatter("private", frontMatter).lower() in ("true","t","yes","y","positive") else False
     archived = True if get_stringValue_from_frontMatter("archived", frontMatter) == "True" else False
-    
+    subId = get_stringValue_from_frontMatter("sub Id", frontMatter)
 
     if title == "" or title is None:
         title = uniqueIdentifier
@@ -355,7 +357,8 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
         hasActionItems = hasActionItems,
         actionItems = actionItems,
         actionItemsWithComments = actionItemsWithComments,
-        endDate = dateEnd
+        endDate = dateEnd,
+        subId=subId
     )
 
     return note
@@ -905,6 +908,10 @@ def get_stringValue_from_noteBody(valueLabel:str,noteBody: str) -> str:
             value = value[1:].strip()
         elif value.startswith(":**"):
             value = value[3:].strip()
+        elif value.startswith(": **"):
+            value = value[4:].strip()
+        elif value.startswith("**"):
+            value = value[2:].strip()
         elif value.startswith(":*"):
             value = value[2:].strip()   
 
@@ -927,7 +934,7 @@ def get_sectionValue_from_noteBody(valueLabel:str,noteBody: str) -> str:
     returnValue = ""
     sectionFound = False
     for line in noteBody.splitlines():
-        if line.startswith(f"# {valueLabel}"):
+        if line.startswith(f"# {valueLabel}") or line.startswith(f"## {valueLabel}") or line.startswith(f"### {valueLabel}") or line.startswith(f"#### {valueLabel}") or line.startswith(f"##### {valueLabel}") or line.startswith(f"###### {valueLabel}"):
             sectionFound = True
             continue
         

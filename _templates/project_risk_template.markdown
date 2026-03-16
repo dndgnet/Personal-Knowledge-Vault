@@ -1,6 +1,7 @@
 ---
 title: Risk [Title]
 id: [YYYYMMDDHHMMSS]
+sub id: [sub id]
 type: project-risk
 created: [YYYY-MM-DD HH:MM:SS] 
 modified: [YYYY-MM-DD HH:MM:SS]
@@ -14,23 +15,34 @@ author: [Current User]
 private: No
 ---
 
-# [Project Name]: Risk [Title]
+**Risk**: [Title]
 
-## Risk:
-**Impact**: [Impact (High/Medium/Low)]
+**Risk Identified**: [date]
+
+**Risk Owner**: [Risk Owner]
+
+**Impact**: [Impact (high/medium/low)]
 <!-- hidden hints
 High, Medium, Low
 -->
 
-**Likelihood**: [Likelihood (High/Medium/Low)]
+**Likelihood**: [Likelihood (high/medium/low)]
 <!-- hidden hints
 High, Medium, Low
 -->
 
-**Description**: 
+## Indicators
 
-## Summary
+[Indicators]
 
+**Triggered:** Not triggered
 
-## Mitigation:
+## Description
+
+[Risk Description]
+
+## Response Strategy:
+
+[Response Strategy]
+
 

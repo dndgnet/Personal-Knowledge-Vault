@@ -1,5 +1,5 @@
 ---
-title: Decision [Title]
+title: [Title]
 id: [YYYYMMDDHHMMSS] 
 type: project-decision
 created: [YYYY-MM-DD HH:MM:SS] 
@@ -14,9 +14,7 @@ author: [Author]
 private: No
 ---
 
-# [Title]
-
-
+**Decision**: [Title]
 
 ## 1. Executive Summary / Recommendation
 

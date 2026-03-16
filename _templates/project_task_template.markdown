@@ -15,7 +15,7 @@ private: No
 ticket: [ticket number]
 ---
 
-# [Title]
+## [Title]
 
 ## Task Management Details
 

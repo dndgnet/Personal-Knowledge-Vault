@@ -15,7 +15,6 @@ from _library.Templates import read_Template
 # Define the template and output paths
 template_pathRoot = myPreferences.root_templates()
 
-
 def main():
     projects, selectedProjectName, selectedProjectIndex = myInputs.select_project_name_withDict()
     
@@ -38,16 +37,26 @@ def main():
 
     if selectedProjectName != "":
         noteTypeExists, existingNote = myNotes.get_Note_Last_Project_Note_ByType(selectedProjectName, noteType)
-        if noteTypeExists and noteType not in ("event","email","chat","issue","idea","task"):
+        if noteTypeExists and noteType not in ("event","email","chat","issue","idea","task","risk","decision","assumption","dependency"):
             print(f"{myTerminal.WARNING} A note of type '{noteType}' already exists in project '{selectedProjectName}'{myTerminal.RESET}")
             print(f"  - {existingNote}")
-            clone = myInputs.ask_yes_no_from_user("Do you want to clone this note?", default= False)
-            if clone:
-                print("Cloning the existing note.")
-                clonedNotePath = myNotes.clone_note(existingNote.filePath)
-                #os.system(f'{myPreferences.default_editor()} "{clonedNotePath}"')
-                myNotes.open_note_in_editor(clonedNotePath)
-                exit(0)
+            
+            
+            
+            #took this option out 
+            # 2026-06-17: I think it's better to just open the existing note and let the user decide what to do with it, rather than automatically cloning it. Cloning can lead to multiple similar notes which can create confusion. It's more straightforward to just open the existing note and let the user edit it if they want to create a new version.
+            # clone = myInputs.ask_yes_no_from_user("Do you want to clone this note?", default= False)
+            # if clone:
+            #     print("Cloning the existing note.")
+            #     clonedNotePath = myNotes.clone_note(existingNote.filePath)
+            #     #os.system(f'{myPreferences.default_editor()} "{clonedNotePath}"')
+            #     myNotes.open_note_in_editor(clonedNotePath)
+            #     exit(0)
+
+            openExisting = myInputs.ask_yes_no_from_user("Do you want to open this note?", default= False)
+            if openExisting:
+                print("Opening the existing note.")
+                myNotes.open_note_in_editor(existingNote.filePath)
 
     #make sure the new note directory directory exists
     if selectedProjectName == "" or selectedProjectName is None:
@@ -77,9 +86,11 @@ def main():
     templateBody = read_Template(selectedTemplatePath)
 
     note_Content = myInputs.get_templateMerge_Values_From_User(timestamp_id,timestamp_date,
-                                                               timestamp_full,selectedProjectName,
-                                                               title,
-                                                               templateBody)
+                    timestamp_full,selectedProjectName,
+                    title,
+                    templateBody,
+                    promptForAttachments= True,
+                    noteType=noteType)
 
     if selectedProjectName != "" and selectedProjectName is not None:
         frontMatterTags = myTools.get_stringValue_from_frontMatter("tags",note_Content)
