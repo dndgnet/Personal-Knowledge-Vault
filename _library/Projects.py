@@ -12,8 +12,8 @@ from datetime import datetime, timedelta
 
 monthStringNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
-dataTypeDictionary = {"BurnDown": "x-axis,Planned Budget,Actual,Earned Value",
-                      "Stakeholders": "Name,Title,Contact Info,Role,Expectations,Classification"}
+dataTypeDictionary = {"BurnDown": "x-axis,Planned Budget,Actual,Earned Value,Notes",
+                      "Stakeholders": "Name,Title,Contact Info,Role,Expectations,Classification,Notes"}
 
 # KanBan board columns that we recognize
 kanBanBoardColumns = {
