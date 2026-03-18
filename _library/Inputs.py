@@ -195,7 +195,7 @@ def select_template(templateType = "All") -> tuple[dict,str, str]:
     templateIndex = 1
     templates = {}
     print(f"\n{myTerminal.INPUTPROMPT}Available templates:{myTerminal.RESET}")
-    for filename in os.listdir(template_pathRoot):
+    for filename in sorted(os.listdir(template_pathRoot)):
         if filename.upper().startswith(f"{templateType.upper()}_") or templateType.upper() in ("ALL",""):
             templateName = filename.replace("_template.markdown","").replace("pkv_","").replace("project_","")
             templateKey = templateName[:1]

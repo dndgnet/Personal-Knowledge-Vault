@@ -1,6 +1,7 @@
 ---
 title: [Title]
 id: [YYYYMMDDHHMMSS] 
+sub id: [sub id]
 type: project-decision
 created: [YYYY-MM-DD HH:MM:SS] 
 modified: [YYYY-MM-DD HH:MM:SS]
@@ -14,9 +15,17 @@ author: [Author]
 private: No
 ---
 
-**Decision**: [Title]
+# [Title]
 
-## 1. Executive Summary / Recommendation
+**Identified:** [date]
+
+**State:** Proposed
+
+<!--
+Proposed, Approved, Rejected, Deferred, etc.
+-->
+
+## Executive Summary / Recommendation
 
 <!-- hidden
 
@@ -27,7 +36,7 @@ Often the only part read by senior executives — must stand alone.
 -->
 
 
-## 2. Background / Problem Statement or Opportunity
+## Background / Problem Statement or Opportunity
 
 <!-- hidden
 
@@ -36,7 +45,7 @@ Reference to strategic alignment (link to organizational goals, portfolio priori
 Current state or baseline context.
 -->
 
-## 3. Options / Alternatives Considered
+## Options / Alternatives Considered
 <!-- hidden
 
 List of feasible options (usually 2–4, including "Do Nothing" or status quo).
@@ -45,7 +54,7 @@ High-level description of each (what it entails, major differences).
 -->
 
 
-## 4. Evaluation / Analysis of Options
+## Evaluation / Analysis of Options
 <!-- hidden
 
 Criteria used for assessment (tailored to the decision type — e.g., financial, strategic, risk, feasibility, compliance).
@@ -55,7 +64,7 @@ Recommendation justification — why the preferred option is best (often with sc
 
 -->
 
-## 5. Risks, Assumptions, Constraints, and Dependencies
+## Risks, Assumptions, Constraints, and Dependencies
 
 <!-- hidden
 
@@ -66,7 +75,7 @@ Dependencies on other projects, decisions, or external factors.
 
 -->
 
-## 6. Financial / Benefits Summary
+## Financial / Benefits Summary
 <!-- hidden
 
 Total estimated cost (including contingency/management reserves if relevant).
@@ -76,7 +85,7 @@ Alignment with benefits management plan or value delivery goals.
 
 -->
 
-## 7. Implementation / Next Steps (If Approved)
+## Implementation
 <!-- hidden
 
 High-level plan for moving forward (timeline, milestones, resources needed).
@@ -84,7 +93,7 @@ Transition or change management considerations.
 Governance requirements (e.g., next gate, approvals needed).
 -->
 
-## 8. Approvals 
+## Approvals 
 
 <!-- hidden
 

@@ -1,6 +1,7 @@
 ---
 title: Idea [Title]
 id: [YYYYMMDDHHMMSS] 
+sub id: [sub id]
 type: project-idea
 created: [YYYY-MM-DD HH:MM:SS] 
 modified: [YYYY-MM-DD HH:MM:SS]

@@ -1,6 +1,7 @@
 ---
 title: [Title]
 id: [YYYYMMDDHHMMSS] 
+sub id: [sub id]
 type: project-progress
 created: [YYYY-MM-DD HH:MM:SS] 
 modified: [YYYY-MM-DD HH:MM:SS]

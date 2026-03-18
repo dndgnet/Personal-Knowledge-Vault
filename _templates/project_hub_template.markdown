@@ -65,14 +65,10 @@ Classification:
 
 -->
 
-<!-- Hidden Section
+## Glossary of Common Terms
+<!--Start_Glossary-->
 
-### Glossary of Common Terms
-
-- term 1
-- term 2
-
--->
+<!--End_Glossary-->
 
 
 ## Schedule
@@ -140,10 +136,15 @@ gantt
 
 ```
 -->
+# Change Requests
+
+<!--Start_ChangeRequests-->
+No change requests.
+<!--End_ChangeRequests-->
 
 # Transition Plan
 
-<!-- hidden mermaid example
+<!-- hidden helper
 
 - Document and Transfer Knowledge/Assets
 - Execute the Handover / Cut over
@@ -151,48 +152,37 @@ gantt
 
 -->
 
-# RAID
+# RAID Log
 
 ## Risks
-<div style="font-size: small;">
 
-| Risk ID | Description | Owner | Status | Date | Action Required | Priority |
-|---------|-------------|-------|--------|------|------------------|----------|
-|         |             |       |        |      |                  |          |
+<!--Start_Risks-->
+No risks identified.
+<!--End_Risks-->
 
-</div>
 ---
 
 ## Assumptions
 
-<div style="font-size: small;">
+<!--Start_Assumptions-->
+No assumptions identified.
+<!--End_Assumptions-->
 
-| Assumption ID | Description | Owner | Status | Date |
-|---------------|-------------|-------|--------|------|
-|               |             |       |        |      |
-
-</div>
 ---
 
 ## Issues
 
-<div style="font-size: small;">
+<!--Start_Issues-->
+No issues identified.
+<!--End_Issues-->
 
-| Issue ID | Description | Owner | Status | Date | Impact | Resolution |
-|----------|-------------|-------|--------|------|--------|-------------|
-|          |             |       |        |      |        |             |
-
-</div>
 ---
 
-## Dependencies
+## Decisions
 
-<div style="font-size: small;">
+<!--Start_Decisions-->
+No decisions identified.
+<!--End_Decisions-->
 
-| Dependency ID | Description | Owner | Status | Due Date | Impact Level |
-|----------------|-------------|-------|--------|-----------|---------------|
-|                |             |       |        |           |               |
-
-</div>
 ---
  

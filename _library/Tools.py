@@ -100,7 +100,7 @@ def obsidian_Encode_for_URI(input_string: str) -> str:
     encoded_string = input_string.replace(" ", "%20").replace("#", "%23").replace(":", "%3A").replace("/", "%2F").replace("%", "%25")
     return encoded_string
 
-def read_csv_to_dict_list(full_path):
+def read_csv_to_list(full_path):
     data = []
     # Try different encodings
     encodings = ['utf-8-sig', 'utf-8', 'latin-1', 'cp1252', 'iso-8859-1']
@@ -112,6 +112,63 @@ def read_csv_to_dict_list(full_path):
                 for row in reader:
                     data.append(row)
             print(f"Successfully read file using {encoding} encoding")
+            return data
+        except UnicodeDecodeError:
+            continue
+        except Exception as e:
+            print(f"Error with {encoding}: {e}")
+            continue
+    raise ValueError(f"Could not decode file with any of the attempted encodings: {encodings}")
+
+def read_csv_to_dict(full_path, key_field = "") -> dict:
+    """
+    returns a diction from a csv file where the key is key_field
+    and if key_filed is blank or does not exist, the first column is used as the key
+    """
+    data = {}
+    # Try different encodings
+    encodings = ['utf-8-sig', 'utf-8', 'latin-1', 'cp1252', 'iso-8859-1']
+    
+    for encoding in encodings:
+        try:
+            with open(full_path, mode='r', encoding=encoding) as csvFile:
+                reader = csv.DictReader(csvFile)
+                #first_column = reader.fieldnames[0] if reader.fieldnames else key_field
+                fieldnames = reader.fieldnames or []
+                first_column = key_field if key_field in fieldnames else fieldnames[0] 
+                for row in reader:
+                    key = row.get(first_column, "").strip()
+                    if key:  # Only add to dict if key is not empty
+                        data[key] = row
+            print(f"Successfully read file using {encoding} encoding")
+            # Convert entire columns to float when all non-empty values are numeric
+            if data:
+                all_columns = set()
+                for row in data.values():
+                    all_columns.update(row.keys())
+
+                numeric_columns = set()
+                for column in all_columns:
+                    is_numeric_column = True
+                    for row in data.values():
+                        value = str(row.get(column, "")).strip()
+                        if value == "":
+                            continue
+                        try:
+                            float(value.replace(",", ""))
+                        except ValueError:
+                            is_numeric_column = False
+                            break
+
+                    if is_numeric_column:
+                        numeric_columns.add(column)
+
+                for row in data.values():
+                    for column in numeric_columns:
+                        value = str(row.get(column, "")).strip()
+                        if value != "":
+                            row[column] = float(value.replace(",", ""))
+
             return data
         except UnicodeDecodeError:
             continue

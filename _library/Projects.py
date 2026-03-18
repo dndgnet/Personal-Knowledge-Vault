@@ -13,7 +13,8 @@ from datetime import datetime, timedelta
 monthStringNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 dataTypeDictionary = {"BurnDown": "x-axis,Planned Budget,Actual,Earned Value,Notes",
-                      "Stakeholders": "Name,Title,Contact Info,Role,Expectations,Classification,Notes"}
+                      "Stakeholders": "Name,Title,Contact Info,Role,Expectations,Classification,Notes",
+                      "Glossary": "Term,Definition,Notes",}
 
 # KanBan board columns that we recognize
 kanBanBoardColumns = {
@@ -408,12 +409,12 @@ def diagram_Burndown(projectName: str) -> str:
         myTools.open_note_in_editor(csvFilePath)    
 
     # Read the CSV file into a burndown dictionary
-    burndown_data = {}
-    with open(csvFilePath, "r") as csvFile:
-        headers = csvFile.readline().strip().split(",")
-        for line in csvFile:
-            values = line.strip().split(",")
-            burndown_data[values[0]] = dict(zip(headers[1:],  map(float, values[1:])))
+    burndown_data = myTools.read_csv_to_dict(csvFilePath, "x-axis")
+    # with open(csvFilePath, "r") as csvFile:
+    #     headers = csvFile.readline().strip().split(",")
+    #     for line in csvFile:
+    #         values = line.strip().split(",")
+    #         burndown_data[values[0]] = dict(zip(headers[1:],  map(float, values[1:])))
 
     #get max budget for y-axis scaling
     if len(burndown_data) == 0:
@@ -504,14 +505,216 @@ xychart-beta
 """
 
     return burnDownVisualization
+
+def notePart_ChangeRequests(projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat = True) -> str:   
+    selectedNotes = []
+
+    for note in allNotes:
+        noteType = note.type
+        if noteType.endswith("changerequest"):
+            selectedNotes.append(note)
+
+    selectedNotes = sorted(selectedNotes, key=lambda x: x.subId)
+
+    newNotePart = ""
+
+    if len(selectedNotes) == 0:
+        newNotePart += "*No documented change requests at this time.*\n\n"
+    else:
+        newNotePart += "\n\n"
+        
+        if returnTableFormat:
+            newNotePart += f"{myTools.divTagSmall}\n"
+            newNotePart += "|ID|Identified|Change Request        |State|\n"
+            newNotePart += "|--|----------|----------------------|------|\n"
+            for decision in selectedNotes:
+                newNotePart += "|"+decision.subId+"|" +myNotes.get_stringValue_from_noteBody("Date Submitted", decision.noteBody)
+                newNotePart += "|"+ decision.title
+                newNotePart += "|"+ myNotes.get_stringValue_from_noteBody("State", decision.noteBody) +"|\n"
     
+            newNotePart += "\n"+myTools.divTagEnd+"\n\n"
+    
+        else:
+            for decision in selectedNotes:
+                newNotePart += f"### {decision.subId} {decision.title}\n\n"
+                newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Date Submitted', decision.noteBody)}\n"
+                newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('State', decision.noteBody)}\n"
+                newNotePart += f"**Description**: \n{myNotes.get_sectionValue_from_noteBody("Change Description", decision.noteBody)}\n\n" 
+                newNotePart += f"**Justification**: \n{myNotes.get_sectionValue_from_noteBody("Change Justification", decision.noteBody)}\n\n"            
+
+
+    return newNotePart
+
+def raid_Risks(projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat = True) -> str:
+    """Generates a RAID log for a project based on the data in the data_Risks.csv file.
+    Expects a CSV file in the project folder with columns: Risk ID, Description, Owner, Status, Date, Action Required, Priority
+    """
+
+    selectedNotes = []
+
+    for note in allNotes:
+        noteType = note.type
+        if noteType.endswith("risk"):
+            selectedNotes.append(note)
+
+    selectedNotes = sorted(selectedNotes, key=lambda x: x.subId)
+
+    newNotePart = ""
+
+    if len(selectedNotes) == 0:
+        newNotePart += "*No documented risks at this time.*\n\n"
+    else:
+        newNotePart += "\n\n"
+
+        if returnTableFormat:
+            newNotePart += f"{myTools.divTagSmall}\n"
+            newNotePart += "|ID|Identified|Risk                  |Impact|Likelihood|Mitigation|Owner|\n"
+            newNotePart += "|--|----------|----------------------|------|----------|----------|-----|\n"
+
+            for risk in selectedNotes:
+                newNotePart += "|"+risk.subId+"|" +myNotes.get_stringValue_from_noteBody("Risk Identified", risk.noteBody)
+                newNotePart += "|"+ risk.title+"|"+ myNotes.get_stringValue_from_noteBody("Impact", risk.noteBody)+"|"+ myNotes.get_stringValue_from_noteBody("Likelihood", risk.noteBody)
+                newNotePart += "|"+ myNotes.get_sectionValue_from_noteBody("Response Strategy", risk.noteBody).replace("\n", "<br>")
+                newNotePart += "|"+ myNotes.get_stringValue_from_noteBody("Risk Owner", risk.noteBody)+"|\n"
+            newNotePart += "\n"+myTools.divTagEnd+"\n\n"
+        else:
+            for risk in selectedNotes:
+                newNotePart += f"### {risk.subId} {risk.title}\n\n"
+                newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Risk Identified', risk.noteBody)}\n"
+                newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Risk Owner', risk.noteBody)}\n"
+                newNotePart += f"**Impact**: {myNotes.get_stringValue_from_noteBody('Impact', risk.noteBody)} \n**Likelihood**: {myNotes.get_stringValue_from_noteBody('Likelihood', risk.noteBody)}\n"
+                newNotePart += f"**Triggered**: {myNotes.get_stringValue_from_noteBody('Triggered', risk.noteBody)}\n"
+                newNotePart += f"**Description**: {myNotes.get_sectionValue_from_noteBody('Description', risk.noteBody)}\n"            
+                newNotePart += f"**Mitigation**: {myNotes.get_sectionValue_from_noteBody('Response Strategy', risk.noteBody)}\n\n"
+
+    return newNotePart     
+
+def raid_Issues(projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat = True) -> str:
+    selectedNotes = []
+
+    for note in allNotes:
+        noteType = note.type
+        if noteType.endswith("issue"):
+            selectedNotes.append(note)
+
+    selectedNotes = sorted(selectedNotes, key=lambda x: x.subId)
+
+    newNotePart = ""
+
+    if len(selectedNotes) == 0:
+        newNotePart += "*No documented issues at this time.*\n\n"
+    else:
+        newNotePart += "\n\n"
+        for issue in selectedNotes:
+            if returnTableFormat: 
+                newNotePart += f"{myTools.divTagSmall}\n"
+                newNotePart += "|ID|Identified|Issue                  |Status|Owner|Description|\n"
+                newNotePart += "|--|----------|----------------------|------|-----|-----------|\n"
+
+                for issue in selectedNotes:
+                    newNotePart += "|"+issue.subId+"|" +myNotes.get_stringValue_from_noteBody("Identified", issue.noteBody)
+                    newNotePart += "|"+ issue.title+"|"+ myNotes.get_stringValue_from_noteBody("Issue Status", issue.noteBody)
+                    newNotePart += "|"+ myNotes.get_stringValue_from_noteBody("Issue Owner", issue.noteBody)+"|"+ myNotes.get_sectionValue_from_noteBody("Description", issue.noteBody).replace("\n", "<br>")+"|\n"
+                newNotePart += "\n"+myTools.divTagEnd+"\n\n"
+            else:
+                for issue in selectedNotes:
+                    newNotePart += f"### {issue.subId} {issue.title}\n\n"
+                    newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', issue.noteBody)}\n"
+                    newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Issue Owner', issue.noteBody)}\n"
+                    newNotePart += f"**Status**: {myNotes.get_stringValue_from_noteBody('Issue Status', issue.noteBody)}\n"
+                    newNotePart += f"**Description**: {myNotes.get_sectionValue_from_noteBody('Description', issue.noteBody)}\n"            
+                    newNotePart += f"**Resolution**: {myNotes.get_sectionValue_from_noteBody('Resolution', issue.noteBody)}\n\n"        
+
+
+    return newNotePart
+
+def raid_Assumptions(projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat = True) -> str:
+    selectedNotes = []
+
+    for note in allNotes:
+        noteType = note.type
+        if noteType.endswith("assumption"):
+            selectedNotes.append(note)
+
+    selectedNotes = sorted(selectedNotes, key=lambda x: x.subId)
+
+    newNotePart = ""
+
+    if len(selectedNotes) == 0:
+        newNotePart += "*No documented assumptions at this time.*\n\n"
+    else:
+        newNotePart += "\n\n"
+        
+        if returnTableFormat:
+            newNotePart += f"{myTools.divTagSmall}\n"
+            newNotePart += "|ID|Identified|Assumption            |Status|Owner|Description|\n"
+            newNotePart += "|--|----------|----------------------|------|-----|-----------|\n"
+            for assumption in selectedNotes:
+                newNotePart += "|"+assumption.subId+"|" +myNotes.get_stringValue_from_noteBody("Identified", assumption.noteBody)
+                newNotePart += "|"+ assumption.title+"|"+ myNotes.get_stringValue_from_noteBody("Status", assumption.noteBody)
+                newNotePart += "|"+ myNotes.get_stringValue_from_noteBody("Identified by", assumption.noteBody)
+                newNotePart += "|"+ myNotes.get_sectionValue_from_noteBody("Description", assumption.noteBody).replace("\n", "<br>")+"|\n"
+            newNotePart += "\n"+myTools.divTagEnd+"\n\n"
+    
+        else:
+            for assumption in selectedNotes:
+                newNotePart += f"### {assumption.subId} {assumption.title}\n\n"
+                newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', assumption.noteBody)}\n"
+                newNotePart += f"**Status**: {myNotes.get_stringValue_from_noteBody('Status', assumption.noteBody)}\n"
+                newNotePart += f"**Impact**: {myNotes.get_stringValue_from_noteBody('Impact', assumption.noteBody)}\n"
+                newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Identified by', assumption.noteBody)}\n"
+                newNotePart += f"**Description**: {myNotes.get_sectionValue_from_noteBody('Description', assumption.noteBody).replace('\n', '<br>')}\n\n"            
+
+
+    return newNotePart
+        
+def raid_Decisions(projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat = True) -> str:   
+    selectedNotes = []
+
+    for note in allNotes:
+        noteType = note.type
+        if noteType.endswith("decision"):
+            selectedNotes.append(note)
+
+    selectedNotes = sorted(selectedNotes, key=lambda x: x.subId)
+
+    newNotePart = ""
+
+    if len(selectedNotes) == 0:
+        newNotePart += "*No documented decisions at this time.*\n\n"
+    else:
+        newNotePart += "\n\n"
+        
+        if returnTableFormat:
+            newNotePart += f"{myTools.divTagSmall}\n"
+            newNotePart += "|ID|Identified|Decision              |State|Summary|\n"
+            newNotePart += "|--|----------|----------------------|------|-----------|\n"
+            for decision in selectedNotes:
+                newNotePart += "|"+decision.subId+"|" +myNotes.get_stringValue_from_noteBody("Identified", decision.noteBody)
+                newNotePart += "|"+ decision.title+"|"+ myNotes.get_stringValue_from_noteBody("State", decision.noteBody)
+                newNotePart += "|"+ myNotes.get_sectionValue_from_noteBody("Executive Summary / Recommendation", decision.noteBody).replace("\n", "<br>")+"|\n"
+        
+            newNotePart += "\n"+myTools.divTagEnd+"\n\n"
+    
+        else:
+            for decision in selectedNotes:
+                newNotePart += f"### {decision.subId} {decision.title}\n\n"
+                newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', decision.noteBody)}\n"
+                newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('State', decision.noteBody)}\n"
+                newNotePart += f"**Summary**: {myNotes.get_sectionValue_from_noteBody("Executive Summary / Recommendation", decision.noteBody)}\n\n"            
+
+
+    return newNotePart
+
+
+
 
 def _translate_TaskImport_Columns(FullPath) -> list:
     """
     Translates imported column names to desired column names based on synonyms.
     Assumes, hopes that dates are provided in yyyy-mm-dd format.
     """
-    importTasks = myTools.read_csv_to_dict_list(FullPath)
+    importTasks = myTools.read_csv_to_list(FullPath)
 
     translatedTasks = []
     for importTask in importTasks:

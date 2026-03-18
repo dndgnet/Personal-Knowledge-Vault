@@ -933,6 +933,8 @@ def get_sectionValue_from_noteBody(valueLabel:str,noteBody: str) -> str:
     """
     returnValue = ""
     sectionFound = False
+    inHiddenSection = False
+
     for line in noteBody.splitlines():
         if line.startswith(f"# {valueLabel}") or line.startswith(f"## {valueLabel}") or line.startswith(f"### {valueLabel}") or line.startswith(f"#### {valueLabel}") or line.startswith(f"##### {valueLabel}") or line.startswith(f"###### {valueLabel}"):
             sectionFound = True
@@ -941,6 +943,12 @@ def get_sectionValue_from_noteBody(valueLabel:str,noteBody: str) -> str:
         if sectionFound:
             if "# " in line:
                 break # we reached the next section header
+            elif line.startswith("-->") and inHiddenSection:
+                inHiddenSection = False
+                continue #skip stuff in hidden sections
+            elif line.startswith("<!-- hidden") or inHiddenSection:
+                inHiddenSection = True
+                continue #skip stuff in hidden sections
             else:
                 returnValue += line.strip() + "\n"
              

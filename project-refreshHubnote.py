@@ -50,20 +50,12 @@ if not os.path.exists(csvFilePath):
 else:
 
     # Read the CSV file into a burndown dictionary
-    csvData = {}
-    with open(csvFilePath, "r") as csvFile:
-        headers = csvFile.readline().strip().split(",")
-        for line in csvFile:
-            values = line.strip().split(",")
-            csvData[values[0]] = dict(zip(headers[1:],  values[1:]))
-
-    #get max budget for y-axis scaling
+    csvData = myTools.read_csv_to_dict(csvFilePath)
     if len(csvData) == 0:
         print(f"{myTerminal.WARNING}No data found in CSV file.{myTerminal.RESET}")
 
     for key, value in csvData.items():
         updatedPart += f"|{key}|{value['Title']}|{value['Role']}|\n"
-
 
     updatedPart += "\n"+myTools.divTagEnd
 
@@ -89,4 +81,52 @@ if success:
 else:
     print(f"{myTerminal.WARNING}BurnDown tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}")
  
+allNotesForProject = myNotes.get_Notes_from_Project(selectedProject)
+# deal with risks
+risksContent = myProjects.raid_Risks(selectedProject, allNotesForProject, returnTableFormat=True)
+success, newNoteBody = myNotes.replace_text_between_tags("Risks", hubNote.noteBody, risksContent)
+if success:
+    hubNote.noteBody = newNoteBody
+    myNotes.update_NoteBody(hubNote, newNoteBody)
+else:
+    print(f"{myTerminal.WARNING}Risks tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}")
+
+
+# deal with assumptions
+assumptionsContent = myProjects.raid_Assumptions(selectedProject, allNotesForProject, returnTableFormat=True)
+success, newNoteBody = myNotes.replace_text_between_tags("Assumptions", hubNote.noteBody, assumptionsContent)
+if success:
+    hubNote.noteBody = newNoteBody
+    myNotes.update_NoteBody(hubNote, newNoteBody)
+else:
+    print(f"{myTerminal.WARNING}Assumptions tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}")
+
+# deal with issues
+issuesContent = myProjects.raid_Issues(selectedProject, allNotesForProject, returnTableFormat=True)
+success, newNoteBody = myNotes.replace_text_between_tags("Issues", hubNote.noteBody, issuesContent)
+if success:
+    hubNote.noteBody = newNoteBody
+    myNotes.update_NoteBody(hubNote, newNoteBody)
+else:
+    print(f"{myTerminal.WARNING}Issues tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}")
+
+# deal with decisions
+decisionsContent = myProjects.raid_Decisions(selectedProject, allNotesForProject, returnTableFormat=True)
+success, newNoteBody = myNotes.replace_text_between_tags("Decisions", hubNote.noteBody, decisionsContent)
+if success:
+    hubNote.noteBody = newNoteBody
+    myNotes.update_NoteBody(hubNote, newNoteBody)
+else:
+    print(f"{myTerminal.WARNING}Decisions tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}")
+
+# deal with Change Requests 
+changeRequestsContent = myProjects.notePart_ChangeRequests(selectedProject, allNotesForProject, returnTableFormat=True)
+success, newNoteBody = myNotes.replace_text_between_tags("ChangeRequests", hubNote.noteBody, changeRequestsContent)
+if success:
+    hubNote.noteBody = newNoteBody
+    myNotes.update_NoteBody(hubNote, newNoteBody)
+else:
+    print(f"{myTerminal.WARNING}Change Requests tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}")
+
+
 myTools.open_note_in_editor(hubNote.filePath)
