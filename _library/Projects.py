@@ -530,15 +530,15 @@ def notePart_ChangeRequests(projectName: str, allNotes: list[myNotes.NoteData], 
             for decision in selectedNotes:
                 newNotePart += "|"+decision.subId+"|" +myNotes.get_stringValue_from_noteBody("Date Submitted", decision.noteBody)
                 newNotePart += "|"+ decision.title
-                newNotePart += "|"+ myNotes.get_stringValue_from_noteBody("State", decision.noteBody) +"|\n"
+                newNotePart += "|"+ myNotes.get_stringValue_from_noteBody("Decision", decision.noteBody) +"|\n"
     
             newNotePart += "\n"+myTools.divTagEnd+"\n\n"
-    
+
         else:
             for decision in selectedNotes:
                 newNotePart += f"### {decision.subId} {decision.title}\n\n"
                 newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Date Submitted', decision.noteBody)}\n"
-                newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('State', decision.noteBody)}\n"
+                newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('Decision', decision.noteBody)}\n"
                 newNotePart += f"**Description**: \n{myNotes.get_sectionValue_from_noteBody("Change Description", decision.noteBody)}\n\n" 
                 newNotePart += f"**Justification**: \n{myNotes.get_sectionValue_from_noteBody("Change Justification", decision.noteBody)}\n\n"            
 

@@ -72,10 +72,8 @@ private: No
 | Security |                     | tbd |  | |
 | Privacy |                      |  tbd | | |
 
-## Decision
 
-
-
+**Decision:** Proposed
 <!-- 
 [ ] Approved   [ ] Rejected   [ ] Deferred  
 -->

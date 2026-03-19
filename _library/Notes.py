@@ -876,6 +876,10 @@ def get_stringValue_from_frontMatter(valuePrefix:str,frontMatter: str) -> str:
     else:
         return ""
 
+def get_stringValue_from_noteBodyForTableCell(valueLabel:str,noteBody: str) -> str:
+    
+    return get_stringValue_from_noteBody(valueLabel, noteBody).replace("|","").replace("\n","<br/>").strip()
+
 def get_stringValue_from_noteBody(valueLabel:str,noteBody: str) -> str:
     """
     Extracts value from the body of a note based on a given label.  Assumes the 
@@ -918,6 +922,10 @@ def get_stringValue_from_noteBody(valueLabel:str,noteBody: str) -> str:
         return value
     else:
         return ""
+
+def get_sectionValue_from_noteBodyForTableCell(valueLabel:str,noteBody: str) -> str:
+    
+    return get_sectionValue_from_noteBody(valueLabel, noteBody).replace("|","").replace("\n","<br/>").strip()
 
 def get_sectionValue_from_noteBody(valueLabel:str,noteBody: str) -> str:
     """
