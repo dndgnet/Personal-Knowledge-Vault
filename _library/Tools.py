@@ -55,11 +55,17 @@ def datetime_fromString(date_string: str) -> tuple [bool,datetime.datetime]:
     Raises:
         ValueError: If the date string does not match any of the expected formats.
     """
+    date_string = date_string.strip()
     
     isDateTime = False
     d = datetime.datetime.now()
     for date_format in _datetime_formats:
         try:
+            #if the date_string is ##:##, we need to add the current date to it before converting it to a datetime object
+            if re.match(r'^\d{1,2}:\d{2}$', date_string):
+                date_string = f"{datetime.datetime.now().strftime('%Y-%m-%d')} {date_string}"
+                date_format = "%Y-%m-%d %H:%M"
+
             d = datetime.datetime.strptime(date_string, date_format)
             isDateTime = True
             break
