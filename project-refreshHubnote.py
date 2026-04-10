@@ -67,7 +67,7 @@ else:
         myNotes.update_NoteBody(hubNote, newNoteBody)
     else:
         print(f"{myTerminal.WARNING}Stakeholders tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}")
-        exit(1)
+
 
 # deal with burn down 
 burnDownVisualization = myProjects.diagram_Burndown(selectedProject)
