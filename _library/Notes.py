@@ -12,7 +12,7 @@ from typing import Any, Dict, List
 
 from . import Preferences as myPreferences
 from . import Terminal as myTerminal
-
+from . import Variables as myVariables
 
 @dataclass
 class NoteData:
@@ -194,7 +194,6 @@ def read_Note_from_path_and_file(notePath: str, noteFileName: str) -> str:
     notePathAndFile = os.path.join(notePath, noteFileName)
     return read_Note_from_path(notePathAndFile)
 
-
 def write_Note_to_path(notePathAndFile: str, noteContent: str) -> bool:
     """
     Writes content to a note file.
@@ -270,6 +269,32 @@ def update_NoteBody(note: NoteData, newBody: str) -> bool:
     """
     try:
         newNoteContent = f"---\n{note.frontMatter}\n---\n\n{newBody}"
+
+        with open(os.path.join(note.filePath), "w", encoding="utf-8") as f:
+            f.write(newNoteContent)
+
+    except Exception as e:
+        print(
+            f"{myTerminal.ERROR}Failed to update note body for '{note.filePath}': {e}{myTerminal.RESET}"
+        )
+        return False
+
+    return True
+
+def update_NoteFrontMatterAndBody(note: NoteData, newFrontMatter: str, newBody: str) -> bool:
+    """
+    Updates the front matter and body of a note file.
+
+    Args:
+        note (NoteData): The NoteData object representing the note to update.
+        newFrontMatter (str): The new content to write to the front matter.
+        newBody (str): The new content to write to the note body.
+
+    Returns:
+        bool: True if the update was successful, False otherwise.
+    """
+    try:
+        newNoteContent = f"---\n{newFrontMatter}\n---\n\n{newBody}"
 
         with open(os.path.join(note.filePath), "w", encoding="utf-8") as f:
             f.write(newNoteContent)
@@ -526,8 +551,13 @@ def get_tags_from_Text(note: str) -> list:
             allTags.add(tag)
 
     # get other tags
-    otherTags = re.findall(r"#(\w+)", note)
+    note_without_brackets = re.sub(r"\[[^\]]*\]", "", note)
+    # Remove hashtag tokens that end with a semicolon, e.g. #FF8C33;
+    note_without_brackets = re.sub(r"#\w+;", "", note_without_brackets)
+    otherTags = re.findall(r"#(\w+)", note_without_brackets)
     for tag in otherTags:
+        if tag in myVariables.colours.values():
+            continue  # skip colour codes
         tag = tag.strip()
         if tag.startswith("#"):
             tag = tag[1:]  # Remove the leading hash if present
