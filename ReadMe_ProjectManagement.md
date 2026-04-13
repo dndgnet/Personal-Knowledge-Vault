@@ -147,3 +147,35 @@ xychart-beta
 <span style="color: #1ABC9C; font-size: 10px">budget</span> - <span style="color: #FF8C33; font-size: 10px">Actual</span> - <span style="color: #3357FF; font-size: 10px">earned value (progress hours)</span>
 
 <div style="break-after: page;"></div>
+
+# Project Configuration
+
+Each project has a `.ProjectConfig.json` file that contains the project configuration. 
+
+```json
+{
+    "ProjectFolderName": "Physical Folder Name",
+    "ProjectName": "Common or Display Name for the project",
+    "Programs": ["List of the Programs that this project is associated with", "Typically many Projects combine to make a Program"],
+    "Archived": "Boolean value to indicate if the project is archived or active.  Archived projects are not included in the search or add note features.  Archived projects can be 'reactivated' by changing this value to false.",
+    "Sync": "Boolean value to indicate if the project should be included in the sync process.  If false, the project will not be included in the search or add note features.  This is useful for projects that are still in development or for projects that are not yet ready to be shared with the team.",
+    "PublicShareFolder": "Path to the folder where raw markdown files will be shared.  Typically this is a shared network drive, OneDrive, SharePoint, iCloud, etc. location that is accessible to the team.  If this value is not set, then notes will not be shared.",
+    "PublicPublishFolder": "Path to the folder where published PDF files will be shared.  Typically this is a shared network drive, OneDrive, SharePoint, iCloud, etc. location that is accessible to the team.  If this value is not set, then notes will not be published.
+    
+    This value should be the root for the project.  For example if your project is 'Project A' then this value should be the path to the folder that contains the 'Project A' folder.  The published PDF files will be shared in a subfolder of this location with the same name as the project.  For example if all of your projects share the same root folder '/Obsidian/Shared/Projects/' manually make a sub folder 'Project A' for this value so you see '/Obsidian/Shared/Projects/Project A'. 
+
+    ",
+    "Needs Weekly Progress Update": "Boolean value to indicate if the project requires a weekly progress update.  This is used to determine if the project should be included in the weekly progress update report.",
+    "Needs Monthly Progress Update": "Boolean value to indicate if the project requires a monthly progress update.  This is used to determine if the project should be included in the monthly progress update report.",
+}
+```
+
+## Sharing Project Content
+
+Consider a situation where you have a project that is being worked on by a team of people.  You want to use your personal knowledge vault to take notes and manage the project but you also want to share *some* of those notes with the team.  You can use the `PublicShareFolder` configuration value to specify a shared location where the raw markdown files will be copied to.  
+
+This allows the team to access the notes in their native format and use them in their own tools if they choose to do so.  If the `PublicShareFolder` value is not set, then the notes will not be shared and will only be available in your personal knowledge vault.
+
+By design the `PublicShareFolder` folder must specify the full path, not a root folder with a sub folder for each of your projects.  This is done to give you flexibility if you are working with multiple teams or have a sync folder naming convention that does not end in the project name.  For example, you may have a root folder for all of your projects at '/Obsidian/Shared/Projects/' but you want to specify a sub folder for each project such as '/Obsidian/Shared/Projects/Project A' and '/Obsidian/Shared/Projects/Project B'.  This also allows you to share notes from the same project in different folders if needed.  For example, you may want to share some notes with the team in one folder and share other notes with a different team in another folder.
+
+

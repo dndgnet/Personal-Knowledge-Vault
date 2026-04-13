@@ -11,7 +11,7 @@ from _library import Notes as myNotes
 myTerminal.clearTerminal()
 selectedProject = None
 
-print(f"{myTerminal.INFORMATION}Build Project Stakeholder Table{myTerminal.RESET}\n")
+print(f"{myTerminal.INFORMATION}Refresh Project Hub Note{myTerminal.RESET}\n")
 print("")
 
 #debug

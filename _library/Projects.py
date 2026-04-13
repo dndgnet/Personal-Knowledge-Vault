@@ -937,6 +937,7 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
                     "Archived": False,
                     "Sync": False,
                     "PublicShareFolder": "",
+                    "PublicPublishFolder": "",
                     "Needs Weekly Progress Update": False,
                     "Needs Monthly Progress Update": False
                     }

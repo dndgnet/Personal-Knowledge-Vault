@@ -1133,3 +1133,74 @@ def get_sectionValue_from_noteBody(valueLabel: str, noteBody: str) -> str:
                 returnValue += line.strip() + "\n"
 
     return returnValue
+
+
+def get_attachments_from_note(note: NoteData) -> list[str]:
+    """
+    Extracts local file attachments from a note's body content.
+    Finds files referenced in ![[]] or [[]] markdown syntax, filtering for
+    common attachment types (images, PDFs, office files, etc.) and excluding web links.
+
+    Args:
+        note (NoteData): The NoteData object to extract attachments from.
+
+    Returns:
+        list[str]: List of attachment filenames found in the note.
+                  Returns empty list if no attachments are found.
+    """
+    # Define supported file extensions
+    image_extensions = ("png", "jpg", "jpeg", "gif", "bmp", "svg", "webp", "ico", "tiff", "tif")
+    document_extensions = ("pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp")
+    email_extensions = ("msg", "eml")
+    other_extensions = ("txt", "csv", "zip", "rar", "7z")
+    
+    supported_extensions = image_extensions + document_extensions + email_extensions + other_extensions
+    
+    attachments = []
+    
+    # Pattern to match both Obsidian wikilinks ![[...]] or [[...]] 
+    # and standard markdown links/images ](...)
+    wikilink_pattern = r'!?\[\[([^\]]+)\]\]'
+    markdown_pattern = r'\]\(([^)]+)\)'
+    
+    # Find wikilink-style attachments
+    wikilink_matches = re.findall(wikilink_pattern, note.noteBody)
+    for match in wikilink_matches:
+        # Skip if it's a web link
+        if match.startswith("http://") or match.startswith("https://"):
+            continue
+        
+        # Extract filename (handle cases with | for display text like [[file.pdf|display name]])
+        filename = match.split("|")[0].strip()
+        
+        # Check if the file has a supported extension
+        if "." in filename:
+            extension = filename.split(".")[-1].lower()
+            if extension in supported_extensions:
+                attachments.append(filename)
+    
+    # Find markdown-style attachments
+    markdown_matches = re.findall(markdown_pattern, note.noteBody)
+    for match in markdown_matches:
+        # Skip if it's a web link
+        if match.startswith("http://") or match.startswith("https://"):
+            continue
+        
+        # Extract filename (already clean from the regex)
+        filename = match.strip()
+        
+        # Check if the file has a supported extension
+        if "." in filename:
+            extension = filename.split(".")[-1].lower()
+            if extension in supported_extensions:
+                attachments.append(filename)
+    
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_attachments = []
+    for attachment in attachments:
+        if attachment not in seen:
+            seen.add(attachment)
+            unique_attachments.append(attachment)
+    
+    return unique_attachments
