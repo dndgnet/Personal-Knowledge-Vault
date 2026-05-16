@@ -35,6 +35,7 @@ _exampleEmptyPreferences = {
     
     "default_editor": "code", #default editor to use for opening files, can be 'code' for VS Code, 'zed' for Zed, or any other editor command
     "show_tag_prompt": "False", #set to true if the add new note commands should prompt for front matter tags when creating a new note, set to false if the author will provide front matter tags manually
+    "include_backlinks_to_DailyJournal": "True", #set to true if the add new note commands should include backlinks to the daily journal note, set to false if the author does not want backlinks to the daily journal
     "automatically_open_event_notes": "False", #set to true if the add new note commands should automatically open the created note in the default editor, set to false if the author will open it manually
     
     "use_versioncontrol": "True", #set to true if the PKV should use git for version control, set to false if the author does not want to use git
@@ -85,6 +86,7 @@ _documents_path = ""
 _attachmentPickUp_path = ""
 _screenCaptures_path = ""
 _show_tag_prompt = False
+_include_backlinks_to_DailyJournal = False
 _automatically_open_event_notes = False
 _author_name = ""
 _use_versioncontrol = False
@@ -144,6 +146,10 @@ def show_tag_prompt() -> bool:
 def automatically_open_event_notes() -> bool:
     """Returns whether to automatically open event notes in the default editor."""
     return _automatically_open_event_notes
+
+def include_backlinks_to_DailyJournal() -> bool:
+    """Returns whether to include backlinks to the daily journal when creating new notes."""
+    return _include_backlinks_to_DailyJournal
 
 def author_name() -> str:
     """Returns the author name to use in notes."""
@@ -235,7 +241,8 @@ try:
                   consider creating it or editing your preferences.{myTerminal.RESET} """)
 
         _use_versioncontrol = _preferences.get("use_versioncontrol", "True").upper() == "TRUE"
-
+        _include_backlinks_to_DailyJournal = _preferences.get("include_backlinks_to_DailyJournal", "True").upper() == "TRUE"
+        
     #print(f"{len(_preferences)} preferences loaded successfully")
 
 except Exception as e:
