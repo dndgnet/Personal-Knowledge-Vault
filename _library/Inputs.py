@@ -126,7 +126,8 @@ def select_project_name_withDict(showNewProjectOption = True, showNoProjectOptio
     for filename in sorted(os.listdir(myPreferences.root_projects())):
         if os.path.isdir(os.path.join(myPreferences.root_projects(), filename)):
             projectConfig = myTools.get_ProjectConfig_as_dict(filename)
-            if projectConfig.get("Archived", False) and hideArchivedProjects:
+            projectIsArchived = projectConfig.get("Archived", False)
+            if projectIsArchived and hideArchivedProjects:
                 continue  # Skip archived projects
             else:
                 projectIndex += 1

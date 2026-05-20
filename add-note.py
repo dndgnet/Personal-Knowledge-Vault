@@ -155,19 +155,7 @@ def main():
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(note_Content)
 
-    if noteType in (
-        "meeting",
-        "chat",
-        "email",
-        "issue",
-        "idea",
-        "task",
-        "event",
-        "decision",
-        "risk",
-        "assumption",
-        "dependency",
-    ):
+    if myPreferences.include_notes_in_DailyJournal():
         notes = myNotes.get_Notes_as_list(
             myPreferences.root_pkv(),
             includePrivateNotes=True,

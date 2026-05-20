@@ -11,7 +11,7 @@ def describe_search_results(searchCriteria: str, notes: List[NoteData]) -> None:
     Args:
         searchCriteria (str): The search criteria description.
         notes (List[NoteData]): List of NoteData objects.
-    """
+    """ 
     print("")
     myTerminal.clearTerminal()
     if searchCriteria != "":
