@@ -47,7 +47,10 @@ def selectSearchResultNote(searchResult) -> str:
     searchResult.sort(key=lambda note: note.date, reverse=True)
     for note in searchResult:
         i += 1
-        print(f"\t{myTerminal.GREY}{i:>4}) {note.date:<20} {note.project[:30]:<31} {note.title[:noteTitleWidth]:<{noteTitleWidth}}{myTerminal.RESET}")
+        if i%2==0:
+             print(f"\t{myTerminal.WHITE}{i:>4}) {note.date:<20} {note.project[:30]:<31} {note.title[:noteTitleWidth]:<{noteTitleWidth}}{myTerminal.RESET}")
+        else:   
+            print(f"\t{myTerminal.GREY}{i:>4}) {note.date:<20} {note.project[:30]:<31} {note.title[:noteTitleWidth]:<{noteTitleWidth}}{myTerminal.RESET}")
     print("")
     print(f"\t{myTerminal.GREY}{'a':>4}) open All {myTerminal.RESET}")
     print(f"\t{myTerminal.GREY}{'x':>4}) eXport search result timeline {myTerminal.RESET}")

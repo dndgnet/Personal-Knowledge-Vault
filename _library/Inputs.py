@@ -131,7 +131,10 @@ def select_project_name_withDict(showNewProjectOption = True, showNoProjectOptio
                 continue  # Skip archived projects
             else:
                 projectIndex += 1
-                print(f"\t{projectIndex:>2}. {filename}")
+                if projectIndex%2==0:
+                    print(f"\t{projectIndex:>2}. {filename}")
+                else:
+                    print(f"\t{myTerminal.GREY}{projectIndex:>2}. {filename}{myTerminal.RESET}")
                 projects[projectIndex] = filename
     
     selectedProject = input(f"Select (0-{projectIndex}): ")
