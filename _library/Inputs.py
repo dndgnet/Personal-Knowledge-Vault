@@ -126,11 +126,15 @@ def select_project_name_withDict(showNewProjectOption = True, showNoProjectOptio
     for filename in sorted(os.listdir(myPreferences.root_projects())):
         if os.path.isdir(os.path.join(myPreferences.root_projects(), filename)):
             projectConfig = myTools.get_ProjectConfig_as_dict(filename)
-            if projectConfig.get("Archived", False) and hideArchivedProjects:
+            projectIsArchived = projectConfig.get("Archived", False)
+            if projectIsArchived and hideArchivedProjects:
                 continue  # Skip archived projects
             else:
                 projectIndex += 1
-                print(f"\t{projectIndex:>2}. {filename}")
+                if projectIndex%2==0:
+                    print(f"\t{projectIndex:>2}. {filename}")
+                else:
+                    print(f"\t{myTerminal.GREY}{projectIndex:>2}. {filename}{myTerminal.RESET}")
                 projects[projectIndex] = filename
     
     selectedProject = input(f"Select (0-{projectIndex}): ")
