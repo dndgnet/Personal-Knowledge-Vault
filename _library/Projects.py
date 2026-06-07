@@ -663,7 +663,8 @@ def raid_Assumptions(projectName: str, allNotes: list[myNotes.NoteData], returnT
                 newNotePart += f"**Status**: {myNotes.get_stringValue_from_noteBody('Status', assumption.noteBody)}\n"
                 newNotePart += f"**Impact**: {myNotes.get_stringValue_from_noteBody('Impact', assumption.noteBody)}\n"
                 newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Identified by', assumption.noteBody)}\n"
-                newNotePart += f"**Description**: {myNotes.get_sectionValue_from_noteBody('Description', assumption.noteBody).replace('\n', '<br>')}\n\n"            
+                description = myNotes.get_sectionValue_from_noteBody('Description', assumption.noteBody).replace('\n', '<br>')
+                newNotePart += f"**Description**: {description}\n\n"            
 
 
     return newNotePart
