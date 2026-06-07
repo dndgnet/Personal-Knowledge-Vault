@@ -539,8 +539,8 @@ def notePart_ChangeRequests(projectName: str, allNotes: list[myNotes.NoteData], 
                 newNotePart += f"### {decision.subId} {decision.title}\n\n"
                 newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Date Submitted', decision.noteBody)}\n"
                 newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('Decision', decision.noteBody)}\n"
-                newNotePart += f"**Description**: \n{myNotes.get_sectionValue_from_noteBody("Change Description", decision.noteBody)}\n\n" 
-                newNotePart += f"**Justification**: \n{myNotes.get_sectionValue_from_noteBody("Change Justification", decision.noteBody)}\n\n"            
+                newNotePart += f"**Description**: \n{myNotes.get_sectionValue_from_noteBody('Change Description', decision.noteBody)}\n\n" 
+                newNotePart += f"**Justification**: \n{myNotes.get_sectionValue_from_noteBody('Change Justification', decision.noteBody)}\n\n"            
 
 
     return newNotePart
@@ -701,7 +701,7 @@ def raid_Decisions(projectName: str, allNotes: list[myNotes.NoteData], returnTab
                 newNotePart += f"### {decision.subId} {decision.title}\n\n"
                 newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', decision.noteBody)}\n"
                 newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('State', decision.noteBody)}\n"
-                newNotePart += f"**Summary**: {myNotes.get_sectionValue_from_noteBody("Executive Summary / Recommendation", decision.noteBody)}\n\n"            
+                newNotePart += f"**Summary**: {myNotes.get_sectionValue_from_noteBody('Executive Summary / Recommendation', decision.noteBody)}\n\n"            
 
 
     return newNotePart
