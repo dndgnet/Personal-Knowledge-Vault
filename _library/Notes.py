@@ -14,6 +14,7 @@ from . import Preferences as myPreferences
 from . import Terminal as myTerminal
 from . import Variables as myVariables
 
+
 @dataclass
 class NoteData:
     id: str  # Unique identifier for the note, typically a timestamp or unique string
@@ -44,6 +45,10 @@ class NoteData:
     archivedProject: bool = False  # indicates that note belongs to an archived project
     endDate: str = ""  # optional end date for gantt charts
     subId: str = ""  # optional sub-identifier for notes of specific types
+    typeSimple: str = ""  # optional type with the project tab removed
+
+    def __post_init__(self):
+        self.typeSimple = self.type.strip().replace("project-", "")
 
     def to_dict(self):
         return {
@@ -70,6 +75,7 @@ class NoteData:
             "archivedProject": self.archivedProject,
             "endDate": self.endDate.strip(),
             "subId": self.subId.strip(),
+            "typeSimple": self.typeSimple,
         }
 
     def __str__(self):
@@ -77,6 +83,14 @@ class NoteData:
             return f"{self.title} ({self.date}) from {self.project}"
         else:
             return f"{self.title} ({self.date})"
+
+
+def addLine(newString="") -> str:
+    """
+    standardizes EOL behavior
+    """
+
+    return f"{newString}\n\n"
 
 
 # == main functions to open notes by id or file name ===
@@ -194,6 +208,7 @@ def read_Note_from_path_and_file(notePath: str, noteFileName: str) -> str:
     notePathAndFile = os.path.join(notePath, noteFileName)
     return read_Note_from_path(notePathAndFile)
 
+
 def write_Note_to_path(notePathAndFile: str, noteContent: str) -> bool:
     """
     Writes content to a note file.
@@ -281,7 +296,10 @@ def update_NoteBody(note: NoteData, newBody: str) -> bool:
 
     return True
 
-def update_NoteFrontMatterAndBody(note: NoteData, newFrontMatter: str, newBody: str) -> bool:
+
+def update_NoteFrontMatterAndBody(
+    note: NoteData, newFrontMatter: str, newBody: str
+) -> bool:
     """
     Updates the front matter and body of a note file.
 
@@ -1149,52 +1167,76 @@ def get_attachments_from_note(note: NoteData) -> list[str]:
                   Returns empty list if no attachments are found.
     """
     # Define supported file extensions
-    image_extensions = ("png", "jpg", "jpeg", "gif", "bmp", "svg", "webp", "ico", "tiff", "tif")
-    document_extensions = ("pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp")
+    image_extensions = (
+        "png",
+        "jpg",
+        "jpeg",
+        "gif",
+        "bmp",
+        "svg",
+        "webp",
+        "ico",
+        "tiff",
+        "tif",
+    )
+    document_extensions = (
+        "pdf",
+        "doc",
+        "docx",
+        "xls",
+        "xlsx",
+        "ppt",
+        "pptx",
+        "odt",
+        "ods",
+        "odp",
+    )
     email_extensions = ("msg", "eml")
     other_extensions = ("txt", "csv", "zip", "rar", "7z")
-    
-    supported_extensions = image_extensions + document_extensions + email_extensions + other_extensions
-    
+
+    supported_extensions = (
+        image_extensions + document_extensions + email_extensions + other_extensions
+    )
+
     attachments = []
-    
-    # Pattern to match both Obsidian wikilinks ![[...]] or [[...]] 
+
+    # Pattern to match both Obsidian wikilinks ![[...]] or [[...]]
     # and standard markdown links/images ](...)
-    wikilink_pattern = r'!?\[\[([^\]]+)\]\]'
-    markdown_pattern = r'\]\(([^)]+)\)'
-    
+    wikilink_pattern = r"!?\[\[([^\]]+)\]\]"
+    markdown_pattern = r"\]\(([^)]+)\)"
+
     # Find wikilink-style attachments
     wikilink_matches = re.findall(wikilink_pattern, note.noteBody)
     for match in wikilink_matches:
         # Skip if it's a web link
         if match.startswith("http://") or match.startswith("https://"):
             continue
-        
+
         # Extract filename (handle cases with | for display text like [[file.pdf|display name]])
         filename = match.split("|")[0].strip()
-        
+
         # Check if the file has a supported extension
         if "." in filename:
             extension = filename.split(".")[-1].lower()
             if extension in supported_extensions:
                 attachments.append(filename)
-    
+
     # Find markdown-style attachments
     markdown_matches = re.findall(markdown_pattern, note.noteBody)
     for match in markdown_matches:
         # Skip if it's a web link
         if match.startswith("http://") or match.startswith("https://"):
             continue
-        
+
         # Extract filename (already clean from the regex)
         filename = match.strip()
-        
+
         # Check if the file has a supported extension
         if "." in filename:
             extension = filename.split(".")[-1].lower()
             if extension in supported_extensions:
                 attachments.append(filename)
-    
+
     # Remove duplicates while preserving order
     seen = set()
     unique_attachments = []
@@ -1202,5 +1244,5 @@ def get_attachments_from_note(note: NoteData) -> list[str]:
         if attachment not in seen:
             seen.add(attachment)
             unique_attachments.append(attachment)
-    
+
     return unique_attachments
