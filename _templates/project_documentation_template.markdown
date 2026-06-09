@@ -13,16 +13,24 @@ keywords:
 project: [Project Name]
 author: [Current User]
 private: No
+display order: [sub id]
 ---
 
-<!-- This is an atomic documentation template that can be used to capture sharable information. -->
+<!-- 
+This is an atomic documentation template that can be used to capture sharable information or facts. 
+
+Consider using this template to document set up, configuration, behavior, or any "how to" information that can be useful or should
+simply be preserved for future reference.
+
+Use the display order front matter field to control the order that will be used when systematically pulling documentation notes together.
+
+-->
 
 # [Title]
 
 Subject: [Subject]
 
 Audience: [Audience]
-
 
 ## Introduction
 
