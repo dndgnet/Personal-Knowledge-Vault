@@ -9,12 +9,39 @@ if not todoNotes:
     print(f"{myTerminal.GREEN}No Action items found.{myTerminal.RESET}")
     exit(0)
 
+filterOwner = input(f"{myTerminal.WHITE}Filter by owner (leave blank for all): {myTerminal.RESET}").strip().lower()
+filterDueDate = input(f"{myTerminal.WHITE}Filter by due date (YYYY-MM-DD, leave blank for today or late): {myTerminal.RESET}").strip()
+
 #sort notes by project name 
 todoNotes.sort(key=lambda x: (x.project.lower(), x.date))
 
+if filterOwner:
+    filterNotes = []
+    for note in todoNotes:
+        for actionItem in note.actionItems:
+            actionOwner = actionItem.Owner.strip().lower()
+            if actionOwner == filterOwner:
+                filterNotes.append(note)
+                break
+            
+    todoNotes = filterNotes
 
+if filterDueDate:
+    filterNotes = []
+    for note in todoNotes:
+        for actionItem in note.actionItems:
+            actionDate = actionItem.Date.strip()    
+            if actionDate <= filterDueDate:
+                filterNotes.append(note)
+                break
+            
+    todoNotes = filterNotes
 
 selected = "start"
+if len(todoNotes) == 0:
+    print(f"{myTerminal.GREEN}No Action items found with the specified filters.{myTerminal.RESET}")
+    exit(0)
+    
 while selected.lower() != "stop":
     print(f"{myTerminal.SUCCESS} {len(todoNotes)} Action items found:{myTerminal.RESET}")
     

@@ -13,7 +13,7 @@ from typing import Any, Dict, List
 from . import Preferences as myPreferences
 from . import Terminal as myTerminal
 from . import Variables as myVariables
-
+from . import ActionItems as myActionItems
 
 @dataclass
 class NoteData:
@@ -36,7 +36,7 @@ class NoteData:
     frontMatter: str
     noteBody: str
     backLinks: List[str]
-    actionItems: List[str]
+    actionItems: List[myActionItems.ActionItem]
     archived: bool = False
     hasActionItems: bool = False
     actionItemsWithComments: dict = field(default_factory=dict)
@@ -408,13 +408,14 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
     hasActionItems = True if "[ ]" in body else False
     actionItems = []
     actionItemsWithComments = {}
-    for actionItem in re.findall(
+    for actionItemString in re.findall(
         r"\[ \](.*)", body
     ):  # Find all action items in the note body
-        actionItems.append(actionItem.strip())
-
+        
         # Extract details that follow the action item until the next "- [" or blank line
-        action_item_pattern = re.escape(actionItem)
+        action_item_pattern = re.escape(actionItemString)
+        actionItemComment = ""
+        
         # Find the position of this action item in the body
         match = re.search(rf"\[ \]\s?{action_item_pattern}", body)
         if match:
@@ -436,7 +437,12 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
             else:
                 actionItemComment = ""
 
-            actionItemsWithComments[actionItem.strip()] = actionItemComment
+            actionItemsWithComments[actionItemString.strip()] = actionItemComment
+
+        actionItem = myActionItems.ActionItem()
+        actionItem.LoadFromString(uniqueIdentifier, notePathAndFile, f"[ ] {actionItemString.strip()}", actionItemComment)
+        actionItems.append(actionItem)
+
 
     # Replace the dictionary with an instance of the Note dataclass
     note = NoteData(
