@@ -1,20 +1,23 @@
-import datetime 
-from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from dataclasses import dataclass
 import re 
+
+from . import Notes as myNotes
 
 @dataclass
 class ActionItem:
     note_id: str = ""
+    note_title: str = ""
     note_path: str = ""
+    project: str = ""
     Owner: str = ""
     Date: str = ""
     Description: str = ""
     Completed: bool = False
+    noteRow: int = 0
     taskString: str = ""
     Comment: str = ""
 
-    def LoadFromString(self, note_id: str, note_path: str, taskString: str, comment: str = ""):
+    def LoadFromString(self, note_id: str, note_title: str, note_path: str, project: str,  taskString: str, noteRow: int = 0, comment: str = ""):
         """ 
         Loads an action item from the string found in the note.
 
@@ -24,8 +27,11 @@ class ActionItem:
         # any characters before the colon are assumed to be the owner, if there are no characters assume the owner is the default vault owner.
 
         self.note_id = note_id
+        self.note_title = note_title
         self.note_path = note_path
+        self.project = project
         self.taskString = taskString
+        self.noteRow = noteRow
         self.Completed = "[x]" in taskString.lower() 
         date_match = re.search(r"\b(\d{4}-\d{2}-\d{2})\b", taskString)
         if date_match:
@@ -47,22 +53,36 @@ class ActionItem:
 
         self.Comment = comment
 
+    def Complete(self):
+        try:
+            self.Completed = True
+            selectedNoteBody = myNotes.read_Note_from_path(self.note_path)
+            selectedNoteBody = selectedNoteBody.replace(self.taskString, self.taskString.replace("[ ]", "[x]"), 1)
+            myNotes.write_Note_to_path(self.note_path, selectedNoteBody)
+        except Exception as e:
+            print(f"Error marking action item as complete: {e}")
+
     def __str__(self):
         response = ""
-        if self.Completed:
-            response += "Completed Action Item "
-        else:
-            response += "Action Item "
+        # if self.Completed:
+        #     response += "Completed Action Item "
+        # else:
+        #     response += "Action Item "
         
         if self.Owner != "":
-            response += f"for {self.Owner} "
+            response += f"{self.Owner} "
         else:
-            response += "for vault owner "
+            response += ""
         
-        if self.Date != "":
-            response += f"on {self.Date}"
+        response += f" {self.Description}"
 
-        response += f": {self.Description}"
+        if self.Date != "":
+            response += f" on {self.Date}"
+
+        if self.Completed:
+            response += " (COMPLETED)"
+
+        
         return response
 
 def __test__():
@@ -75,7 +95,7 @@ def __test__():
 
     for testString in testStrings:
         actionItem = ActionItem()
-        actionItem.LoadFromString("test_note_id", "test_note_path", testString)
+        actionItem.LoadFromString("test_note_id", "test_note_title", "test_note_path", "test_project", testString)
         print ("Original String: ", testString)
         print("Result          : ", actionItem)
         print("\tDate: ", actionItem.Date)

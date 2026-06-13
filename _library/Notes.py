@@ -15,6 +15,7 @@ from . import Terminal as myTerminal
 from . import Variables as myVariables
 from . import ActionItems as myActionItems
 
+
 @dataclass
 class NoteData:
     id: str  # Unique identifier for the note, typically a timestamp or unique string
@@ -415,7 +416,7 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
         # Extract details that follow the action item until the next "- [" or blank line
         action_item_pattern = re.escape(actionItemString)
         actionItemComment = ""
-        
+
         # Find the position of this action item in the body
         match = re.search(rf"\[ \]\s?{action_item_pattern}", body)
         if match:
@@ -440,7 +441,16 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
             actionItemsWithComments[actionItemString.strip()] = actionItemComment
 
         actionItem = myActionItems.ActionItem()
-        actionItem.LoadFromString(uniqueIdentifier, notePathAndFile, f"[ ] {actionItemString.strip()}", actionItemComment)
+        
+        # get the line number of the action item in the note body for reference
+        actionItemRow = 0
+        for line in body.splitlines():
+            if f"[ ] {actionItemString.strip()}" in line.strip():
+                # actionItemRow will be front matter rows + the line number of the action item in the body
+                actionItemRow = len(frontMatter.splitlines()) + 1 + body.splitlines().index(line) + 3
+                break
+        actionItem.LoadFromString(uniqueIdentifier, title, notePathAndFile, project, 
+                                  f"[ ] {actionItemString.strip()}", actionItemRow, actionItemComment)
         actionItems.append(actionItem)
 
 
