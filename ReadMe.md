@@ -2,8 +2,7 @@
 
 ## What and Why
 
-todo: explain that this repository is a productivity hack for places where users are not allowed to buy and install software.  Somehow explain that the MS OneNote is not productive and just encourages vendor lock in 
-
+todo: explain that this repository is a productivity hack for environments where users are not allowed to buy and install software.  Somehow explain that the MS OneNote is not productive and just encourages vendor lock in 
 
 In real life, tools like Obsidian, Roam Research, Notion, Zettlr, and many others either support or are designed specifically for Zettelkasten style note-taking. However, in many corporate environments, these tools are often unsupported or outright prohibited.
 
@@ -13,7 +12,7 @@ While there are ways to bypass corporate IT restrictions to stay productive, one
 
 This repository includes simply Python scripts that extend functionality of any common text editor and make note taking in a corporate environment less onerous.
 
-Scripts in this repository rely on standard Python libraries available in Python 3.0 and later (though only tested with Python 3.9 and above).
+Scripts in this repository rely on standard Python libraries available in Python 3.0 and later (though only tested back to Python 3.9).
 
 Cloud storage and backup are achieved by leveraging existing corporate infrastructure. For example, by placing your vault in the Windows Documents folder, you can utilize corporate OneDrive for seamless integration.
 
@@ -84,10 +83,13 @@ _exampleEmptyPreferences = {
 
 ## Front Matter
 
+Front matter is the meta data or facts that describe a note.
+
 ```
 ---
 title: Event BU requests more transparent UTC to PST conversion statement
 id: 20251002000000 
+sub id: 001
 type: project-event
 created: 2025-10-02 12:31:20 
 modified: 2025-10-02 12:31:20 
@@ -102,21 +104,36 @@ private: No
 ---
 ```
 
-### Private
+### id
+
+The unique identifier assigned to each note.
+
+#### sub id
+
+A semi-unique child identifier assigned to some types of notes within a project.  For example, a project will have n+1 risks.  The first risk added to the project is risk 001, the second risk is risk 002.  The *sub id* is unique within a project and assists readers reviewing notes that combine child items.  For example, the project hub note will restate all of the project risks
+
+```text 
+001 budget overrun 
+002 staff shortage
+```
+
 
 ### Private
 
 Each note is determined to be private or public based on the front matter `private` property. A front matter *private* property of 'True', 'Yes', or 'Y' will be treated as true, and the note will not be included in public exports such as project summaries or progress reports. A null or missing front matter private property (for example, if your template does not include a private property) will be interpreted as *no, this note is not private*.
 
+### created, modified, start date, and end date
+
 TODO: talk about Zettelkasten basics
 - emphasize the importance of a YYYYMMDD date format 
+
+### tags and keywords
 - explain tags vs. keywords
   - tags are bigger, keywords are just sensible things to help as future search criteria when you don't necessarily have the right words
+
+### retention
 - explain retention
   - Short, Medium, and Long: at some point we will need a command to delete notes based on the retention.  The logic is tbd so for now just record the author's intent.
-
-
-
 
 ## Projects
 
@@ -131,6 +148,7 @@ TODO: explain why projects get their own folders
     "ProjectName": "UTC Project",
     "Archived": true,
     "Sync": false,
+    "PrivateShareFolder": "",
     "PublicShareFolder": "",
     "Needs Weekly Progress Update": false,
     "Needs Monthly Progress Update": true

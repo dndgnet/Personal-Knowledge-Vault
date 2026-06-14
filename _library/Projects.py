@@ -1,20 +1,37 @@
-from . import Tools as myTools, Preferences as myPreferences, Inputs as myInputs, Terminal as myTerminal, Notes as myNotes
-from .Templates import read_Template, merge_template_with_values
-
-from dataclasses import dataclass
-from typing import List
-from decimal import Decimal
-from dataclasses import field
-
+import json
 import os
-import json 
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from decimal import Decimal
+from typing import List
 
-monthStringNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+from . import Inputs as myInputs
+from . import Notes as myNotes
+from . import Preferences as myPreferences
+from . import Terminal as myTerminal
+from . import Tools as myTools
+from .Templates import merge_template_with_values, read_Template
 
-dataTypeDictionary = {"BurnDown": "x-axis,Planned Budget,Actual,Earned Value,Notes",
-                      "Stakeholders": "Name,Title,Contact Info,Role,Expectations,Classification,Notes",
-                      "Glossary": "Term,Definition,Notes",}
+monthStringNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+]
+
+dataTypeDictionary = {
+    "BurnDown": "x-axis,Planned Budget,Actual,Earned Value,Notes",
+    "Stakeholders": "Name,Title,Contact Info,Role,Expectations,Classification,Notes",
+    "Glossary": "Term,Definition,Notes",
+}
 
 # KanBan board columns that we recognize
 kanBanBoardColumns = {
@@ -25,19 +42,79 @@ kanBanBoardColumns = {
     # "Cancelled":"Cancelled"
 }
 
-#Assume task import from DevOps, Jira, Trello, etc
-#use importTaskColumnTranslation to translate imported column names to desired column names
-#desiredColumn:[list of possible synonyms in import file]
-importTaskColumnTranslation = {"ID":["ID","Task Identifier","Task Identifier","Task ID","TaskID","Task Id","Task id","Task_Id","Ticket","Ticket Number"],
-    "Title":["Title","Task Name","Task","Task Title","Task_Title","Task_Name","Ticket Title","Ticket_Title"],
-    "Status":["State","Status","Task Status","Ticket Status","Ticket_Status"],
-    "Start Date":["Activated Date", "Start Date","Task Start Date","Start_Date","Task_Start_Date","Ticket Start Date","Ticket_Start_Date"],
-    "Actual Start":["Activated Date"],
-    "Due Date":["Due Date","Task Due Date","Due_Date","Task_Due_Date","Ticket Due Date","Ticket_Due_Date"],
-    "Assigned To":["Assigned To","Task Assigned To","Assigned_To","Task_Assigned_To","Ticket Assigned To","Ticket_Assigned_To"],
-    "Closed Date":["Closed Date","Task Closed Date","Closed_Date","Task_Closed_Date","Ticket Closed Date","Ticket_Closed_Date"],
-    "Task Detail":["Task Detail","Task Details","Task_Detail","Task_Details","Ticket Detail","Ticket_Detail","Acceptance Criteria","Description"],
-    }
+# Assume task import from DevOps, Jira, Trello, etc
+# use importTaskColumnTranslation to translate imported column names to desired column names
+# desiredColumn:[list of possible synonyms in import file]
+importTaskColumnTranslation = {
+    "ID": [
+        "ID",
+        "Task Identifier",
+        "Task Identifier",
+        "Task ID",
+        "TaskID",
+        "Task Id",
+        "Task id",
+        "Task_Id",
+        "Ticket",
+        "Ticket Number",
+    ],
+    "Title": [
+        "Title",
+        "Task Name",
+        "Task",
+        "Task Title",
+        "Task_Title",
+        "Task_Name",
+        "Ticket Title",
+        "Ticket_Title",
+    ],
+    "Status": ["State", "Status", "Task Status", "Ticket Status", "Ticket_Status"],
+    "Start Date": [
+        "Activated Date",
+        "Start Date",
+        "Task Start Date",
+        "Start_Date",
+        "Task_Start_Date",
+        "Ticket Start Date",
+        "Ticket_Start_Date",
+    ],
+    "Actual Start": ["Activated Date"],
+    "Due Date": [
+        "Due Date",
+        "Task Due Date",
+        "Due_Date",
+        "Task_Due_Date",
+        "Ticket Due Date",
+        "Ticket_Due_Date",
+    ],
+    "Assigned To": [
+        "Assigned To",
+        "Task Assigned To",
+        "Assigned_To",
+        "Task_Assigned_To",
+        "Ticket Assigned To",
+        "Ticket_Assigned_To",
+    ],
+    "Closed Date": [
+        "Closed Date",
+        "Task Closed Date",
+        "Closed_Date",
+        "Task_Closed_Date",
+        "Ticket Closed Date",
+        "Ticket_Closed_Date",
+    ],
+    "Task Detail": [
+        "Task Detail",
+        "Task Details",
+        "Task_Detail",
+        "Task_Details",
+        "Ticket Detail",
+        "Ticket_Detail",
+        "Acceptance Criteria",
+        "Description",
+    ],
+}
+
 
 @dataclass
 class TaskData:
@@ -59,8 +136,14 @@ class TaskData:
     estimatedEffort: str
     percentComplete: Decimal
     assignedTo: str
-    state: str = field(metadata={"description": "Not Started, In Progress, Completed, Cancelled"})
-    ticket: str = field(metadata={"description": "Ticket or task tracking number from the 3rd party system"})
+    state: str = field(
+        metadata={"description": "Not Started, In Progress, Completed, Cancelled"}
+    )
+    ticket: str = field(
+        metadata={
+            "description": "Ticket or task tracking number from the 3rd party system"
+        }
+    )
     dependantOn: List[str]
 
     def to_dict(self):
@@ -111,19 +194,27 @@ class TaskData:
 
 # --- end dataclass ---
 
+
 def standardize_state(state: str) -> str:
     """Standardizes the state string to a known set of states."""
     state = state.strip().lower()
     if state in ["not started", "pending", "to do", "todo"]:
         return "Not Started"
-    elif state in ["in progress", "ongoing", "doing","active"]:
+    elif state in ["in progress", "ongoing", "doing", "active"]:
         return "In Progress"
     elif state in ["completed", "done", "finished"]:
         return "Completed"
-    elif state in ["cancelled", "canceled", "abandoned","ready for stakeholder review", "resolved"]:
+    elif state in [
+        "cancelled",
+        "canceled",
+        "abandoned",
+        "ready for stakeholder review",
+        "resolved",
+    ]:
         return "Cancelled"
     else:
         return "Unknown"
+
 
 def load_ProjectTasks(projectName: str) -> List[TaskData]:
     """Returns a list of TaskData objects for the specified project."""
@@ -138,6 +229,7 @@ def load_ProjectTasks(projectName: str) -> List[TaskData]:
             allTasks.append(task)
 
     return allTasks
+
 
 def loadTaskFromNote(note) -> TaskData:
     """Loads a TaskData object from a Note object."""
@@ -156,8 +248,10 @@ def loadTaskFromNote(note) -> TaskData:
     if assignedToString == "":
         assignedToString = "Unassigned"
 
-    stateString = standardize_state(myTools.get_stringValue_from_noteBody("State", note.noteBody))
-    
+    stateString = standardize_state(
+        myTools.get_stringValue_from_noteBody("State", note.noteBody)
+    )
+
     task = TaskData(
         id=note.id,
         fileName=note.fileName,
@@ -188,42 +282,50 @@ def loadTaskFromNote(note) -> TaskData:
 
     return task
 
-def sort_Tasks_by_date(tasks: list[TaskData], descending: bool = True) -> list[TaskData]:
+
+def sort_Tasks_by_date(
+    tasks: list[TaskData], descending: bool = True
+) -> list[TaskData]:
     """
     Sorts a list of TaskData objects by date.
-    
+
     Args:
         tasks (list[TaskData]): The list of TaskData objects to sort.
         reverse (bool): If True, sorts in descending order; if False, sorts in ascending order. Default is True.
-        
+
     Returns:
         list[TaskData]: The sorted list of TaskData objects.
     """
-    
+
     return sorted(tasks, key=lambda task: task.date, reverse=descending)
+
 
 def open_ProjectData_in_Editor(projectName: str, dataType: str):
     """Opens the project data file in the default editor based on the data type."""
 
     if dataType in dataTypeDictionary.keys():
         csvFileName = f"data_{dataType}.csv"
-        csvFilePath = os.path.join(myPreferences.root_projects(), projectName, csvFileName)
-        
+        csvFilePath = os.path.join(
+            myPreferences.root_projects(), projectName, csvFileName
+        )
+
         if not os.path.exists(csvFilePath):
             csvFileName = f"data_{dataType}.csv"
             with open(csvFilePath, "w") as csvFile:
-                csvFile.write(f"{dataTypeDictionary[dataType]}\n")  
-    
+                csvFile.write(f"{dataTypeDictionary[dataType]}\n")
+
             print(f"""{myTerminal.ERROR}CSV file not found at {csvFilePath}.{myTerminal.RESET}
                 \nAn empty CSV file with the appropriate headers has been created. Please populate the CSV file with data and run the script again.{myTerminal.RESET}""")
-            
 
-        myTools.open_note_in_editor(csvFilePath)    
-    
+        myTools.open_note_in_editor(csvFilePath)
+
     else:
-        print(f"{myTerminal.ERROR}Data type '{dataType}' not recognized. No file to open.{myTerminal.RESET}")   
+        print(
+            f"{myTerminal.ERROR}Data type '{dataType}' not recognized. No file to open.{myTerminal.RESET}"
+        )
 
-def diagram_kanban_by_state(project_name: str, ticketBaseUrl:str = "") -> str:
+
+def diagram_kanban_by_state(project_name: str, ticketBaseUrl: str = "") -> str:
     """Generates a KanBan diagram data structure for tasks in a project, grouped by state.
     if ticketBaseUrl is provided, it will be used to create links for tickets in the diagram.
     """
@@ -233,18 +335,21 @@ def diagram_kanban_by_state(project_name: str, ticketBaseUrl:str = "") -> str:
     projectBoardBuckets = {}
     cardStart = "@{"
     cardEnd = "}"
-    
-    #build buckets
+
+    # build buckets
     for bucket in kanBanBoardColumns.keys():
         projectBoardBuckets[bucket] = ""
 
     for task in tasks:
         ticketStatement = ""
         if task.ticket != "":
-            ticketStatement = f" ticket: '{task.ticket}', " 
-        projectBoardBuckets[task.KanBanColumn()] = projectBoardBuckets.get(task.KanBanColumn(), "") + f"\t{task.id}[{myTools.letters_and_numbers_only(task.title)}]{cardStart}{ticketStatement} assigned: '{task.assignedTo}'{cardEnd}\n"
+            ticketStatement = f" ticket: '{task.ticket}', "
+        projectBoardBuckets[task.KanBanColumn()] = (
+            projectBoardBuckets.get(task.KanBanColumn(), "")
+            + f"\t{task.id}[{myTools.letters_and_numbers_only(task.title)}]{cardStart}{ticketStatement} assigned: '{task.assignedTo}'{cardEnd}\n"
+        )
 
-    #start diagram
+    # start diagram
     if ticketBaseUrl == "":
         board = """
 ```mermaid
@@ -261,19 +366,19 @@ kanban:
 kanban
 """
 
-
-    #add cards to board
+    # add cards to board
     for bucket, cardString in projectBoardBuckets.items():
         board += f"{bucket}\n{cardString}\n"
-        
-    #end diagram
+
+    # end diagram
     board += """
 ```
 """
 
     return board
 
-def diagram_kanban_by_assigned(project_name: str, ticketBaseUrl:str = "") -> str:
+
+def diagram_kanban_by_assigned(project_name: str, ticketBaseUrl: str = "") -> str:
     """Generates a KanBan diagram data structure for tasks in a project, grouped by assigned to.
     if ticketBaseUrl is provided, it will be used to create links for tickets in the diagram.
     """
@@ -283,8 +388,8 @@ def diagram_kanban_by_assigned(project_name: str, ticketBaseUrl:str = "") -> str
     projectBoardBuckets = {}
     cardStart = "@{"
     cardEnd = "}"
-    
-    #build buckets
+
+    # build buckets
     for task in tasks:
         assignedToList = task.assignedTo if task.assignedTo != "" else "Unassigned"
         for assignedTo in assignedToList.split(","):
@@ -293,12 +398,15 @@ def diagram_kanban_by_assigned(project_name: str, ticketBaseUrl:str = "") -> str
     for task in tasks:
         ticketStatement = ""
         if task.ticket != "":
-            ticketStatement = f" ticket: '{task.ticket}', " 
+            ticketStatement = f" ticket: '{task.ticket}', "
         for assignedTo in projectBoardBuckets.keys():
             if assignedTo.strip() in task.assignedTo:
-                projectBoardBuckets[assignedTo] = projectBoardBuckets.get(assignedTo, "") + f"\t{task.id}[{myTools.letters_and_numbers_only(task.title)}]{cardStart}{ticketStatement} assigned: '{task.state}'{cardEnd}\n"
+                projectBoardBuckets[assignedTo] = (
+                    projectBoardBuckets.get(assignedTo, "")
+                    + f"\t{task.id}[{myTools.letters_and_numbers_only(task.title)}]{cardStart}{ticketStatement} assigned: '{task.state}'{cardEnd}\n"
+                )
 
-    #start diagram
+    # start diagram
     if ticketBaseUrl == "":
         board = """
 ```mermaid
@@ -314,44 +422,46 @@ kanban:
 ---
 kanban
 """
-    #add cards to board
+    # add cards to board
     for bucket, cardString in projectBoardBuckets.items():
         board += f"{bucket}\n{cardString}\n"
-        
-    #end diagram
+
+    # end diagram
     board += """
 ```
 """
 
     return board
 
-def diagram_Gantt_tasks(project_name: str) -> str:    
-    """Generates a Gantt diagram data structure for tasks in a project.
-    """
+
+def diagram_Gantt_tasks(project_name: str) -> str:
+    """Generates a Gantt diagram data structure for tasks in a project."""
 
     tasks = load_ProjectTasks(project_name)
     tasks = sort_Tasks_by_date(tasks, descending=False)
 
-    gantt = f""" 
-```mermaid      
+    gantt = f"""
+```mermaid
 gantt
     dateFormat  YYYY-MM-DD
     title {project_name} - Project Tasks Gantt Chart
     excludes    weekends
 """
     for task in tasks:
-        startDate = (task.plannedStart if task.plannedStart != "" else task.actualStart)[:10]
+        startDate = (
+            task.plannedStart if task.plannedStart != "" else task.actualStart
+        )[:10]
         endDate = (task.plannedEnd if task.plannedEnd != "" else task.endDate)[:10]
         if endDate == "" and startDate != "":
-            #endDate = (datetime.strptime(startDate, "%Y-%m-%d") + timedelta(days=15)).strftime("%Y-%m-%d")
+            # endDate = (datetime.strptime(startDate, "%Y-%m-%d") + timedelta(days=15)).strftime("%Y-%m-%d")
             endDate = (datetime.now() + timedelta(days=5)).strftime("%Y-%m-%d")
 
-        if task.state.lower() in ["completed", "done", "finished"] :
+        if task.state.lower() in ["completed", "done", "finished"]:
             state = "done"
         elif task.state.lower() in ["in progress", "ongoing", "doing"]:
             state = "active"
         else:
-            state = ""        
+            state = ""
 
         if startDate != "" and endDate != "":
             if state != "":
@@ -361,39 +471,44 @@ gantt
 
     gantt += """
 ```
-""" 
-    return gantt    
+"""
+    return gantt
 
-def diagram_Gantt_notes(project_name: str, includePrivateNotes: bool) -> str:    
-    """Generates a Gantt diagram data structure for notes in a project.
-    """
+
+def diagram_Gantt_notes(project_name: str, includePrivateNotes: bool) -> str:
+    """Generates a Gantt diagram data structure for notes in a project."""
 
     notes = myNotes.get_Notes_from_Project(project_name)
     notes = myNotes.sort_Notes_by_date(notes, descending=False)
 
-    gantt = f""" 
-```mermaid      
+    gantt = f"""
+```mermaid
 gantt
     dateFormat  YYYY-MM-DD
     title {project_name} - Project Tasks Gantt Chart
     excludes    weekends
 """
     for note in notes:
-        if includePrivateNotes or not note.private :
+        if includePrivateNotes or not note.private:
             startDate = note.date[:10]
-            endDate = (note.endDate if (note.endDate != "" and note.endDate != note.date) else "1d")[:10]
-            
+            endDate = (
+                note.endDate
+                if (note.endDate != "" and note.endDate != note.date)
+                else "1d"
+            )[:10]
+
             state = "done"
-            
+
             if startDate != "" and endDate != "":
                 gantt += f"    {myTools.letters_and_numbers_only(note.title)} :{state}, {note.id}, {startDate}, {endDate}\n"
 
     gantt += """
 ```
-""" 
-    return gantt   
+"""
+    return gantt
 
-def diagram_Burndown(projectName: str) -> str:   
+
+def diagram_Burndown(projectName: str) -> str:
     """Generates a Burndown diagram data structure for a project.
     Expects a CSV file in the project folder with columns: Date, Planned Budget, Actual, Earned Value
     """
@@ -401,12 +516,12 @@ def diagram_Burndown(projectName: str) -> str:
     csvFilePath = os.path.join(myPreferences.root_projects(), projectName, csvFileName)
 
     if not os.path.exists(csvFilePath):
-        #create an empty CSV file with the appropriate headers
+        # create an empty CSV file with the appropriate headers
         with open(csvFilePath, "w") as csvFile:
-            csvFile.write("x-axis,Planned Budget,Actual,Earned Value\n")  
+            csvFile.write("x-axis,Planned Budget,Actual,Earned Value\n")
         print(f"""{myTerminal.ERROR}CSV file not found at {csvFilePath}.{myTerminal.RESET}
             \nAn empty CSV file with the appropriate headers has been created. Please populate the CSV file with data and run the script again.{myTerminal.RESET}""")
-        myTools.open_note_in_editor(csvFilePath)    
+        myTools.open_note_in_editor(csvFilePath)
 
     # Read the CSV file into a burndown dictionary
     burndown_data = myTools.read_csv_to_dict(csvFilePath, "x-axis")
@@ -416,18 +531,18 @@ def diagram_Burndown(projectName: str) -> str:
     #         values = line.strip().split(",")
     #         burndown_data[values[0]] = dict(zip(headers[1:],  map(float, values[1:])))
 
-    #get max budget for y-axis scaling
+    # get max budget for y-axis scaling
     if len(burndown_data) == 0:
         print(f"{myTerminal.WARNING}No data found in CSV file.{myTerminal.RESET}")
         return f"No data found in '{csvFilePath}'."
-    
+
     max_budget = max(entry["Planned Budget"] for entry in burndown_data.values())
     # make max_budget a multiple of 10 for better visualization
     max_budgetLabel = ((int(max_budget) // 10) + 1) * 10
 
     xaxis_List = []
     xaxis_Labels = ""
-    # for each date in the burndown data dictionary, format the date as "MM/DD" if 
+    # for each date in the burndown data dictionary, format the date as "MM/DD" if
     # the date is the same month as the previous date, otherwise format it as "DD"
     previous_month = None
     for date in burndown_data.keys():
@@ -436,47 +551,47 @@ def diagram_Burndown(projectName: str) -> str:
             xaxis_List.append(day)
             xaxis_Labels += f"{day}, "
         else:
-            xaxis_List.append(f"{monthStringNames[int(month)-1]}-{day}")
-            xaxis_Labels += f"{monthStringNames[int(month)-1]}-{day}, "
+            xaxis_List.append(f"{monthStringNames[int(month) - 1]}-{day}")
+            xaxis_Labels += f"{monthStringNames[int(month) - 1]}-{day}, "
             previous_month = month
-    #remove trailing comma and space from xaxis_Labels
+    # remove trailing comma and space from xaxis_Labels
     xaxis_Labels = xaxis_Labels.strip(", ")
 
     budget_List = []
     budget_Labels = ""
     for date in burndown_data.keys():
-        budget_List.append(burndown_data[date]["Planned Budget"]) 
+        budget_List.append(burndown_data[date]["Planned Budget"])
         budget_Labels += f"{burndown_data[date]['Planned Budget']}, "
-    #remove trailing comma and space from budget_Labels
+    # remove trailing comma and space from budget_Labels
     budget_Labels = budget_Labels.strip(", ")
 
     actual_List = []
     actual_Labels = ""
     for date in burndown_data.keys():
         if sum(actual_List) > 0 and burndown_data[date]["Actual"] == 0:
-            #assume that the actual values for this period have not been entered and should not be plotted
+            # assume that the actual values for this period have not been entered and should not be plotted
             pass
         else:
-            actual_List.append(max_budget - burndown_data[date]["Actual"]) 
+            actual_List.append(max_budget - burndown_data[date]["Actual"])
             actual_Labels += f"{max_budget - burndown_data[date]['Actual']}, "
-        
-    #remove trailing comma and space from actual_Labels
-    actual_Labels = actual_Labels.strip(", ")
 
+    # remove trailing comma and space from actual_Labels
+    actual_Labels = actual_Labels.strip(", ")
 
     earnedValue_List = []
     earnedValue_Labels = ""
     for date in burndown_data.keys():
         if sum(earnedValue_List) > 0 and burndown_data[date]["Earned Value"] == 0:
-            #assume that the earned value for this period has not been entered and should not be plotted
+            # assume that the earned value for this period has not been entered and should not be plotted
             pass
-        else:        
-            earnedValue_List.append(max_budget - burndown_data[date]["Earned Value"]) 
-            earnedValue_Labels += f"{max_budget - burndown_data[date]['Earned Value']}, "
+        else:
+            earnedValue_List.append(max_budget - burndown_data[date]["Earned Value"])
+            earnedValue_Labels += (
+                f"{max_budget - burndown_data[date]['Earned Value']}, "
+            )
 
-    #remove trailing comma and space from earnedValue_Labels
+    # remove trailing comma and space from earnedValue_Labels
     earnedValue_Labels = earnedValue_Labels.strip(", ")
-
 
     burnDownVisualization = f"""
 <div style="break-after: page;"></div>
@@ -506,7 +621,10 @@ xychart-beta
 
     return burnDownVisualization
 
-def notePart_ChangeRequests(projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat = True) -> str:   
+
+def notePart_ChangeRequests(
+    projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat=True
+) -> str:
     selectedNotes = []
 
     for note in allNotes:
@@ -522,30 +640,45 @@ def notePart_ChangeRequests(projectName: str, allNotes: list[myNotes.NoteData], 
         newNotePart += "*No documented change requests at this time.*\n\n"
     else:
         newNotePart += "\n\n"
-        
+
         if returnTableFormat:
             newNotePart += f"{myTools.divTagSmall}\n"
             newNotePart += "|ID|Identified|Change Request        |State|\n"
             newNotePart += "|--|----------|----------------------|------|\n"
             for decision in selectedNotes:
-                newNotePart += "|"+decision.subId+"|" +myNotes.get_stringValue_from_noteBody("Date Submitted", decision.noteBody)
-                newNotePart += "|"+ decision.title
-                newNotePart += "|"+ myNotes.get_stringValue_from_noteBody("Decision", decision.noteBody) +"|\n"
-    
-            newNotePart += "\n"+myTools.divTagEnd+"\n\n"
+                newNotePart += (
+                    "|"
+                    + decision.subId
+                    + "|"
+                    + myNotes.get_stringValue_from_noteBody(
+                        "Date Submitted", decision.noteBody
+                    )
+                )
+                newNotePart += "|" + decision.title
+                newNotePart += (
+                    "|"
+                    + myNotes.get_stringValue_from_noteBody(
+                        "Decision", decision.noteBody
+                    )
+                    + "|\n"
+                )
+
+            newNotePart += "\n" + myTools.divTagEnd + "\n\n"
 
         else:
             for decision in selectedNotes:
                 newNotePart += f"### {decision.subId} {decision.title}\n\n"
                 newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Date Submitted', decision.noteBody)}\n"
                 newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('Decision', decision.noteBody)}\n"
-                newNotePart += f"**Description**: \n{myNotes.get_sectionValue_from_noteBody('Change Description', decision.noteBody)}\n\n" 
-                newNotePart += f"**Justification**: \n{myNotes.get_sectionValue_from_noteBody('Change Justification', decision.noteBody)}\n\n"            
-
+                newNotePart += f"**Description**: \n{myNotes.get_sectionValue_from_noteBody('Change Description', decision.noteBody)}\n\n"
+                newNotePart += f"**Justification**: \n{myNotes.get_sectionValue_from_noteBody('Change Justification', decision.noteBody)}\n\n"
 
     return newNotePart
 
-def raid_Risks(projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat = True) -> str:
+
+def raid_Risks(
+    projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat=True
+) -> str:
     """Generates a RAID log for a project based on the data in the data_Risks.csv file.
     Expects a CSV file in the project folder with columns: Risk ID, Description, Owner, Status, Date, Action Required, Priority
     """
@@ -572,11 +705,31 @@ def raid_Risks(projectName: str, allNotes: list[myNotes.NoteData], returnTableFo
             newNotePart += "|--|----------|----------------------|------|----------|----------|-----|\n"
 
             for risk in selectedNotes:
-                newNotePart += "|"+risk.subId+"|" +myNotes.get_stringValue_from_noteBody("Risk Identified", risk.noteBody)
-                newNotePart += "|"+ risk.title+"|"+ myNotes.get_stringValue_from_noteBody("Impact", risk.noteBody)+"|"+ myNotes.get_stringValue_from_noteBody("Likelihood", risk.noteBody)
-                newNotePart += "|"+ myNotes.get_sectionValue_from_noteBody("Response Strategy", risk.noteBody).replace("\n", "<br>")
-                newNotePart += "|"+ myNotes.get_stringValue_from_noteBody("Risk Owner", risk.noteBody)+"|\n"
-            newNotePart += "\n"+myTools.divTagEnd+"\n\n"
+                newNotePart += (
+                    "|"
+                    + risk.subId
+                    + "|"
+                    + myNotes.get_stringValue_from_noteBody(
+                        "Risk Identified", risk.noteBody
+                    )
+                )
+                newNotePart += (
+                    "|"
+                    + risk.title
+                    + "|"
+                    + myNotes.get_stringValue_from_noteBody("Impact", risk.noteBody)
+                    + "|"
+                    + myNotes.get_stringValue_from_noteBody("Likelihood", risk.noteBody)
+                )
+                newNotePart += "|" + myNotes.get_sectionValue_from_noteBody(
+                    "Response Strategy", risk.noteBody
+                ).replace("\n", "<br>")
+                newNotePart += (
+                    "|"
+                    + myNotes.get_stringValue_from_noteBody("Risk Owner", risk.noteBody)
+                    + "|\n"
+                )
+            newNotePart += "\n" + myTools.divTagEnd + "\n\n"
         else:
             for risk in selectedNotes:
                 newNotePart += f"### {risk.subId} {risk.title}\n\n"
@@ -584,12 +737,15 @@ def raid_Risks(projectName: str, allNotes: list[myNotes.NoteData], returnTableFo
                 newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Risk Owner', risk.noteBody)}\n"
                 newNotePart += f"**Impact**: {myNotes.get_stringValue_from_noteBody('Impact', risk.noteBody)} \n**Likelihood**: {myNotes.get_stringValue_from_noteBody('Likelihood', risk.noteBody)}\n"
                 newNotePart += f"**Triggered**: {myNotes.get_stringValue_from_noteBody('Triggered', risk.noteBody)}\n"
-                newNotePart += f"**Description**: {myNotes.get_sectionValue_from_noteBody('Description', risk.noteBody)}\n"            
+                newNotePart += f"**Description**: {myNotes.get_sectionValue_from_noteBody('Description', risk.noteBody)}\n"
                 newNotePart += f"**Mitigation**: {myNotes.get_sectionValue_from_noteBody('Response Strategy', risk.noteBody)}\n\n"
 
-    return newNotePart     
+    return newNotePart
 
-def raid_Issues(projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat = True) -> str:
+
+def raid_Issues(
+    projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat=True
+) -> str:
     selectedNotes = []
 
     for note in allNotes:
@@ -606,29 +762,59 @@ def raid_Issues(projectName: str, allNotes: list[myNotes.NoteData], returnTableF
     else:
         newNotePart += "\n\n"
         for issue in selectedNotes:
-            if returnTableFormat: 
+            if returnTableFormat:
                 newNotePart += f"{myTools.divTagSmall}\n"
-                newNotePart += "|ID|Identified|Issue                  |Status|Owner|Description|\n"
-                newNotePart += "|--|----------|----------------------|------|-----|-----------|\n"
+                newNotePart += (
+                    "|ID|Identified|Issue                  |Status|Owner|Description|\n"
+                )
+                newNotePart += (
+                    "|--|----------|----------------------|------|-----|-----------|\n"
+                )
 
                 for issue in selectedNotes:
-                    newNotePart += "|"+issue.subId+"|" +myNotes.get_stringValue_from_noteBody("Identified", issue.noteBody)
-                    newNotePart += "|"+ issue.title+"|"+ myNotes.get_stringValue_from_noteBody("Issue Status", issue.noteBody)
-                    newNotePart += "|"+ myNotes.get_stringValue_from_noteBody("Issue Owner", issue.noteBody)+"|"+ myNotes.get_sectionValue_from_noteBody("Description", issue.noteBody).replace("\n", "<br>")+"|\n"
-                newNotePart += "\n"+myTools.divTagEnd+"\n\n"
+                    newNotePart += (
+                        "|"
+                        + issue.subId
+                        + "|"
+                        + myNotes.get_stringValue_from_noteBody(
+                            "Identified", issue.noteBody
+                        )
+                    )
+                    newNotePart += (
+                        "|"
+                        + issue.title
+                        + "|"
+                        + myNotes.get_stringValue_from_noteBody(
+                            "Issue Status", issue.noteBody
+                        )
+                    )
+                    newNotePart += (
+                        "|"
+                        + myNotes.get_stringValue_from_noteBody(
+                            "Issue Owner", issue.noteBody
+                        )
+                        + "|"
+                        + myNotes.get_sectionValue_from_noteBody(
+                            "Description", issue.noteBody
+                        ).replace("\n", "<br>")
+                        + "|\n"
+                    )
+                newNotePart += "\n" + myTools.divTagEnd + "\n\n"
             else:
                 for issue in selectedNotes:
                     newNotePart += f"### {issue.subId} {issue.title}\n\n"
                     newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', issue.noteBody)}\n"
                     newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Issue Owner', issue.noteBody)}\n"
                     newNotePart += f"**Status**: {myNotes.get_stringValue_from_noteBody('Issue Status', issue.noteBody)}\n"
-                    newNotePart += f"**Description**: {myNotes.get_sectionValue_from_noteBody('Description', issue.noteBody)}\n"            
-                    newNotePart += f"**Resolution**: {myNotes.get_sectionValue_from_noteBody('Resolution', issue.noteBody)}\n\n"        
-
+                    newNotePart += f"**Description**: {myNotes.get_sectionValue_from_noteBody('Description', issue.noteBody)}\n"
+                    newNotePart += f"**Resolution**: {myNotes.get_sectionValue_from_noteBody('Resolution', issue.noteBody)}\n\n"
 
     return newNotePart
 
-def raid_Assumptions(projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat = True) -> str:
+
+def raid_Assumptions(
+    projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat=True
+) -> str:
     selectedNotes = []
 
     for note in allNotes:
@@ -644,18 +830,44 @@ def raid_Assumptions(projectName: str, allNotes: list[myNotes.NoteData], returnT
         newNotePart += "*No documented assumptions at this time.*\n\n"
     else:
         newNotePart += "\n\n"
-        
+
         if returnTableFormat:
             newNotePart += f"{myTools.divTagSmall}\n"
-            newNotePart += "|ID|Identified|Assumption            |Status|Owner|Description|\n"
-            newNotePart += "|--|----------|----------------------|------|-----|-----------|\n"
+            newNotePart += (
+                "|ID|Identified|Assumption            |Status|Owner|Description|\n"
+            )
+            newNotePart += (
+                "|--|----------|----------------------|------|-----|-----------|\n"
+            )
             for assumption in selectedNotes:
-                newNotePart += "|"+assumption.subId+"|" +myNotes.get_stringValue_from_noteBody("Identified", assumption.noteBody)
-                newNotePart += "|"+ assumption.title+"|"+ myNotes.get_stringValue_from_noteBody("Status", assumption.noteBody)
-                newNotePart += "|"+ myNotes.get_stringValue_from_noteBody("Identified by", assumption.noteBody)
-                newNotePart += "|"+ myNotes.get_sectionValue_from_noteBody("Description", assumption.noteBody).replace("\n", "<br>")+"|\n"
-            newNotePart += "\n"+myTools.divTagEnd+"\n\n"
-    
+                newNotePart += (
+                    "|"
+                    + assumption.subId
+                    + "|"
+                    + myNotes.get_stringValue_from_noteBody(
+                        "Identified", assumption.noteBody
+                    )
+                )
+                newNotePart += (
+                    "|"
+                    + assumption.title
+                    + "|"
+                    + myNotes.get_stringValue_from_noteBody(
+                        "Status", assumption.noteBody
+                    )
+                )
+                newNotePart += "|" + myNotes.get_stringValue_from_noteBody(
+                    "Identified by", assumption.noteBody
+                )
+                newNotePart += (
+                    "|"
+                    + myNotes.get_sectionValue_from_noteBody(
+                        "Description", assumption.noteBody
+                    ).replace("\n", "<br>")
+                    + "|\n"
+                )
+            newNotePart += "\n" + myTools.divTagEnd + "\n\n"
+
         else:
             for assumption in selectedNotes:
                 newNotePart += f"### {assumption.subId} {assumption.title}\n\n"
@@ -663,13 +875,17 @@ def raid_Assumptions(projectName: str, allNotes: list[myNotes.NoteData], returnT
                 newNotePart += f"**Status**: {myNotes.get_stringValue_from_noteBody('Status', assumption.noteBody)}\n"
                 newNotePart += f"**Impact**: {myNotes.get_stringValue_from_noteBody('Impact', assumption.noteBody)}\n"
                 newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Identified by', assumption.noteBody)}\n"
-                description = myNotes.get_sectionValue_from_noteBody('Description', assumption.noteBody).replace('\n', '<br>')
-                newNotePart += f"**Description**: {description}\n\n"            
-
+                description = myNotes.get_sectionValue_from_noteBody(
+                    "Description", assumption.noteBody
+                ).replace("\n", "<br>")
+                newNotePart += f"**Description**: {description}\n\n"
 
     return newNotePart
-        
-def raid_Decisions(projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat = True) -> str:   
+
+
+def raid_Decisions(
+    projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat=True
+) -> str:
     selectedNotes = []
 
     for note in allNotes:
@@ -685,29 +901,44 @@ def raid_Decisions(projectName: str, allNotes: list[myNotes.NoteData], returnTab
         newNotePart += "*No documented decisions at this time.*\n\n"
     else:
         newNotePart += "\n\n"
-        
+
         if returnTableFormat:
             newNotePart += f"{myTools.divTagSmall}\n"
             newNotePart += "|ID|Identified|Decision              |State|Summary|\n"
             newNotePart += "|--|----------|----------------------|------|-----------|\n"
             for decision in selectedNotes:
-                newNotePart += "|"+decision.subId+"|" +myNotes.get_stringValue_from_noteBody("Identified", decision.noteBody)
-                newNotePart += "|"+ decision.title+"|"+ myNotes.get_stringValue_from_noteBody("State", decision.noteBody)
-                newNotePart += "|"+ myNotes.get_sectionValue_from_noteBody("Executive Summary / Recommendation", decision.noteBody).replace("\n", "<br>")+"|\n"
-        
-            newNotePart += "\n"+myTools.divTagEnd+"\n\n"
-    
+                newNotePart += (
+                    "|"
+                    + decision.subId
+                    + "|"
+                    + myNotes.get_stringValue_from_noteBody(
+                        "Identified", decision.noteBody
+                    )
+                )
+                newNotePart += (
+                    "|"
+                    + decision.title
+                    + "|"
+                    + myNotes.get_stringValue_from_noteBody("State", decision.noteBody)
+                )
+                newNotePart += (
+                    "|"
+                    + myNotes.get_sectionValue_from_noteBody(
+                        "Executive Summary / Recommendation", decision.noteBody
+                    ).replace("\n", "<br>")
+                    + "|\n"
+                )
+
+            newNotePart += "\n" + myTools.divTagEnd + "\n\n"
+
         else:
             for decision in selectedNotes:
                 newNotePart += f"### {decision.subId} {decision.title}\n\n"
                 newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', decision.noteBody)}\n"
                 newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('State', decision.noteBody)}\n"
-                newNotePart += f"**Summary**: {myNotes.get_sectionValue_from_noteBody('Executive Summary / Recommendation', decision.noteBody)}\n\n"            
-
+                newNotePart += f"**Summary**: {myNotes.get_sectionValue_from_noteBody('Executive Summary / Recommendation', decision.noteBody)}\n\n"
 
     return newNotePart
-
-
 
 
 def _translate_TaskImport_Columns(FullPath) -> list:
@@ -727,179 +958,266 @@ def _translate_TaskImport_Columns(FullPath) -> list:
                     if synonym.lower() in [key.lower() for key in importTask.keys()]:
                         if desiredColumn == "Assigned To":
                             # Special handling for "Assigned To" to extract name from email format 'David Gordon <dgordon@ispname.com>'
-                            translatedTask[desiredColumn] = importTask[synonym].split('<')[0].strip()
+                            translatedTask[desiredColumn] = (
+                                importTask[synonym].split("<")[0].strip()
+                            )
                         else:
                             translatedTask[desiredColumn] = importTask[synonym]
                         break
-                
+
                 if desiredColumn == "State":
-                    translatedTask[desiredColumn] = standardize_state(translatedTask[desiredColumn])
-                    
+                    translatedTask[desiredColumn] = standardize_state(
+                        translatedTask[desiredColumn]
+                    )
 
         translatedTasks.append(translatedTask)
-    
 
     return translatedTasks
 
-def _make_task_note_content_from_imported_task(selectedProjectName: str, importedTask: dict) -> bool:
+
+def _make_task_note_content_from_imported_task(
+    selectedProjectName: str, importedTask: dict
+) -> bool:
     """
     Creates the content for a task note from an imported task dictionary.
     """
     if selectedProjectName == "":
-        projects, selectedProjectName, selectedProjectIndex = myInputs.select_project_name_withDict(showNewProjectOption=False)
-    
+        projects, selectedProjectName, selectedProjectIndex = (
+            myInputs.select_project_name_withDict(showNewProjectOption=False)
+        )
+
     if selectedProjectName is None or selectedProjectName == "":
-        print(f"{myTerminal.ERROR}No project selected. Please select a project first.{myTerminal.RESET}")
+        print(
+            f"{myTerminal.ERROR}No project selected. Please select a project first.{myTerminal.RESET}"
+        )
         return False
 
     selectedTemplateName = "project_task_template.markdown"
-    
-    #based on the selected template, figure out which output folder to use
-    selectedTemplatePath = os.path.join(myPreferences.root_templates(), selectedTemplateName)
-    
-    #get rid of unnecessary parts of the template name
-    #templates should have a prefix that tells what group of template they belong to
+
+    # based on the selected template, figure out which output folder to use
+    selectedTemplatePath = os.path.join(
+        myPreferences.root_templates(), selectedTemplateName
+    )
+
+    # get rid of unnecessary parts of the template name
+    # templates should have a prefix that tells what group of template they belong to
     # and a suffix that shows they are a template
-    noteType = selectedTemplateName 
-    templateNamePartsToReplace = ["PKV_","project_", "_template.markdown", "_template.md"]
+    noteType = selectedTemplateName
+    templateNamePartsToReplace = [
+        "PKV_",
+        "project_",
+        "_template.markdown",
+        "_template.md",
+    ]
     for part in templateNamePartsToReplace:
         noteType = noteType.replace(part, "")
 
-    #make sure we the default project progress template exist
+    # make sure we the default project progress template exist
     if not os.path.exists(selectedTemplatePath):
-        print(f"{myTerminal.ERROR}Template '{selectedTemplateName}' not found in {myPreferences.root_templates()}{myTerminal.RESET}")
+        print(
+            f"{myTerminal.ERROR}Template '{selectedTemplateName}' not found in {myPreferences.root_templates()}{myTerminal.RESET}"
+        )
         return False
 
-    newNote_directory = os.path.join(myPreferences.root_projects(), selectedProjectName)    
+    newNote_directory = os.path.join(myPreferences.root_projects(), selectedProjectName)
     os.makedirs(newNote_directory, exist_ok=True)
 
-    #collect information that should be seeded into the note fields
+    # collect information that should be seeded into the note fields
     selectedDateTime = datetime.now()
     timestamp_id = selectedDateTime.strftime(myPreferences.timestamp_id_format())
     timestamp_full = selectedDateTime.strftime(myPreferences.datetime_format())
 
     # Read the template content
     templateBody = read_Template(selectedTemplatePath)
-    
-    noteDict = {"Title": importedTask.get("Title","Untitled Task"),
-                "tags": "",
-                "Project Name": selectedProjectName,
-                "State - Not Started, In-progress, Testing, Complete, Cancelled": importedTask.get("Status","Not Started"),
-                "ticket number": importedTask.get("ID",""),
-                "plannedStart": importedTask.get("Start Date","").replace("a.m.","").replace("p.m.",""),
-                "actualStart": importedTask.get("Actual Start","").replace("a.m.","").replace("p.m.",""),
-                "plannedEnd": importedTask.get("Due Date","").replace("a.m.","").replace("p.m.",""),
-                "actualEnd": importedTask.get("Closed Date","").replace("a.m.","").replace("p.m.",""),
-                "Assigned To": importedTask.get("Assigned To","Unassigned"),
-                "Task Detail": importedTask.get("Task Detail",""),
-                }
 
-    uniqueIdentifier, note_Content = merge_template_with_values(timestamp_id, timestamp_full, selectedProjectName, 
-                               template = templateBody, 
-                               mergeData = noteDict,
-                               runSilent = True)
-    
+    noteDict = {
+        "Title": importedTask.get("Title", "Untitled Task"),
+        "tags": "",
+        "Project Name": selectedProjectName,
+        "State - Not Started, In-progress, Testing, Complete, Cancelled": importedTask.get(
+            "Status", "Not Started"
+        ),
+        "ticket number": importedTask.get("ID", ""),
+        "plannedStart": importedTask.get("Start Date", "")
+        .replace("a.m.", "")
+        .replace("p.m.", ""),
+        "actualStart": importedTask.get("Actual Start", "")
+        .replace("a.m.", "")
+        .replace("p.m.", ""),
+        "plannedEnd": importedTask.get("Due Date", "")
+        .replace("a.m.", "")
+        .replace("p.m.", ""),
+        "actualEnd": importedTask.get("Closed Date", "")
+        .replace("a.m.", "")
+        .replace("p.m.", ""),
+        "Assigned To": importedTask.get("Assigned To", "Unassigned"),
+        "Task Detail": importedTask.get("Task Detail", ""),
+    }
+
+    uniqueIdentifier, note_Content = merge_template_with_values(
+        timestamp_id,
+        timestamp_full,
+        selectedProjectName,
+        template=templateBody,
+        mergeData=noteDict,
+        runSilent=True,
+    )
+
     # Construct the output filename and path
     output_filename = f"{uniqueIdentifier}.md"
     output_path = os.path.join(newNote_directory, output_filename)
 
     # Save the new note
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         f.write(note_Content)
 
     print(f"\t{myTerminal.SUCCESS}Note created:{myTerminal.RESET}")
     return True
 
-def _update_existing_task_from_csv_import(projectName:str,csvTaskDict: dict, pkvTask: TaskData) -> bool:
+
+def _update_existing_task_from_csv_import(
+    projectName: str, csvTaskDict: dict, pkvTask: TaskData
+) -> bool:
     """
     Updates an existing project task from an imported task dictionary.
     """
     containsChange = False
-    print (f"Task: {csvTaskDict['Title']} ({csvTaskDict['ID']}) already exists.")
-    if pkvTask.assignedTo.strip() != csvTaskDict['Assigned To'].strip():
+    print(f"Task: {csvTaskDict['Title']} ({csvTaskDict['ID']}) already exists.")
+    if pkvTask.assignedTo.strip() != csvTaskDict["Assigned To"].strip():
         containsChange = True
         print("\tAssigned To changed:")
-        print (f"\t\t{pkvTask.assignedTo} -> \n\t\t{csvTaskDict['Assigned To']}")
-    
-    if standardize_state(pkvTask.state.strip()) != standardize_state(csvTaskDict['Status'].strip()):
+        print(f"\t\t{pkvTask.assignedTo} -> \n\t\t{csvTaskDict['Assigned To']}")
+
+    if standardize_state(pkvTask.state.strip()) != standardize_state(
+        csvTaskDict["Status"].strip()
+    ):
         containsChange = True
         print("\tStatus changed:")
-        print (f"\t\t{pkvTask.state} -> \n\t\t{csvTaskDict['Status']}")
-    
-    if pkvTask.plannedStart.strip() != csvTaskDict['Start Date'].replace('a.m.','').replace('p.m.','').strip():
+        print(f"\t\t{pkvTask.state} -> \n\t\t{csvTaskDict['Status']}")
+
+    if (
+        pkvTask.plannedStart.strip()
+        != csvTaskDict["Start Date"].replace("a.m.", "").replace("p.m.", "").strip()
+    ):
         containsChange = True
         print("\tPlanned Start changed:")
-        print (f"\t\t{pkvTask.plannedStart} -> \n\t\t{csvTaskDict['Start Date'].replace('a.m.','').replace('p.m.','')}")
-    
-    if pkvTask.actualStart.strip() != csvTaskDict['Actual Start'].replace('a.m.','').replace('p.m.','').strip():
+        print(
+            f"\t\t{pkvTask.plannedStart} -> \n\t\t{csvTaskDict['Start Date'].replace('a.m.', '').replace('p.m.', '')}"
+        )
+
+    if (
+        pkvTask.actualStart.strip()
+        != csvTaskDict["Actual Start"].replace("a.m.", "").replace("p.m.", "").strip()
+    ):
         containsChange = True
         print("\tActual Start changed:")
-        print (f"\t\t{pkvTask.actualStart} -> \n\t\t{csvTaskDict['Actual Start'].replace('a.m.','').replace('p.m.','')}")
-    
-    if pkvTask.plannedEnd.strip() != csvTaskDict['Due Date'].replace('a.m.','').replace('p.m.','').strip():
+        print(
+            f"\t\t{pkvTask.actualStart} -> \n\t\t{csvTaskDict['Actual Start'].replace('a.m.', '').replace('p.m.', '')}"
+        )
+
+    if (
+        pkvTask.plannedEnd.strip()
+        != csvTaskDict["Due Date"].replace("a.m.", "").replace("p.m.", "").strip()
+    ):
         containsChange = True
         print("\tPlanned End changed:")
-        print (f"\t\t{pkvTask.plannedEnd} -> \n\t\t{csvTaskDict['Due Date'].replace('a.m.','').replace('p.m.','')}")
-    
-    if pkvTask.endDate.strip() != csvTaskDict['Closed Date'].replace('a.m.','').replace('p.m.','').strip():
+        print(
+            f"\t\t{pkvTask.plannedEnd} -> \n\t\t{csvTaskDict['Due Date'].replace('a.m.', '').replace('p.m.', '')}"
+        )
+
+    if (
+        pkvTask.endDate.strip()
+        != csvTaskDict["Closed Date"].replace("a.m.", "").replace("p.m.", "").strip()
+    ):
         containsChange = True
-        print ("\tActual End changed:")
-        print (f"\t\t{pkvTask.endDate} -> \n\t\t{csvTaskDict['Closed Date'].replace('a.m.','').replace('p.m.','')}")
-    
+        print("\tActual End changed:")
+        print(
+            f"\t\t{pkvTask.endDate} -> \n\t\t{csvTaskDict['Closed Date'].replace('a.m.', '').replace('p.m.', '')}"
+        )
+
     if not containsChange:
-        print ("\tNo changes detected.")
-        return True        
+        print("\tNo changes detected.")
+        return True
     proceed = myInputs.ask_yes_no_from_user("Update this task?", default=True)
-    
+
     if proceed:
         noteBody = myNotes.read_Note_from_path(pkvTask.filePath)
-        noteBody = myNotes.replace_lineLabelValue_in_noteBody("**Assigned To**:", csvTaskDict['Assigned To'], noteBody)
-        noteBody = myNotes.replace_lineLabelValue_in_noteBody("**State**:", csvTaskDict['Status'], noteBody)
-        noteBody = myNotes.replace_lineLabelValue_in_noteBody("**Planned Start**:", csvTaskDict['Start Date'].replace("a.m.","").replace("p.m.",""), noteBody)
-        noteBody = myNotes.replace_lineLabelValue_in_noteBody("**Actual Start**:", csvTaskDict['Start Date'].replace("a.m.","").replace("p.m.",""), noteBody)
-        noteBody = myNotes.replace_lineLabelValue_in_noteBody("**Planned End**:", csvTaskDict['Due Date'].replace("a.m.","").replace("p.m.",""), noteBody)
-        noteBody = myNotes.replace_lineLabelValue_in_noteBody("**End Date**:", csvTaskDict['Closed Date'].replace("a.m.","").replace("p.m.",""), noteBody)
-        noteBody = myNotes.replace_lineLabelValue_in_noteBody("modified:", myTools.now_YYYY_MM_DD_HH_MM_SS() , noteBody)
+        noteBody = myNotes.replace_lineLabelValue_in_noteBody(
+            "**Assigned To**:", csvTaskDict["Assigned To"], noteBody
+        )
+        noteBody = myNotes.replace_lineLabelValue_in_noteBody(
+            "**State**:", csvTaskDict["Status"], noteBody
+        )
+        noteBody = myNotes.replace_lineLabelValue_in_noteBody(
+            "**Planned Start**:",
+            csvTaskDict["Start Date"].replace("a.m.", "").replace("p.m.", ""),
+            noteBody,
+        )
+        noteBody = myNotes.replace_lineLabelValue_in_noteBody(
+            "**Actual Start**:",
+            csvTaskDict["Start Date"].replace("a.m.", "").replace("p.m.", ""),
+            noteBody,
+        )
+        noteBody = myNotes.replace_lineLabelValue_in_noteBody(
+            "**Planned End**:",
+            csvTaskDict["Due Date"].replace("a.m.", "").replace("p.m.", ""),
+            noteBody,
+        )
+        noteBody = myNotes.replace_lineLabelValue_in_noteBody(
+            "**End Date**:",
+            csvTaskDict["Closed Date"].replace("a.m.", "").replace("p.m.", ""),
+            noteBody,
+        )
+        noteBody = myNotes.replace_lineLabelValue_in_noteBody(
+            "modified:", myTools.now_YYYY_MM_DD_HH_MM_SS(), noteBody
+        )
 
         if myNotes.write_Note_to_path(pkvTask.filePath, noteBody):
-            print (f"Task '{csvTaskDict['Title']}' updated successfully.\n")
+            print(f"Task '{csvTaskDict['Title']}' updated successfully.\n")
     return True
+
 
 def import_or_update_tasks_from_CSV(FullPath, projectName: str) -> None:
     """
     Imports or updates tasks from a CSV file into the specified project.
     """
-    #tasks from DevOps, Jira, Trello, etc
+    # tasks from DevOps, Jira, Trello, etc
     csvTasks = _translate_TaskImport_Columns(FullPath)
-    
-    print (f"Importing or updating {len(csvTasks)} tasks into project: {projectName}")
+
+    print(f"Importing or updating {len(csvTasks)} tasks into project: {projectName}")
     if len(csvTasks) == 0:
-        print (f"{myTerminal.ERROR}No tasks found to import from {FullPath}{myTerminal.RESET}")
+        print(
+            f"{myTerminal.ERROR}No tasks found to import from {FullPath}{myTerminal.RESET}"
+        )
         return
 
-    #existing PKV project tasks
+    # existing PKV project tasks
     pkvTasks = load_ProjectTasks(projectName)
 
     for csvTask in csvTasks:
         taskExists = False
         for pkvTask in pkvTasks:
             if pkvTask.ticket.strip() == csvTask["ID"]:
-              taskExists = True
-              _update_existing_task_from_csv_import(projectName, csvTask, pkvTask)
-        
+                taskExists = True
+                _update_existing_task_from_csv_import(projectName, csvTask, pkvTask)
+
         if not taskExists:
-            print (f"New task found: {csvTask['Title']} ({csvTask['ID']}) assigned to '{csvTask['Assigned To']}'")
+            print(
+                f"New task found: {csvTask['Title']} ({csvTask['ID']}) assigned to '{csvTask['Assigned To']}'"
+            )
             proceed = myInputs.ask_yes_no_from_user("Import this task?", default=True)
             if proceed:
                 if _make_task_note_content_from_imported_task(projectName, csvTask):
-                    print (f"\tTask '{csvTask['Title']}' imported successfully\n")
+                    print(f"\tTask '{csvTask['Title']}' imported successfully\n")
 
-#=== Project Methods From Tools
+
+# === Project Methods From Tools
+
 
 def get_pkv_projects() -> dict:
     """
     Returns a dictionary of projects with their names as keys and their paths as values.
-    
+
     Returns:
         dict: A dictionary containing project names and their corresponding paths.
     """
@@ -908,63 +1226,76 @@ def get_pkv_projects() -> dict:
         projectPath = os.path.join(myPreferences.root_projects(), filename)
         if os.path.isdir(projectPath):
             projects[filename] = projectPath
-    
+
     return projects
 
-#global declaration for caching project configs
+
+# global declaration for caching project configs
 dictProjectConfigs = {}
+
+
 def get_ProjectConfig_as_dict(projectName: str) -> dict:
     """
     Returns the project configuration for a given project name.
-    
+
     Args:
         projectName (str): The name of the project.
     """
     global dictProjectConfigs
     if projectName in dictProjectConfigs:
         return dictProjectConfigs[projectName]
-    
+
     projectPath = os.path.join(myPreferences.root_projects(), projectName)
-    
+
     if not os.path.isdir(projectPath):
-        print(f"{myTerminal.ERROR}Project '{projectName}' path does not exist.{myTerminal.RESET}")
+        print(
+            f"{myTerminal.ERROR}Project '{projectName}' path does not exist.{myTerminal.RESET}"
+        )
         return {}
 
     if not os.path.exists(os.path.join(projectPath, ".ProjectConfig.json")):
         configBody = {
-                    "ProjectFolderName": f"{projectName}",
-                    "ProjectName": f"{projectName}",
-                    "Programs": [],
-                    "Archived": False,
-                    "Sync": False,
-                    "PublicShareFolder": "",
-                    "PublicPublishFolder": "",
-                    "Needs Weekly Progress Update": False,
-                    "Needs Monthly Progress Update": False
-                    }
-        with open(os.path.join(projectPath, ".ProjectConfig.json"), 'w', encoding='utf-8') as f:
+            "ProjectFolderName": f"{projectName}",
+            "ProjectName": f"{projectName}",
+            "Programs": [],
+            "Archived": False,
+            "Sync": False,
+            "PrivateShareFolder": "",
+            "PublicShareFolder": "",
+            "PublicPublishFolder": "",
+            "Needs Weekly Progress Update": False,
+            "Needs Monthly Progress Update": False,
+        }
+        with open(
+            os.path.join(projectPath, ".ProjectConfig.json"), "w", encoding="utf-8"
+        ) as f:
             json.dump(configBody, f, indent=4)
-        
+
     configPath = os.path.join(projectPath, ".ProjectConfig.json")
     if not os.path.isfile(configPath):
         return {}
-    
-    with open(configPath, 'r', encoding='utf-8') as f:
+
+    with open(configPath, "r", encoding="utf-8") as f:
         try:
             config = json.load(f)
-            dictProjectConfigs[projectName] = config    
+            dictProjectConfigs[projectName] = config
             return config
         except json.JSONDecodeError:
-            print(f"{myTerminal.ERROR}Error decoding JSON from {configPath}{myTerminal.RESET}")
+            print(
+                f"{myTerminal.ERROR}Error decoding JSON from {configPath}{myTerminal.RESET}"
+            )
             return {}
 
 
 def __test__():
-    
+
     selectedProjectName = myInputs.select_project_name()
     if selectedProjectName is None:
-        print(f"{myTerminal.ERROR}No project selected. Please select a project first.{myTerminal.RESET}")
+        print(
+            f"{myTerminal.ERROR}No project selected. Please select a project first.{myTerminal.RESET}"
+        )
         return
-    
+
+
 if __name__ == "__main__":
-    __test__()  
+    __test__()
