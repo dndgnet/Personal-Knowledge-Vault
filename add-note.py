@@ -173,12 +173,34 @@ def main():
                     default=True,
                 )
                 if addToJournal:
-                    newNoteBody = (
-                        journal.noteBody
-                        + "\n\n"
-                        + f"## {selectedDateTime.strftime('%H:%M')} {noteType} {title}\n\n"
-                        + f"![[./_Projects/{selectedProjectName}/{output_filename}]]\n"
-                    )
+                    newNoteBody = ""
+                    selectedTimeString = selectedDateTime.strftime("%H:%M")
+                    addNewNoteToJournal = True
+                    for line in journal.noteBody.splitlines():
+                        if line.startswith("##"):
+                            lineTimeString = myTools.extract_hour_minute(line)
+                            if (
+                                lineTimeString
+                                and addNewNoteToJournal
+                                and lineTimeString > selectedTimeString
+                            ):
+                                # insert the new link now
+                                addNewNoteToJournal = False
+                                newNoteBody += (
+                                    "\n\n"
+                                    + f"## {selectedTimeString} {noteType} {title}\n\n"
+                                    + f"![[./_Projects/{selectedProjectName}/{output_filename}]]\n\n"
+                                )
+                            newNoteBody += line + "\n"
+                        else:
+                            newNoteBody += line + "\n"
+                    if addNewNoteToJournal:
+                        newNoteBody += (
+                            "\n\n"
+                            + f"## {selectedTimeString} {noteType} {title}\n\n"
+                            + f"![[./_Projects/{selectedProjectName}/{output_filename}]]\n\n"
+                        )
+
                     with open(journal.filePath, "w", encoding="utf-8") as f:
                         f.write(
                             f"""---\n{journal.frontMatter}\n---\n\n {newNoteBody}"""

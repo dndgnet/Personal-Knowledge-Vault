@@ -233,10 +233,24 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
         projectName (str): The name of the project.
     """
     global dictProjectConfigs
+
     if projectName in dictProjectConfigs:
         return dictProjectConfigs[projectName]
 
     projectPath = os.path.join(myPreferences.root_projects(), projectName)
+
+    # starting point for the project config
+    configBody = {
+        "ProjectFolderName": f"{projectName}",
+        "ProjectName": f"{projectName}",
+        "Programs": [],
+        "Archived": False,
+        "Sync": False,
+        "PrivateShareFolder": "",
+        "PublicShareFolder": "",
+        "Needs Weekly Progress Update": False,
+        "Needs Monthly Progress Update": False,
+    }
 
     if not os.path.isdir(projectPath):
         print(
@@ -245,17 +259,6 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
         return {}
 
     if not os.path.exists(os.path.join(projectPath, ".ProjectConfig.json")):
-        configBody = {
-            "ProjectFolderName": f"{projectName}",
-            "ProjectName": f"{projectName}",
-            "Programs": [],
-            "Archived": False,
-            "Sync": False,
-            "PrivateShareFolder": "",
-            "PublicShareFolder": "",
-            "Needs Weekly Progress Update": False,
-            "Needs Monthly Progress Update": False,
-        }
         with open(
             os.path.join(projectPath, ".ProjectConfig.json"), "w", encoding="utf-8"
         ) as f:
@@ -269,6 +272,24 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
         try:
             config = json.load(f)
             dictProjectConfigs[projectName] = config
+
+            missingProjectConfigKey = False
+
+            for key, value in configBody.items():
+                if key not in config.keys():
+                    missingProjectConfigKey = True
+                    # print(f"Project '{projectName}' missing config value '{key}'")
+                    config[key] = value
+
+            if missingProjectConfigKey:
+                # save the project config with the new
+                with open(
+                    os.path.join(projectPath, ".ProjectConfig.json"),
+                    "w",
+                    encoding="utf-8",
+                ) as f:
+                    json.dump(config, f, indent=4)
+
             return config
         except json.JSONDecodeError:
             print(
@@ -724,3 +745,18 @@ def write_text_to_file(filePath: str, textContent: str) -> bool:
             f"{myTerminal.ERROR}Error writing to file '{filePath}': {e}{myTerminal.RESET}"
         )
         return False
+
+
+def extract_hour_minute(input_string):
+    """
+    Extracts the hour:minute portion from a given input string.
+
+    Args:
+        input_string (str): The input string containing the time.
+
+    Returns:
+        str: The extracted hour:minute portion, or None if not found.
+    """
+    pattern = r"\b\d{2}:\d{2}\b"
+    match = re.search(pattern, input_string)
+    return match.group() if match else None

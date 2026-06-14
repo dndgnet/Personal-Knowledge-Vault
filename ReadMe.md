@@ -158,7 +158,6 @@ TODO: explain why projects get their own folders
 The `Archived` property is intended be a 'cold storage' for content that you are pretty sure you won't need in the immediate future. The `Archived` property does not move or destroy content, it only makes it less visible to your search/export behavior to keep your notes cleaner.  
 
 
-
 ### TODO: explain the project summary
 
 The script `build-projectSummary.py` generates a summary report for a selected project in your Personal Knowledge Vault. What it does:

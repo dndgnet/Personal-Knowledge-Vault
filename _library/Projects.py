@@ -1221,13 +1221,9 @@ def get_pkv_projects() -> dict:
     Returns:
         dict: A dictionary containing project names and their corresponding paths.
     """
-    projects = {}
-    for filename in sorted(os.listdir(myPreferences.root_projects())):
-        projectPath = os.path.join(myPreferences.root_projects(), filename)
-        if os.path.isdir(projectPath):
-            projects[filename] = projectPath
+    from . import Tools as myTools
 
-    return projects
+    return myTools.get_pkv_projects()
 
 
 # global declaration for caching project configs
@@ -1241,50 +1237,9 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
     Args:
         projectName (str): The name of the project.
     """
-    global dictProjectConfigs
-    if projectName in dictProjectConfigs:
-        return dictProjectConfigs[projectName]
+    from . import Tools as myTools
 
-    projectPath = os.path.join(myPreferences.root_projects(), projectName)
-
-    if not os.path.isdir(projectPath):
-        print(
-            f"{myTerminal.ERROR}Project '{projectName}' path does not exist.{myTerminal.RESET}"
-        )
-        return {}
-
-    if not os.path.exists(os.path.join(projectPath, ".ProjectConfig.json")):
-        configBody = {
-            "ProjectFolderName": f"{projectName}",
-            "ProjectName": f"{projectName}",
-            "Programs": [],
-            "Archived": False,
-            "Sync": False,
-            "PrivateShareFolder": "",
-            "PublicShareFolder": "",
-            "PublicPublishFolder": "",
-            "Needs Weekly Progress Update": False,
-            "Needs Monthly Progress Update": False,
-        }
-        with open(
-            os.path.join(projectPath, ".ProjectConfig.json"), "w", encoding="utf-8"
-        ) as f:
-            json.dump(configBody, f, indent=4)
-
-    configPath = os.path.join(projectPath, ".ProjectConfig.json")
-    if not os.path.isfile(configPath):
-        return {}
-
-    with open(configPath, "r", encoding="utf-8") as f:
-        try:
-            config = json.load(f)
-            dictProjectConfigs[projectName] = config
-            return config
-        except json.JSONDecodeError:
-            print(
-                f"{myTerminal.ERROR}Error decoding JSON from {configPath}{myTerminal.RESET}"
-            )
-            return {}
+    return myTools.get_ProjectConfig_as_dict(projectName)
 
 
 def __test__():
