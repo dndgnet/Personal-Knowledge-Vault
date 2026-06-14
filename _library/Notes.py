@@ -10,11 +10,17 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Dict, List
 
-from . import Preferences as myPreferences
-from . import Terminal as myTerminal
-from . import Variables as myVariables
-from . import ActionItems as myActionItems
-
+try:
+    from . import Preferences as myPreferences
+    from . import Terminal as myTerminal
+    from . import Variables as myVariables
+    from . import ActionItems as myActionItems
+    
+except ImportError:
+    import Preferences as myPreferences
+    import Terminal as myTerminal
+    import Variables as myVariables
+    import ActionItems as myActionItems
 
 @dataclass
 class NoteData:
@@ -1262,3 +1268,71 @@ def get_attachments_from_note(note: NoteData) -> list[str]:
             unique_attachments.append(attachment)
 
     return unique_attachments
+
+
+def __test_AddNote__():
+    """ 
+    test function that adds an event note to the first project
+    """
+    print("Testing add_Note function...")
+
+    projects_root = myPreferences.root_projects()
+    if not os.path.isdir(projects_root):
+        print(f"{myTerminal.ERROR}Projects folder not found: {projects_root}{myTerminal.RESET}")
+        return
+
+    project_names = sorted(
+        name
+        for name in os.listdir(projects_root)
+        if os.path.isdir(os.path.join(projects_root, name)) and not name.startswith(".")
+    )
+
+    if not project_names:
+        print(f"{myTerminal.WARNING}No projects found to test note creation.{myTerminal.RESET}")
+        return
+
+    project_name = project_names[0]
+    project_path = os.path.join(projects_root, project_name)
+
+    timestamp_id = datetime.datetime.now().strftime(myPreferences.timestamp_id_format())
+    timestamp_full = datetime.datetime.now().strftime(myPreferences.datetime_format())
+    file_name = f"{timestamp_id}_test_add_note.md"
+    file_path = os.path.join(project_path, file_name)
+
+    front_matter = (
+        f"id: {timestamp_id}\n"
+        f"type: project-event\n"
+        f"title: Test Add Note\n"
+        f"project: {project_name}\n"
+        f"created: {timestamp_full}\n"
+        f"modified: {timestamp_full}\n"
+    )
+    body = (
+        f"# Test Add Note\n\n"
+        f"**Date:** {timestamp_full}\n\n"
+        f"This note was created by __test_AddNote__.\n"
+    )
+    note_content = f"---\n{front_matter}---\n\n{body}"
+
+    if write_Note_to_path(file_path, note_content):
+        print(f"Added test note to {project_name}: {file_name}")
+    else:
+        print(f"{myTerminal.ERROR}Failed to add test note.{myTerminal.RESET}")
+
+
+
+if __name__ == "__main__":
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+    
+    # Now re-import as package members
+    from _library import Notes as myNotes
+    from _library import Tools as myTools
+    from _library import Preferences as myPreferences
+    from _library import Terminal as myTerminal
+    from _library import Variables as myVariables
+    from _library import ActionItems as myActionItems
+
+
+    __test_AddNote__()  

@@ -1,8 +1,13 @@
 import json
 import os
 import sys
+from tkinter.messagebox import IGNORE
 
-from . import Terminal as myTerminal
+try:
+    from . import Terminal as myTerminal
+
+except ImportError:
+    import Terminal as myTerminal 
 
 myTerminal.clearTerminal()
 

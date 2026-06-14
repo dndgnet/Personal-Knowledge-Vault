@@ -957,3 +957,14 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
         except json.JSONDecodeError:
             print(f"{myTerminal.ERROR}Error decoding JSON from {configPath}{myTerminal.RESET}")
             return {}
+
+
+def __test__():
+    
+    selectedProjectName = myInputs.select_project_name()
+    if selectedProjectName is None:
+        print(f"{myTerminal.ERROR}No project selected. Please select a project first.{myTerminal.RESET}")
+        return
+    
+if __name__ == "__main__":
+    __test__()  

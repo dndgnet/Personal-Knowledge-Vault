@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 import re 
 
-from . import Notes as myNotes
 
 @dataclass
 class ActionItem:
@@ -55,6 +54,8 @@ class ActionItem:
 
     def Complete(self):
         try:
+            from . import Notes as myNotes
+
             self.Completed = True
             selectedNoteBody = myNotes.read_Note_from_path(self.note_path)
             selectedNoteBody = selectedNoteBody.replace(self.taskString, self.taskString.replace("[ ]", "[x]"), 1)
@@ -86,13 +87,13 @@ class ActionItem:
         return response
 
 def __test__():
-    
+
+
     testStrings = ["- [x] 2024-01-01 John Doe: This is a test action item.",
                  "- [ ] 2024-01-01 John Doe: This is a test action item.",
                  "- [x] John Doe: This is a test action item.", 
                  "- [x] 2024-01-01: This is a test action item."
 ]
-
     for testString in testStrings:
         actionItem = ActionItem()
         actionItem.LoadFromString("test_note_id", "test_note_title", "test_note_path", "test_project", testString)
@@ -106,4 +107,12 @@ def __test__():
         print("")
 
 if __name__ == "__main__":
+    
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+    
+    # Now re-import as package members
+    from _library import Notes as myNotes
+    from _library import Tools as myTools
     __test__()  
