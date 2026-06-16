@@ -1,25 +1,38 @@
 #!/usr/bin/env python3
-import datetime 
-import os 
-
-from _library import Preferences as myPreferences, Tools as myTools, Terminal as myTerminal, Inputs as myInputs, HTML as myHTML, Summary as mySummary
-from _library import Search as mySearch
-from _library import Notes as myNotes
+import datetime
+import os
 import sys
 
+from _library import HTML as myHTML
+from _library import Inputs as myInputs
+from _library import Notes as myNotes
+from _library import Preferences as myPreferences
+from _library import Search as mySearch
+from _library import Summary as mySummary
+from _library import Terminal as myTerminal
+from _library import Tools as myTools
+
 # build a dictionary of all notes in the root_pkv directory
-allNotes = myTools.get_Notes_as_list(myPreferences.root_pkv(),includePrivateNotes=True, includeArchivedProjects=True)
-if not myNotes.dump_notes_to_json(notes=allNotes, file_path=os.path.join(myPreferences.root_pkv(), "AllNotes.json"), indent=4):
+allNotes = myTools.get_Notes_as_list(
+    myPreferences.root_pkv(), includePrivateNotes=True, includeArchivedProjects=True
+)
+if not myNotes.dump_notes_to_json(
+    notes=allNotes,
+    file_path=os.path.join(myPreferences.root_pkv(), "AllNotes.json"),
+    indent=4,
+):
     print(f"{myTerminal.ERROR}Failed to create AllNotes.json.{myTerminal.RESET}")
     exit(-1)
 
-#retrieve the dictionary of all notes from AllNotes.json
+# retrieve the dictionary of all notes from AllNotes.json
 allNotes = []
-allNotes = myNotes.load_notes_from_json(file_path = os.path.join(myPreferences.root_pkv(), "AllNotes.json"))
+allNotes = myNotes.load_notes_from_json(
+    file_path=os.path.join(myPreferences.root_pkv(), "AllNotes.json")
+)
 
 print(f"{len(allNotes)} notes loaded, start providing search criteria.")
 print("")
-print("-"*40)
+print("-" * 40)
 
 searchLog = "Search Log\n"
 continueSearch = True
@@ -41,314 +54,384 @@ def selectSearchResultNote(searchResult) -> str:
     if noteTitleWidth < 5:
         noteTitleWidth = 30
 
-    
-    print(f"\t{myTerminal.BLUE}{' id ':>4} {'Datetime':<20} {'Project':<31} {'Note Title':<{noteTitleWidth}}{myTerminal.RESET}")
-    print(f"\t{myTerminal.BLUE}{'____':>4}  {'________':<20} {'_______':<31} {'__________':<{noteTitleWidth}}{myTerminal.RESET}")
+    print(
+        f"\t{myTerminal.BLUE}{' id ':>4} {'Datetime':<20} {'Project':<31} {'Note Title':<{noteTitleWidth}}{myTerminal.RESET}"
+    )
+    print(
+        f"\t{myTerminal.BLUE}{'____':>4}  {'________':<20} {'_______':<31} {'__________':<{noteTitleWidth}}{myTerminal.RESET}"
+    )
     searchResult.sort(key=lambda note: note.date, reverse=True)
     for note in searchResult:
         i += 1
-        if i%2==0:
-             print(f"\t{myTerminal.WHITE}{i:>4}) {note.date:<20} {note.project[:30]:<31} {note.title[:noteTitleWidth]:<{noteTitleWidth}}{myTerminal.RESET}")
-        else:   
-            print(f"\t{myTerminal.GREY}{i:>4}) {note.date:<20} {note.project[:30]:<31} {note.title[:noteTitleWidth]:<{noteTitleWidth}}{myTerminal.RESET}")
+        if i % 2 == 0:
+            print(
+                f"\t{myTerminal.WHITE}{i:>4}) {note.date:<20} {note.project[:30]:<31} {note.title[:noteTitleWidth]:<{noteTitleWidth}}{myTerminal.RESET}"
+            )
+        else:
+            print(
+                f"\t{myTerminal.GREY}{i:>4}) {note.date:<20} {note.project[:30]:<31} {note.title[:noteTitleWidth]:<{noteTitleWidth}}{myTerminal.RESET}"
+            )
     print("")
     print(f"\t{myTerminal.GREY}{'a':>4}) open All {myTerminal.RESET}")
-    print(f"\t{myTerminal.GREY}{'x':>4}) eXport search result timeline {myTerminal.RESET}")
+    print(
+        f"\t{myTerminal.GREY}{'x':>4}) eXport search result timeline {myTerminal.RESET}"
+    )
 
-    selectedNote = input(f"{myTerminal.WHITE}\tEnter the note id to open or enter to continue searching: {myTerminal.RESET}").strip()
+    selectedNote = input(
+        f"{myTerminal.WHITE}\tEnter the note id to open or enter to continue searching: {myTerminal.RESET}"
+    ).strip()
     return selectedNote
+
 
 def listSearchResults(searchResult, feedbackMessage=""):
     myTerminal.clearTerminal()
     if feedbackMessage != "":
-        print(f"{myTerminal.INFORMATION}{feedbackMessage}{myTerminal.RESET}\n") 
+        print(f"{myTerminal.INFORMATION}{feedbackMessage}{myTerminal.RESET}\n")
 
     selectedNote = selectSearchResultNote(searchResult)
 
-    if selectedNote.lower() == 'q':
+    if selectedNote.lower() == "q":
         quitSearch(searchLog)
-    elif selectedNote.lower() == 'a':
+    elif selectedNote.lower() == "a":
         for noteToOpen in searchResult:
-            #os.system(f"""{myPreferences.default_editor()} "{noteToOpen.filePath}" """)
+            # os.system(f"""{myPreferences.default_editor()} "{noteToOpen.filePath}" """)
             myTools.open_note_in_editor(noteToOpen.filePath)
-    elif selectedNote == 'x':
-        
-        searchLogTemp = searchLog.replace("Search Log \n","")
-        resultsDescription = "" 
+    elif selectedNote == "x":
+        searchLogTemp = searchLog.replace("Search Log \n", "")
+        resultsDescription = ""
         for line in searchLogTemp.splitlines():
-            resultsDescription += f"\t{line[len('2025-07-16 20:13:00.674325:'):]}\n\n"
-
+            resultsDescription += f"\t{line[len('2025-07-16 20:13:00.674325:') :]}\n\n"
 
         summary = mySummary.generate_summary(
-            summaryTitle = "Search Timeline",
-            searchDescription = resultsDescription,
-            notes = searchResult,
-            includeBodyInTimeline = True,
-            includeBackLinkInTimeline = True,
-            includeGantt = True,
-            includeTimelineAsList = True
+            summaryTitle="Search Timeline",
+            searchDescription=resultsDescription,
+            notes=searchResult,
+            includeBodyInTimeline=True,
+            includeBackLinkInTimeline=True,
+            includeGantt=True,
+            includeTimelineAsList=True,
         )
 
         # save the search restults timeline summary to _Search Timeline.md in the root_pkv directory
         # by design, overwrite any existing _Search Timeline.md file, do not include a date or unique identifier in the filename
         # or else there will be multiple files created over time that clog up the root_pkv directory and search results
-        output_path = os.path.join(myPreferences.root_pkv(), "_Search Timeline.md" )
+        output_path = os.path.join(myPreferences.root_pkv(), "_Search Timeline.md")
 
         if os.path.exists(output_path):
-            print(f"{myTerminal.WARNING}Search TimeLine already exists: {output_path}{myTerminal.RESET}")
-            if not myInputs.ask_yes_no_from_user("Do you want to overwrite it?", default=True):
-                print(f"{myTerminal.INFORMATION}Exiting without changes.{myTerminal.RESET}")
+            print(
+                f"{myTerminal.WARNING}Search TimeLine already exists: {output_path}{myTerminal.RESET}"
+            )
+            if not myInputs.ask_yes_no_from_user(
+                "Do you want to overwrite it?", default=True
+            ):
+                print(
+                    f"{myTerminal.INFORMATION}Exiting without changes.{myTerminal.RESET}"
+                )
                 exit(0)
 
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             f.write(summary)
-            
-        print("open search timeline summary in default editor...")    
+
+        print("open search timeline summary in default editor...")
         myTools.open_note_in_editor(output_path)
 
         print("open search timeline summary as html in default browser...')")
         myHTML.openMarkDownFileInBrowser(output_path)
 
-
     elif selectedNote.isdigit() and 1 <= int(selectedNote) <= len(searchResult):
         selectedNote = int(selectedNote) - 1
         noteToOpen = searchResult[selectedNote]
-        #os.system(f"""{myPreferences.default_editor()} "{noteToOpen.filePath}" """)
+        # os.system(f"""{myPreferences.default_editor()} "{noteToOpen.filePath}" """)
         myTools.open_note_in_editor(noteToOpen.filePath)
-        listSearchResults(searchResult,feedbackMessage=f"Opened note: {noteToOpen.title}")
+        listSearchResults(
+            searchResult, feedbackMessage=f"Opened note: {noteToOpen.title}"
+        )
 
-    mySearch.describe_search_results("list results",searchResult)
-    
+    mySearch.describe_search_results("list results", searchResult)
+
+
 def quitSearch(searchLog):
     searchLog += f"{datetime.datetime.now()}: quit search.\n"
-    
+
     # save searchLog to search.log in the root_pkv directory for potential troubleshooting
     searchLogPath = os.path.join(myPreferences.root_pkv(), "search.log")
-    with open(searchLogPath, 'w') as log_file:
+    with open(searchLogPath, "w") as log_file:
         log_file.write(searchLog)
-    
+
     exit("Exiting search.")
 
 
 # collect input parameters
 if len(sys.argv) > 1:
-    #print ("debug args:",' '.join(sys.argv[1:]))
+    # print ("debug args:",' '.join(sys.argv[1:]))
     args = sys.argv[1:]
 
     searchPart = ""
-    for p in range(0,len(args)):
+    for p in range(0, len(args)):
         if args[p] == "-b":
-            searchPart = args[p+1] if p+1 < len(sys.argv) else ""
-            searchCriteria, searchResult = mySearch.search_body(searchResult, searchPart)
+            searchPart = args[p + 1] if p + 1 < len(sys.argv) else ""
+            searchCriteria, searchResult = mySearch.search_body(
+                searchResult, searchPart
+            )
             searchHistory[searchIndex] = searchResult.copy()
             searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-            mySearch.describe_search_results(searchCriteria,searchResult)
-        
+            mySearch.describe_search_results(searchCriteria, searchResult)
+
         elif args[p] == "-p":
-            searchPart = args[p+1] if p+1 < len(sys.argv) else ""
-            searchCriteria, searchResult = mySearch.search_project(searchResult, searchPart)
+            searchPart = args[p + 1] if p + 1 < len(sys.argv) else ""
+            searchCriteria, searchResult = mySearch.search_project(
+                searchResult, searchPart
+            )
             searchHistory[searchIndex] = searchResult.copy()
             searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-            mySearch.describe_search_results(searchCriteria,searchResult)
-        
+            mySearch.describe_search_results(searchCriteria, searchResult)
+
         elif args[p] == "-ti":
-            searchPart = args[p+1] if p+1 < len(sys.argv) else ""
-            searchCriteria, searchResult = mySearch.search_title(searchResult, searchPart)
+            searchPart = args[p + 1] if p + 1 < len(sys.argv) else ""
+            searchCriteria, searchResult = mySearch.search_title(
+                searchResult, searchPart
+            )
             searchHistory[searchIndex] = searchResult.copy()
             searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-            mySearch.describe_search_results(searchCriteria,searchResult)
-        
+            mySearch.describe_search_results(searchCriteria, searchResult)
+
         elif args[p] == "-ty":
-            searchPart = args[p+1] if p+1 < len(sys.argv) else ""
-            searchCriteria, searchResult = mySearch.search_type(searchResult, searchPart)
+            searchPart = args[p + 1] if p + 1 < len(sys.argv) else ""
+            searchCriteria, searchResult = mySearch.search_type(
+                searchResult, searchPart
+            )
             searchHistory[searchIndex] = searchResult.copy()
             searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-            mySearch.describe_search_results(searchCriteria,searchResult)
+            mySearch.describe_search_results(searchCriteria, searchResult)
 
         elif args[p] == "-np":
             searchCriteria, searchResult = mySearch.search_no_project(searchResult)
             searchHistory[searchIndex] = searchResult.copy()
             searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-            mySearch.describe_search_results(searchCriteria,searchResult)
+            mySearch.describe_search_results(searchCriteria, searchResult)
 
         elif args[p] == "-nap":
-            searchCriteria, searchResult = mySearch.search_no_archived_project(searchResult)
+            searchCriteria, searchResult = mySearch.search_no_archived_project(
+                searchResult
+            )
             searchHistory[searchIndex] = searchResult.copy()
             searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-            mySearch.describe_search_results(searchCriteria,searchResult)
+            mySearch.describe_search_results(searchCriteria, searchResult)
 
         elif args[p] == "-npn":
-            searchCriteria, searchResult = mySearch.search_no_private_notes(searchResult)
+            searchCriteria, searchResult = mySearch.search_no_private_notes(
+                searchResult
+            )
             searchHistory[searchIndex] = searchResult.copy()
             searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-            mySearch.describe_search_results(searchCriteria,searchResult)
+            mySearch.describe_search_results(searchCriteria, searchResult)
 
         elif args[p] == "-opn":
-            searchCriteria, searchResult = mySearch.search_only_private_notes(searchResult)
+            searchCriteria, searchResult = mySearch.search_only_private_notes(
+                searchResult
+            )
             searchHistory[searchIndex] = searchResult.copy()
             searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-            mySearch.describe_search_results(searchCriteria,searchResult)
+            mySearch.describe_search_results(searchCriteria, searchResult)
 
         elif args[p] == "-d":
-            startDate = args[p+1] if p+1 < len(sys.argv) else ""
-            endDate = args[p+2] if p+2 < len(sys.argv) else ""
-            searchCriteria, searchResult = mySearch.search_date(searchResult, startDate, endDate)
+            startDate = args[p + 1] if p + 1 < len(sys.argv) else ""
+            endDate = args[p + 2] if p + 2 < len(sys.argv) else ""
+            searchCriteria, searchResult = mySearch.search_date(
+                searchResult, startDate, endDate
+            )
             searchHistory[searchIndex] = searchResult.copy()
             searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-            mySearch.describe_search_results(searchCriteria,searchResult)
+            mySearch.describe_search_results(searchCriteria, searchResult)
 
         elif args[p] == "-lastweek":
-            startDate = (datetime.datetime.now() - datetime.timedelta(days=datetime.datetime.now().weekday() + 7)).strftime('%Y-%m-%d')
-            endDate = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-            searchCriteria, searchResult = mySearch.search_date(searchResult, startDate, endDate)
+            startDate = (
+                datetime.datetime.now()
+                - datetime.timedelta(days=datetime.datetime.now().weekday() + 7)
+            ).strftime("%Y-%m-%d")
+            endDate = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime(
+                "%Y-%m-%d"
+            )
+            searchCriteria, searchResult = mySearch.search_date(
+                searchResult, startDate, endDate
+            )
             searchHistory[searchIndex] = searchResult.copy()
             searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-            mySearch.describe_search_results(searchCriteria,searchResult)
-        
+            mySearch.describe_search_results(searchCriteria, searchResult)
+
         elif args[p] == "-lastmonth":
-            startDate = datetime.date(datetime.datetime.now().year if datetime.datetime.now().month > 1 else datetime.datetime.now().year - 1, datetime.datetime.now().month - 1 if datetime.datetime.now().month > 1 else 12, 1).strftime('%Y-%m-%d')
-            endDate = datetime.date(datetime.datetime.now().year, datetime.datetime.now().month, 1).strftime('%Y-%m-%d')
-            searchCriteria, searchResult = mySearch.search_date(searchResult, startDate, endDate)
+            startDate = datetime.date(
+                datetime.datetime.now().year
+                if datetime.datetime.now().month > 1
+                else datetime.datetime.now().year - 1,
+                datetime.datetime.now().month - 1
+                if datetime.datetime.now().month > 1
+                else 12,
+                1,
+            ).strftime("%Y-%m-%d")
+            endDate = datetime.date(
+                datetime.datetime.now().year, datetime.datetime.now().month, 1
+            ).strftime("%Y-%m-%d")
+            searchCriteria, searchResult = mySearch.search_date(
+                searchResult, startDate, endDate
+            )
             searchHistory[searchIndex] = searchResult.copy()
             searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-            mySearch.describe_search_results(searchCriteria,searchResult)
+            mySearch.describe_search_results(searchCriteria, searchResult)
 
         elif args[p] == "-today":
-            startDate = datetime.datetime.now().strftime('%Y-%m-%d')
-            endDate = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-            searchCriteria, searchResult = mySearch.search_date(searchResult, startDate, endDate)
+            startDate = datetime.datetime.now().strftime("%Y-%m-%d")
+            endDate = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime(
+                "%Y-%m-%d"
+            )
+            searchCriteria, searchResult = mySearch.search_date(
+                searchResult, startDate, endDate
+            )
             searchHistory[searchIndex] = searchResult.copy()
             searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-            mySearch.describe_search_results(searchCriteria,searchResult)
+            mySearch.describe_search_results(searchCriteria, searchResult)
         elif args[p] == "-yesterday":
-            startDate = (datetime.datetime.now() - datetime.timedelta(days=datetime.datetime.now().weekday() + 1)).strftime('%Y-%m-%d')
-            endDate = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-            searchCriteria, searchResult = mySearch.search_date(searchResult, startDate, endDate)
+            startDate = (
+                datetime.datetime.now()
+                - datetime.timedelta(days=datetime.datetime.now().weekday() + 1)
+            ).strftime("%Y-%m-%d")
+            endDate = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime(
+                "%Y-%m-%d"
+            )
+            searchCriteria, searchResult = mySearch.search_date(
+                searchResult, startDate, endDate
+            )
             searchHistory[searchIndex] = searchResult.copy()
             searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-            mySearch.describe_search_results(searchCriteria,searchResult)
+            mySearch.describe_search_results(searchCriteria, searchResult)
 else:
     mySearch.describe_search_results("", searchResult)
 
 while continueSearch:
-    print ("\nSearch options:")
-    print ("\t   d)  date range - Search by note date")
-    print ("\t  ta) tags - Search by tags")
-    print ("\t  ti) title - Search by title")
-    print ("\t  ty) type - Search by type")
-    print ("\t  b)  body - Search by body text")
-    print ("")
-    print ("\t   p)  project - Search by project")
-    print ("\t  np) No project - Search for notes not attached to  project")
-    print ("\t nap) Not an archived project - Search for notes not attached to an archived project")
-    print ("")
-    print ("\t npn) No private notes - Search excluding private notes")
-    print ("\t opn) Only private notes - Search for only private notes")
-    print ("\t","-"*20)
-    print ("Commands:")
-    print ("\t   h)  history - show search history")
-    print ("\t   u)  undo - undo the last search")
-    print ("\t   l)  list - list current search results")
-    print ("\t   x)  export - export and open results in editor")
-    print ("\t   q)  quit - Quit the search")
-    print ("\t","-"*20)
-    
+    print("\nSearch options:")
+    print("\t   d)  date range - Search by note date")
+    print("\t  ta) tags - Search by tags")
+    print("\t  ti) title - Search by title")
+    print("\t  ty) type - Search by type")
+    print("\t  b)  body - Search by body text")
+    print("")
+    print("\t   p)  project - Search by project")
+    print("\t  np) No project - Search for notes not attached to  project")
+    print(
+        "\t nap) Not an archived project - Search for notes not attached to an archived project"
+    )
+    print("")
+    print("\t npn) No private notes - Search excluding private notes")
+    print("\t opn) Only private notes - Search for only private notes")
+    print("\t", "-" * 20)
+    print("Commands:")
+    print("\t   h)  history - show search history")
+    print("\t   u)  undo - undo the last search")
+    print("\t   l)  list - list current search results")
+    print("\t   x)  export - export and open results in editor")
+    print("\t   q)  quit - Quit the search")
+    print("\t", "-" * 20)
+
     inputChoice = input("Enter your choice: ").strip().lower()
-    
-    if inputChoice == 'q':
+
+    if inputChoice == "q":
         quitSearch(searchLog)
 
-    elif inputChoice =='p':
+    elif inputChoice == "p":
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_project(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
         searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-        mySearch.describe_search_results(searchCriteria,searchResult)
+        mySearch.describe_search_results(searchCriteria, searchResult)
 
-    elif inputChoice =='np':
+    elif inputChoice == "np":
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_no_project(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
         searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-        mySearch.describe_search_results(searchCriteria,searchResult)
+        mySearch.describe_search_results(searchCriteria, searchResult)
 
-    elif inputChoice =='nap':
+    elif inputChoice == "nap":
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_no_archived_project(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
         searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-        mySearch.describe_search_results(searchCriteria,searchResult)
-     
-    elif inputChoice =='npn':
+        mySearch.describe_search_results(searchCriteria, searchResult)
+
+    elif inputChoice == "npn":
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_no_private_notes(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
         searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-        mySearch.describe_search_results(searchCriteria,searchResult) 
+        mySearch.describe_search_results(searchCriteria, searchResult)
 
-    elif inputChoice =='opn':
+    elif inputChoice == "opn":
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_only_private_notes(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
         searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-        mySearch.describe_search_results(searchCriteria,searchResult)
+        mySearch.describe_search_results(searchCriteria, searchResult)
 
-    elif inputChoice =='ta':
+    elif inputChoice == "ta":
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_tags(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
         searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-        mySearch.describe_search_results(searchCriteria,searchResult)
+        mySearch.describe_search_results(searchCriteria, searchResult)
 
-    elif inputChoice =='d':
+    elif inputChoice == "d":
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_date(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
         searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-        mySearch.describe_search_results(searchCriteria,searchResult)
+        mySearch.describe_search_results(searchCriteria, searchResult)
 
-    elif inputChoice =='ti':
+    elif inputChoice == "ti":
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_title(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
         searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-        mySearch.describe_search_results(searchCriteria,searchResult)
+        mySearch.describe_search_results(searchCriteria, searchResult)
 
-    elif inputChoice =='ty':
+    elif inputChoice == "ty":
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_type(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
         searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-        mySearch.describe_search_results(searchCriteria,searchResult)
+        mySearch.describe_search_results(searchCriteria, searchResult)
 
-    elif inputChoice =='b':
+    elif inputChoice == "b":
         searchIndex += 1
         searchCriteria, searchResult = mySearch.search_body(searchResult)
         searchHistory[searchIndex] = searchResult.copy()
         searchLog += f"{datetime.datetime.now()}: {searchCriteria}  ({len(searchResult)} records)\n"
-        mySearch.describe_search_results(searchCriteria,searchResult)
-    
-    elif inputChoice == 'u':
+        mySearch.describe_search_results(searchCriteria, searchResult)
+
+    elif inputChoice == "u":
         if searchIndex > 0:
             searchIndex -= 1
             searchResult = searchHistory[searchIndex]
             mySearch.describe_search_results("Undo last search", searchResult)
             searchLog += f"{datetime.datetime.now()}: undo\n"
-            print(f"{myTerminal.INFORMATION}Undo to search index {searchIndex}{myTerminal.RESET}")
+            print(
+                f"{myTerminal.INFORMATION}Undo to search index {searchIndex}{myTerminal.RESET}"
+            )
         else:
-            print(f"{myTerminal.WARNING}No previous search to undo.{myTerminal.RESET}")      
-    
-    elif inputChoice == 'h':
+            print(f"{myTerminal.WARNING}No previous search to undo.{myTerminal.RESET}")
+
+    elif inputChoice == "h":
         for line in searchLog.splitlines():
-            print(f"{myTerminal.GREY}{line[len('2025-07-16 20:13:00.674325:'):]}{myTerminal.RESET}")
-             
-    elif inputChoice == 'l':
+            print(
+                f"{myTerminal.GREY}{line[len('2025-07-16 20:13:00.674325:') :]}{myTerminal.RESET}"
+            )
+
+    elif inputChoice == "l":
         listSearchResults(searchResult)
 
-    elif inputChoice == 'x':
+    elif inputChoice == "x":
         searchResultBody = f"""---
-title: Search Results 
-date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+title: Search Results
+date: {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 ---
 # Search Steps
 
@@ -356,9 +439,8 @@ date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         for search in searchLog.splitlines()[1:]:
             searchResultBody += f"- {search}\n"
 
-        
         searchResultBody += f"""
-# Search Results {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+# Search Results {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 """
 
@@ -366,22 +448,30 @@ date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
             searchResultBody += f"\n## {note.title}\n"
             searchResultBody += f"**Project:** {note.project}\n"
             searchResultBody += f"**Date:** {note.date}\n"
-            searchResultBody += f"**Tags:** {', '.join(note.tags) if note.tags else 'No tags'}\n"
+            searchResultBody += (
+                f"**Tags:** {', '.join(note.tags) if note.tags else 'No tags'}\n"
+            )
             searchResultBody += f"**Link:** [[{note.fileName}]]\n"
             searchResultBody += "\n\n"
             # searchResultBody += f"{note.noteBody.replace('---','')}\n\n"
-        
-        searchResultFilePath = os.path.join(myPreferences.root_pkv(), ".SearchResults.md")
-        with open(searchResultFilePath, 'w',encoding='utf-8') as file:
+
+        searchResultFilePath = os.path.join(
+            myPreferences.root_pkv(), ".SearchResults.md"
+        )
+        with open(searchResultFilePath, "w", encoding="utf-8") as file:
             file.write(searchResultBody)
-        
-        continueSearch = True    
-        print(f"{myTerminal.INFORMATION}Search results saved to {searchResultFilePath}{myTerminal.RESET}")
+
+        continueSearch = True
+        print(
+            f"{myTerminal.INFORMATION}Search results saved to {searchResultFilePath}{myTerminal.RESET}"
+        )
         os.system(f"""{myPreferences.default_editor()} "{searchResultFilePath}" """)
 
         break
-    
+
     else:
         myTerminal.clearTerminal()
-        print(f"{myTerminal.WARNING}Invalid choice. Please try again.{myTerminal.RESET}")
+        print(
+            f"{myTerminal.WARNING}Invalid choice. Please try again.{myTerminal.RESET}"
+        )
         continue

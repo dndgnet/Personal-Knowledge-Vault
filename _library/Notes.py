@@ -11,16 +11,17 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List
 
 try:
+    from . import ActionItems as myActionItems
     from . import Preferences as myPreferences
     from . import Terminal as myTerminal
     from . import Variables as myVariables
-    from . import ActionItems as myActionItems
-    
+
 except ImportError:
+    import ActionItems as myActionItems
     import Preferences as myPreferences
     import Terminal as myTerminal
     import Variables as myVariables
-    import ActionItems as myActionItems
+
 
 @dataclass
 class NoteData:
@@ -90,6 +91,13 @@ class NoteData:
             return f"{self.title} ({self.date}) from {self.project}"
         else:
             return f"{self.title} ({self.date})"
+
+
+def _custom_serializer(obj):
+    """Custom JSON serializer for objects that are not serializable by default"""
+    if isinstance(obj, myActionItems.ActionItem):
+        return obj.to_json()
+    raise TypeError(f"Type {type(obj)} not serializable")
 
 
 def addLine(newString="") -> str:
@@ -418,7 +426,6 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
     for actionItemString in re.findall(
         r"\[ \](.*)", body
     ):  # Find all action items in the note body
-        
         # Extract details that follow the action item until the next "- [" or blank line
         action_item_pattern = re.escape(actionItemString)
         actionItemComment = ""
@@ -447,18 +454,29 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
             actionItemsWithComments[actionItemString.strip()] = actionItemComment
 
         actionItem = myActionItems.ActionItem()
-        
+
         # get the line number of the action item in the note body for reference
         actionItemRow = 0
         for line in body.splitlines():
             if f"[ ] {actionItemString.strip()}" in line.strip():
                 # actionItemRow will be front matter rows + the line number of the action item in the body
-                actionItemRow = len(frontMatter.splitlines()) + 1 + body.splitlines().index(line) + 3
+                actionItemRow = (
+                    len(frontMatter.splitlines())
+                    + 1
+                    + body.splitlines().index(line)
+                    + 3
+                )
                 break
-        actionItem.LoadFromString(uniqueIdentifier, title, notePathAndFile, project, 
-                                  f"[ ] {actionItemString.strip()}", actionItemRow, actionItemComment)
+        actionItem.LoadFromString(
+            uniqueIdentifier,
+            title,
+            notePathAndFile,
+            project,
+            f"[ ] {actionItemString.strip()}",
+            actionItemRow,
+            actionItemComment,
+        )
         actionItems.append(actionItem)
-
 
     # Replace the dictionary with an instance of the Note dataclass
     note = NoteData(
@@ -795,7 +813,13 @@ def dump_notes_to_json(notes: List[NoteData], file_path: str, indent: int = 2) -
 
         # Write to JSON file
         with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(notes_data, f, indent=indent, ensure_ascii=False)
+            json.dump(
+                notes_data,
+                f,
+                indent=indent,
+                default=_custom_serializer,
+                ensure_ascii=False,
+            )
 
         return True
     except Exception as e:
@@ -1271,14 +1295,16 @@ def get_attachments_from_note(note: NoteData) -> list[str]:
 
 
 def __test_AddNote__():
-    """ 
+    """
     test function that adds an event note to the first project
     """
     print("Testing add_Note function...")
 
     projects_root = myPreferences.root_projects()
     if not os.path.isdir(projects_root):
-        print(f"{myTerminal.ERROR}Projects folder not found: {projects_root}{myTerminal.RESET}")
+        print(
+            f"{myTerminal.ERROR}Projects folder not found: {projects_root}{myTerminal.RESET}"
+        )
         return
 
     project_names = sorted(
@@ -1288,7 +1314,9 @@ def __test_AddNote__():
     )
 
     if not project_names:
-        print(f"{myTerminal.WARNING}No projects found to test note creation.{myTerminal.RESET}")
+        print(
+            f"{myTerminal.WARNING}No projects found to test note creation.{myTerminal.RESET}"
+        )
         return
 
     project_name = project_names[0]
@@ -1320,19 +1348,18 @@ def __test_AddNote__():
         print(f"{myTerminal.ERROR}Failed to add test note.{myTerminal.RESET}")
 
 
-
 if __name__ == "__main__":
-    import sys
     import os
+    import sys
+
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-    
+
     # Now re-import as package members
+    from _library import ActionItems as myActionItems
     from _library import Notes as myNotes
-    from _library import Tools as myTools
     from _library import Preferences as myPreferences
     from _library import Terminal as myTerminal
+    from _library import Tools as myTools
     from _library import Variables as myVariables
-    from _library import ActionItems as myActionItems
 
-
-    __test_AddNote__()  
+    __test_AddNote__()
