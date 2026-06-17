@@ -52,7 +52,16 @@ def main():
         noteTypeExists, existingNote = myNotes.get_Note_Last_Project_Note_ByType(
             selectedProjectName, noteType
         )
-        if noteTypeExists and noteType not in (
+        if noteTypeExists and noteType in ("hub"):
+            myNotes.open_note_in_editor(existingNote.filePath)
+            print(
+                f"{myTerminal.WARNING} A note of type '{noteType}' already exists in project '{selectedProjectName}'{myTerminal.RESET}"
+            )
+            print(
+                f"There should only be one '{noteType}' note in a project, opening existing existing note..."
+            )
+            exit()
+        elif noteTypeExists and noteType not in (
             "event",
             "email",
             "chat",
