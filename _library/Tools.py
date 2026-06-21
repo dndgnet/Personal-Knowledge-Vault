@@ -133,7 +133,7 @@ def read_csv_to_list(full_path):
                 reader = csv.DictReader(csvFile)
                 for row in reader:
                     data.append(row)
-            print(f"Successfully read file using {encoding} encoding")
+            #print(f"Successfully read file using {encoding} encoding")
             return data
         except UnicodeDecodeError:
             continue
@@ -165,7 +165,7 @@ def read_csv_to_dict(full_path, key_field="") -> dict:
                     key = row.get(first_column, "").strip()
                     if key:  # Only add to dict if key is not empty
                         data[key] = row
-            print(f"Successfully read file using {encoding} encoding")
+            #print(f"Successfully read file using {encoding} encoding")
             # Convert entire columns to float when all non-empty values are numeric
             if data:
                 all_columns = set()

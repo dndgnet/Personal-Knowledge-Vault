@@ -19,7 +19,7 @@ print(
 print("")
 
 # debug
-selectedProject = "Adaptive Project Management Software"
+#selectedProject = "Adaptive Project Management Software"
 
 if selectedProject == "":
     print("Available target projects:")

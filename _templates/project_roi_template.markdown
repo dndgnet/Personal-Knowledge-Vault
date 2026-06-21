@@ -13,11 +13,12 @@ keywords:
 project: [Project Name]
 author: [Author]
 private: No
+shareWithStakeholders: No
 ---
 
 ## Return on Investment
 
-## Expenses
+### Expenses
 
 | Expense  | Description              | Time Frame | Total |
 | ---      | ---                      | ---        | ---   |
@@ -26,7 +27,7 @@ private: No
 | Total    |                          |            |       |
 
 
-## Returns or savings
+### Returns or savings
 
 | Description              | Time Frame | Total |
 | ---                      | ---        | ---   |

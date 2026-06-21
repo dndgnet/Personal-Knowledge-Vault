@@ -11,7 +11,8 @@ tags: [tags]
 keywords: 
 project: [Project Name]
 author: [Current User]
-private: No
+private: Yes
+shareWithStakeholders: No
 ---
 
 # Email Summary

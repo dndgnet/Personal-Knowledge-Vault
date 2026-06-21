@@ -12,6 +12,7 @@ keywords:
 project: [Project Name]
 author: [Current User]
 private: No
+shareWithStakeholders: Yes
 ---
 
 # Meeting [Title]

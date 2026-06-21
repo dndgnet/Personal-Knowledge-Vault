@@ -13,6 +13,7 @@ keywords:
 project: [Project Name]
 author: [Current User]
 private: No
+shareWithStakeholders: No
 ---
 
 # [Project Name] Progress Update 

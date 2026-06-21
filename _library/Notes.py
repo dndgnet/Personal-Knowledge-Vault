@@ -50,6 +50,7 @@ class NoteData:
     actionItemsWithComments: dict = field(default_factory=dict)
 
     private: bool = False  # indicates that note is only for the vault owner's use
+    shareWithStakeholders: bool = False  # indicates that note is intended to be shared with stakeholders, which may include private information but is still shareable
     archivedProject: bool = False  # indicates that note belongs to an archived project
     endDate: str = ""  # optional end date for gantt charts
     subId: str = ""  # optional sub-identifier for notes of specific types
@@ -73,6 +74,7 @@ class NoteData:
             "retention": self.retention.strip(),
             "author": self.author.strip(),
             "private": self.private,
+            "shareWithStakeholders": self.shareWithStakeholders,
             "frontMatter": self.frontMatter,
             "noteBody": self.noteBody,
             "backLinks": self.backLinks,
@@ -410,6 +412,12 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
         in ("true", "t", "yes", "y", "positive")
         else False
     )
+    shareWithStakeholders = (
+        True
+        if get_stringValue_from_frontMatter("shareWithStakeholders", frontMatter).lower()
+        in ("true", "t", "yes", "y", "positive")
+        else False
+    )
     archived = (
         True
         if get_stringValue_from_frontMatter("archived", frontMatter) == "True"
@@ -496,6 +504,7 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
         retention=retention,
         author=author,
         private=private,
+        shareWithStakeholders=shareWithStakeholders,
         frontMatter=frontMatter,
         noteBody=body,
         backLinks=backLinks,

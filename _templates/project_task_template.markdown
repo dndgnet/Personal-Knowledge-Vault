@@ -13,6 +13,7 @@ project: [Project Name]
 author: [Current User]
 private: No
 ticket: [ticket number]
+shareWithStakeholders: No
 ---
 
 ## [Title]

@@ -543,8 +543,8 @@ def diagram_Burndown(projectName: str) -> str:
 
     # get max budget for y-axis scaling
     if len(burndown_data) == 0:
-        print(f"{myTerminal.WARNING}No data found in CSV file.{myTerminal.RESET}")
-        return f"No data found in '{csvFilePath}'."
+        print(f"{myTerminal.WARNING}No data found in '{csvFileName}' CSV file.{myTerminal.RESET}")
+        return ""
 
     max_budget = max(entry["Planned Budget"] for entry in burndown_data.values())
     # make max_budget a multiple of 10 for better visualization

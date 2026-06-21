@@ -13,6 +13,7 @@ keywords:
 project: [Project Name]
 author: [Author]
 private: No
+shareWithStakeholders: Yes
 ---
 
 # Change Request / Change Order

@@ -56,7 +56,7 @@ else:
     # Read the CSV file into a burndown dictionary
     csvData = myTools.read_csv_to_dict(csvFilePath)
     if len(csvData) == 0:
-        print(f"{myTerminal.WARNING}No data found in CSV file.{myTerminal.RESET}")
+        print(f"{myTerminal.WARNING}No data found in '{csvFileName}' CSV file.{myTerminal.RESET}")
 
     for key, value in csvData.items():
         updatedPart += f"|{key}|{value['Title']}|{value['Role']}|\n"
