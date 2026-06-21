@@ -13,6 +13,9 @@ project: [Project Name]
 author: [Current User]
 private: No
 shareWithStakeholders: No
+isMilestone: [isMilestone]
+plannedDate: [plannedDate]
+actualDate: [actualDate]
 ---
 
 # Event: [Title]

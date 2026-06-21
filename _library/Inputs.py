@@ -51,6 +51,20 @@ def ask_for_template_Tag_Value_from_user(tagName: str, defaultValue: str = "") -
     else:
         return response
 
+def ask_date_from_user(datePrompt = "enter a date time", defaultIfNone = "") -> str:
+    """
+    Get a datetime from the user.
+    returns the default datetime if the user doesn't provide a valid datetime
+    for example, if the user enters an empty string
+    """
+    inputDate = input(f"{myTerminal.INPUTPROMPT}{datePrompt}{myTerminal.RESET}").strip()
+    isDateTime, d = myTools.datetime_fromString(inputDate)
+    if not isDateTime:
+        print(f"\t{myTerminal.YELLOW}Using default: {defaultIfNone}{myTerminal.RESET}")
+        return defaultIfNone
+        
+    return d.strftime(myPreferences.date_format())
+
 def ask_datetime_and_title_from_user(datePrompt = "enter a date time", defaultIfNone = datetime.now(), 
                                      titlePrompt = "enter note title", titleDefault = "untitled" ) -> tuple[datetime,str]:
     """
@@ -455,6 +469,22 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
         note_Content = note_Content.replace("[tags]", templateTagValue)
         templateTags.remove("tags")
     
+    if "isMilestone" in templateTags:
+        isMilestone = ask_yes_no_from_user(f"Is this {noteType} a milestone?", default=False)
+        templateTagValue = "Yes" if isMilestone else "No"
+        note_Content = note_Content.replace("[isMilestone]", templateTagValue)
+        templateTags.remove("isMilestone")
+        if isMilestone:
+            #if it's a milestone, also ask for the planned date
+            plannedDate = ask_date_from_user(datePrompt="Enter the planned date for this milestone (enter for today)", defaultIfNone=datetime.now().strftime(myPreferences.date_format()))
+            note_Content = note_Content.replace("[plannedDate]", plannedDate)
+            templateTags.remove("plannedDate")
+
+            actualDate = ask_date_from_user(datePrompt="Enter the actual date for this milestone (enter for none)", defaultIfNone="")
+            note_Content = note_Content.replace("[actualDate]", actualDate)
+            templateTags.remove("actualDate")
+
+
     #capture the rest of the tags in the template
     for templateTag in templateTags:
         templateTagValue = ""

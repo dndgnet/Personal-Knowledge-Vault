@@ -55,6 +55,9 @@ class NoteData:
     endDate: str = ""  # optional end date for gantt charts
     subId: str = ""  # optional sub-identifier for notes of specific types
     typeSimple: str = ""  # optional type with the project tab removed
+    isMilestone: bool = False  # indicates if the note is a project milestone
+    plannedDate: str = ""  # optional planned date for the note
+    actualDate: str = ""  # optional actual date for the note
 
     def __post_init__(self):
         self.typeSimple = self.type.strip().replace("project-", "")
@@ -86,6 +89,9 @@ class NoteData:
             "endDate": self.endDate.strip(),
             "subId": self.subId.strip(),
             "typeSimple": self.typeSimple,
+            "isMilestone": self.isMilestone,
+            "plannedDate": self.plannedDate.strip(),
+            "actualDate": self.actualDate.strip()
         }
 
     def __str__(self):
@@ -424,6 +430,14 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
         else False
     )
     subId = get_stringValue_from_frontMatter("sub Id", frontMatter)
+    isMilestone = (
+        True
+        if get_stringValue_from_frontMatter("isMilestone", frontMatter).lower()
+        in ("true", "t", "yes", "y", "positive")
+        else False
+    )
+    plannedDate = get_stringValue_from_frontMatter("plannedDate", frontMatter)
+    actualDate = get_stringValue_from_frontMatter("actualDate", frontMatter)    
 
     if title == "" or title is None:
         title = uniqueIdentifier
@@ -514,6 +528,9 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
         actionItemsWithComments=actionItemsWithComments,
         endDate=dateEnd,
         subId=subId,
+        isMilestone=isMilestone,
+        actualDate=actualDate,
+        plannedDate=plannedDate
     )
 
     return note
