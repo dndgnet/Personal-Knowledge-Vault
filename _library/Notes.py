@@ -255,28 +255,30 @@ def replace_text_between_tags(
 ) -> tuple[bool, str]:
     """
     Updates a specific area of a note body defined by <!--Start_areaName--> and <!--End_areaName--> tags.
-
     Args:
         areaName (str): The name of the area to update.
         noteBody (str): The original note body containing the area tags.
         newContent (str): The new content to insert into the area.
-
     Returns:
         bool: True if the update was successful, False otherwise.
     """
-
     startTag = f"<!--Start_{areaName}-->"
     endTag = f"<!--End_{areaName}-->"
-
-    if startTag in noteBody and endTag in noteBody:
+    noteBodyLower = noteBody.lower()
+    startTagLower = startTag.lower()
+    endTagLower = endTag.lower()
+    if startTagLower in noteBodyLower and endTagLower in noteBodyLower:
+        # Locate positions using the lowercased versions, then slice the original string
+        startIndex = noteBodyLower.find(startTagLower)
+        endIndex = noteBodyLower.find(endTagLower)
         updatedBody = (
-            noteBody.split(startTag)[0]
+            noteBody[:startIndex]
             + startTag
             + "\n"
             + newContent
             + "\n"
             + endTag
-            + noteBody.split(endTag)[1]
+            + noteBody[endIndex + len(endTagLower) :]
         )
         return True, updatedBody
     else:

@@ -27,11 +27,15 @@ private: No
 
 ## Executive Summary
 
+<!--Start_Executive_Summary-->
+
 **Business Need:**
 
 **Objectives:**
 
 **Success Criteria:**
+
+<!--End_Executive_Summary-->
 
 ## Scope
 
@@ -80,18 +84,10 @@ Classification:
 **Actual Completion Date:**
 
 
+<!--Start_Budget-->
 
-## Budget
+<!--End_Budget-->
 
-**Budget Amount:** $1000.00
-
-**Budget Hours:** 40
-
-**Contingency:** 10%
-
-**Actual Hours:** tbd
-
-**Time Tracker Code:** tbd
 
 <!--Start_BurnDown-->
 
@@ -99,58 +95,26 @@ Classification:
 
 ---
 
+<!--Start_Milestones-->
 
-# Milestones:
-
-<!-- hidden mermaid example
-
-```mermaid
-gantt
-    title       Timeline
-    dateFormat  YYYY-MM-DD
-    tickInterval 1month
-    excludes    weekends
-    
-    section Planned
-    kickoff                             :milestone, kickoff, 2014-06-02, 1d
-    Business Case                       :p1, 2014-06-06, 10d
-    Project Charter                     :p2, after p1, 4d
-    Analysis and Planning               :p3, after p2, 15d
-    Implementation                      :p4, after p3, 25d
-    Testing                             :p5, after p4, 5d
-    Deployment                          :p6, after p5, 2d
-    Transition                          :p7, after p5, 5d
-    Maintenance                         :crit,p7, after p6, 10d
-
-    section Actual
-    kickoff                             :milestone, kickoff, 2014-06-02, 10d
-    Business Case                       :done, a1, 2014-06-15, 10d
-    Project Charter                     :active, 2014-06-15, 2014-06-25
-    Analysis and Planning               :a3, 2014-06-25, 15d
-    Implementation                      :a4, after p3, 25d
-    Testing                             :a5, after p4, 5d
-    Deployment                          :a6, after p5, 2d
-    Transition                          :a7, after p5, 2d
-    Maintenance                         :crit,p7, after p6, 10d
+<!--End_Milestones-->
 
 
-```
--->
 # Change Requests
 
 <!--Start_ChangeRequests-->
 No change requests.
 <!--End_ChangeRequests-->
 
-# Transition Plan
+<!--Start_Transition_Plan-->
 
-<!-- hidden helper
+<!--End_Transition_Plan-->
 
-- Document and Transfer Knowledge/Assets
-- Execute the Handover / Cut over
-- Evaluate and Ensure Ongoing Value Realization
+<!--Start_ROI-->
 
--->
+<!--End_ROI-->
+
+<div style="break-after: page;"></div>
 
 # RAID Log
 
@@ -185,4 +149,13 @@ No decisions identified.
 <!--End_Decisions-->
 
 ---
- 
+
+<div style="break-after: page;"></div>
+
+# Supporting Documentation  
+
+<!--Start_Supporting_Documentation-->
+No supporting documentation identified.
+<!--End_Supporting_Documentation-->
+
+---

@@ -2,7 +2,7 @@
 title: [Title]
 id: [YYYYMMDDHHMMSS]
 sub id: [sub id] 
-type: project-event
+type: project-documentation
 created: [YYYY-MM-DD HH:MM:SS] 
 modified: [YYYY-MM-DD HH:MM:SS]
 start date: [YYYY-MM-DD HH:MM:SS] 
@@ -26,23 +26,21 @@ Use the display order front matter field to control the order that will be used 
 
 -->
 
-# [Title]
+## [Title]
 
 Subject: [Subject]
 
 Audience: [Audience]
 
-## Introduction
+### Introduction
 
 [Introduction and description]
 
 
-## Background
+### Background
 
 [Background and context]
 
 
-## Links 
+### Links 
 <!-- Add links to related documents, resources, or references here. -->
-
-

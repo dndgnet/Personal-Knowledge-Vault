@@ -11,6 +11,7 @@ from _library import Preferences as myPreferences
 from _library import Terminal as myTerminal
 from _library import Tools as myTools
 from _library import VersionControl as myVersionControl
+from _library.Projects import projectNoteTypesWhereThereCanBeOnlyOne
 from _library.Templates import read_Template
 
 # Define the template and output paths
@@ -52,7 +53,7 @@ def main():
         noteTypeExists, existingNote = myNotes.get_Note_Last_Project_Note_ByType(
             selectedProjectName, noteType
         )
-        if noteTypeExists and noteType in ("hub"):
+        if noteTypeExists and noteType in projectNoteTypesWhereThereCanBeOnlyOne:
             myNotes.open_note_in_editor(existingNote.filePath)
             print(
                 f"{myTerminal.WARNING} A note of type '{noteType}' already exists in project '{selectedProjectName}'{myTerminal.RESET}"
@@ -108,7 +109,10 @@ def main():
     os.makedirs(newNote_directory, exist_ok=True)
 
     # collect information that should be seeded into the note fields
-    if noteType in ("task", "milestone"):
+    if noteType in projectNoteTypesWhereThereCanBeOnlyOne:
+        selectedDateTime, title = datetime.now(), noteType
+
+    elif noteType in ("task", "milestone"):
         selectedDateTime, title = myInputs.ask_datetime_and_title_from_user(
             "Enter the date and time for the note (or leave blank for system default):",
             datetime.now(),
@@ -157,7 +161,11 @@ def main():
         note_Content = note_Content.replace("tags:", f"tags: {projectTag}")
 
     # Construct the output filename and path
-    output_filename = f"{uniqueIdentifier}.md"
+    if noteType in projectNoteTypesWhereThereCanBeOnlyOne:
+        output_filename = f"{noteType}.md"
+    else:
+        output_filename = f"{uniqueIdentifier}.md"
+
     output_path = os.path.join(newNote_directory, output_filename)
 
     # Save the new note

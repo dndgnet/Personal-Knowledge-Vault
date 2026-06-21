@@ -27,6 +27,16 @@ monthStringNames = [
     "Dec",
 ]
 
+# for some project notes we only want one created
+projectNoteTypesWhereThereCanBeOnlyOne = (
+    "hub",
+    "executive_summary",
+    "budget",
+    "roi",
+    "transition_plan",
+    "milestones",
+)
+
 dataTypeDictionary = {
     "BurnDown": "x-axis,Planned Budget,Actual,Earned Value,Notes",
     "Stakeholders": "Name,Title,Contact Info,Role,Expectations,Classification,Notes",
@@ -672,6 +682,48 @@ def notePart_ChangeRequests(
                 newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('Decision', decision.noteBody)}\n"
                 newNotePart += f"**Description**: \n{myNotes.get_sectionValue_from_noteBody('Change Description', decision.noteBody)}\n\n"
                 newNotePart += f"**Justification**: \n{myNotes.get_sectionValue_from_noteBody('Change Justification', decision.noteBody)}\n\n"
+
+    return newNotePart
+
+
+def notePart_SupportingDocumentation(
+    projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat=True
+) -> str:
+    selectedNotes = []
+
+    for note in allNotes:
+        noteType = note.type
+        if noteType.endswith("documentation"):
+            selectedNotes.append(note)
+
+    selectedNotes = sorted(selectedNotes, key=lambda x: x.subId)
+
+    newNotePart = ""
+
+    if len(selectedNotes) == 0:
+        newNotePart += "*No supporting documentation at this time.*\n\n"
+    else:
+        newNotePart += "\n\n"
+
+        if returnTableFormat:
+            newNotePart += f"{myTools.divTagSmall}\n"
+            newNotePart += "|ID|Identified|Document        |\n"
+            newNotePart += "|--|----------|----------------------|\n"
+            for document in selectedNotes:
+                newNotePart += "|" + document.subId + "|" + document.date
+                newNotePart += "|" + document.title + "|\n"
+
+            newNotePart += "\n" + myTools.divTagEnd + "\n\n"
+
+        else:
+            i = 0
+            for document in selectedNotes:
+                i += 1
+                newNotePart += (
+                    f"**{document.subId}** {document.date} \n\n {document.noteBody}\n\n"
+                )
+                if i < len(selectedNotes):
+                    newNotePart += """\n\n<div style="break-after: page;"></div>\n\n"""
 
     return newNotePart
 
