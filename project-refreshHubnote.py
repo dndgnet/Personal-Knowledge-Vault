@@ -76,6 +76,50 @@ else:
             f"{myTerminal.WARNING}Stakeholders tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}"
         )
 
+# deal with glossary of terms
+
+updatedPart = f"""
+
+## Glossary of Terms
+
+{myTools.divTagSmall}
+|Term                   |Definition             |
+|-----------------------|-----------------------|
+"""
+
+
+csvFileName = "data_Glossary.csv"
+csvFilePath = os.path.join(myPreferences.root_projects(), selectedProject, csvFileName)
+
+if not os.path.exists(csvFilePath):
+    print(f"""{myTerminal.ERROR}CSV file not found at {csvFilePath}.{myTerminal.RESET}
+        \nUse the project-edit_data command to create or update the CSV file.{myTerminal.RESET}""")
+else:
+    # Read the CSV file into a burndown dictionary
+    csvData = myTools.read_csv_to_dict(csvFilePath)
+    if len(csvData) == 0:
+        print(f"{myTerminal.WARNING}No data found in '{csvFileName}' CSV file.{myTerminal.RESET}")
+
+    for key, value in csvData.items():
+        updatedPart += f"|{key}|{value['Definition']}|\n"
+
+    updatedPart += "\n" + myTools.divTagEnd
+
+    if len(csvData) != 0:
+        success, newNoteBody = myNotes.replace_text_between_tags(
+            "Glossary", hubNote.noteBody, updatedPart
+        )
+
+        # replace the content between the <!--StartGlossary--> and <!--EndGlossary--> tags in the hub note with the new glossary table
+        if success:
+            hubNote.noteBody = newNoteBody
+            myNotes.update_NoteBody(hubNote, newNoteBody)
+        else:
+            print(
+                f"{myTerminal.WARNING}Glossary tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}"
+            )
+
+
 
 # deal with burn down
 burnDownVisualization = myProjects.diagram_Burndown(selectedProject)
@@ -94,9 +138,10 @@ else:
     )
 
 allNotesForProject = myNotes.get_Notes_from_Project(selectedProject)
+returnTableFormat = True if input("Return risks content in table format? (y/n, default y): ").lower() != "n" else False
 # deal with risks
 risksContent = myProjects.raid_Risks(
-    selectedProject, allNotesForProject, returnTableFormat=True
+    selectedProject, allNotesForProject, returnTableFormat=returnTableFormat
 )
 success, newNoteBody = myNotes.replace_text_between_tags(
     "Risks", hubNote.noteBody, risksContent
@@ -108,6 +153,7 @@ else:
     print(
         f"{myTerminal.WARNING}Risks tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}"
     )
+
 
 # deal with assumptions
 assumptionsContent = myProjects.raid_Assumptions(
@@ -140,8 +186,11 @@ else:
     )
 
 # deal with decisions
+print("Long decisions are difficult to read in a table format. If you have long decisions, you may want to choose to not return the decisions in a table format.")
+returnTableFormat = True if input("Return decisions content in table format? (y/n, default y): ").lower() != "n" else False
+
 decisionsContent = myProjects.raid_Decisions(
-    selectedProject, allNotesForProject, returnTableFormat=True
+    selectedProject, allNotesForProject, returnTableFormat=returnTableFormat
 )
 success, newNoteBody = myNotes.replace_text_between_tags(
     "Decisions", hubNote.noteBody, decisionsContent
@@ -155,8 +204,9 @@ else:
     )
 
 # deal with Change Requests
+returnTableFormat = True if input("Return change requests content in table format? (y/n, default y): ").lower() != "n" else False
 changeRequestsContent = myProjects.notePart_ChangeRequests(
-    selectedProject, allNotesForProject, returnTableFormat=True
+    selectedProject, allNotesForProject, returnTableFormat=returnTableFormat
 )
 success, newNoteBody = myNotes.replace_text_between_tags(
     "ChangeRequests", hubNote.noteBody, changeRequestsContent
