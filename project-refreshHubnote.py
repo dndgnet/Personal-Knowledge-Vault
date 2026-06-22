@@ -138,7 +138,7 @@ else:
     )
 
 allNotesForProject = myNotes.get_Notes_from_Project(selectedProject)
-returnTableFormat = True if input("Return risks content in table format? (y/n, default y): ").lower() != "n" else False
+returnTableFormat = True if input("Return risks content in table format? (y/n, default n): ").lower() != "n" else False
 # deal with risks
 risksContent = myProjects.raid_Risks(
     selectedProject, allNotesForProject, returnTableFormat=returnTableFormat
@@ -186,8 +186,8 @@ else:
     )
 
 # deal with decisions
-print("Long decisions are difficult to read in a table format. If you have long decisions, you may want to choose to not return the decisions in a table format.")
-returnTableFormat = True if input("Return decisions content in table format? (y/n, default y): ").lower() != "n" else False
+print("\nLong decisions are difficult to read in a table format. If you have long decisions, you may want to choose to not return the decisions in a table format.")
+returnTableFormat = True if input("Return decisions content in table format? (y/n, default n): ").lower() == "y" else False
 
 decisionsContent = myProjects.raid_Decisions(
     selectedProject, allNotesForProject, returnTableFormat=returnTableFormat
@@ -204,7 +204,7 @@ else:
     )
 
 # deal with Change Requests
-returnTableFormat = True if input("Return change requests content in table format? (y/n, default y): ").lower() != "n" else False
+returnTableFormat = True if input("Return change requests content in table format? (y/n, default n): ").lower() == "y" else False
 changeRequestsContent = myProjects.notePart_ChangeRequests(
     selectedProject, allNotesForProject, returnTableFormat=returnTableFormat
 )
