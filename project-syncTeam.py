@@ -140,7 +140,7 @@ def syncRemoteNoteAttachments(note):
     remoteNoteContent = ""
 
     # Open the remotenote file and copy file content into variable
-    with open(remoteNoteFileAndPath, "r") as remoteNoteFile:
+    with open(remoteNoteFileAndPath, "r", encoding="utf-8") as remoteNoteFile:
         remoteNoteContent = remoteNoteFile.read()
 
     for remoteAttachment in remoteNoteAttachments:
@@ -217,7 +217,7 @@ def syncRemoteNoteAttachments(note):
                 )
 
     # After processing all attachments, update the remote note file with the new content (with updated attachment links)
-    with open(remoteNoteFileAndPath, "w") as remoteNoteFile:
+    with open(remoteNoteFileAndPath, "w", encoding="utf-8"  ) as remoteNoteFile:
         remoteNoteFile.write(remoteNoteContent)
 
 

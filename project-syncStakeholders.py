@@ -58,7 +58,7 @@ synchFolderLogFilePath = (
 
 def log_sync_action(action, details):
     if synchFolderLogFilePath:
-        with open(synchFolderLogFilePath, "a") as logFile:
+        with open(synchFolderLogFilePath, "a", encoding="utf-8") as logFile:
             logFile.write(
                 f"{myTools.now_YYYY_MM_DD_HH_MM_SS()} - {action}: {details} {myPreferences.author_name()}\n"
             )
@@ -141,7 +141,7 @@ def syncRemoteNoteAttachments(note):
     remoteNoteContent = ""
 
     # Open the remotenote file and copy file content into variable
-    with open(remoteNoteFileAndPath, "r") as remoteNoteFile:
+    with open(remoteNoteFileAndPath, "r", encoding="utf-8") as remoteNoteFile:
         remoteNoteContent = remoteNoteFile.read()
 
     for remoteAttachment in remoteNoteAttachments:
@@ -218,7 +218,7 @@ def syncRemoteNoteAttachments(note):
                 )
 
     # After processing all attachments, update the remote note file with the new content (with updated attachment links)
-    with open(remoteNoteFileAndPath, "w") as remoteNoteFile:
+    with open(remoteNoteFileAndPath, "w", encoding="utf-8") as remoteNoteFile:
         remoteNoteFile.write(remoteNoteContent)
 
 
@@ -295,7 +295,7 @@ for note in projectNotes:
         try:
             if removeFrontMatterFromSharedNotes:
                 newNoteContent = note.noteBody 
-                with open(targetNotePath, "w") as targetNoteFile:
+                with open(targetNotePath, "w", encoding="utf-8" ) as targetNoteFile:
                     targetNoteFile.write(newNoteContent)
                 syncNoteAttachments(note)
                 log_sync_action(
