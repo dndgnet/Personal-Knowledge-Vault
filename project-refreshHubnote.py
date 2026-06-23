@@ -38,16 +38,16 @@ if not hubNoteFound:
     exit(1)
 
 # deal with stakeholders
-
+csvFileName = "data_stakeholders.csv"
+csvFilePath = os.path.join(myPreferences.root_projects(), selectedProject, csvFileName)
 updatedPart = f"""
+
+## Stakeholders
+
 {myTools.divTagSmall}
 |Name                   |Title                  |Role                           |
 |-----------------------|-----------------------|-------------------------------|
 """
-
-
-csvFileName = "data_stakeholders.csv"
-csvFilePath = os.path.join(myPreferences.root_projects(), selectedProject, csvFileName)
 
 if not os.path.exists(csvFilePath):
     print(f"""{myTerminal.ERROR}CSV file not found at {csvFilePath}.{myTerminal.RESET}
@@ -57,24 +57,23 @@ else:
     csvData = myTools.read_csv_to_dict(csvFilePath)
     if len(csvData) == 0:
         print(f"{myTerminal.WARNING}No data found in '{csvFileName}' CSV file.{myTerminal.RESET}")
-
-    for key, value in csvData.items():
-        updatedPart += f"|{key}|{value['Title']}|{value['Role']}|\n"
-
-    updatedPart += "\n" + myTools.divTagEnd
-
-    success, newNoteBody = myNotes.replace_text_between_tags(
-        "Stakeholders", hubNote.noteBody, updatedPart
-    )
-
-    # replace the content between the <!--StartStakeholders--> and <!--EndStakeholders--> tags in the hub note with the new stakeholders table
-    if success:
-        hubNote.noteBody = newNoteBody
-        myNotes.update_NoteBody(hubNote, newNoteBody)
     else:
-        print(
-            f"{myTerminal.WARNING}Stakeholders tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}"
+        for key, value in csvData.items():
+            updatedPart += f"|{key}|{value['Title']}|{value['Role']}|\n"
+
+        updatedPart += "\n" + myTools.divTagEnd
+        success, newNoteBody = myNotes.replace_text_between_tags(
+            "Stakeholders", hubNote.noteBody, updatedPart
         )
+
+        # replace the content between the <!--StartStakeholders--> and <!--EndStakeholders--> tags in the hub note with the new stakeholders table
+        if success:
+            hubNote.noteBody = newNoteBody
+            myNotes.update_NoteBody(hubNote, newNoteBody)
+        else:
+            print(
+                f"{myTerminal.WARNING}Stakeholders tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}"
+            )
 
 # deal with glossary of terms
 
@@ -99,13 +98,12 @@ else:
     csvData = myTools.read_csv_to_dict(csvFilePath)
     if len(csvData) == 0:
         print(f"{myTerminal.WARNING}No data found in '{csvFileName}' CSV file.{myTerminal.RESET}")
+    else:
+        for key, value in csvData.items():
+            updatedPart += f"|{key}|{value['Definition']}|\n"
 
-    for key, value in csvData.items():
-        updatedPart += f"|{key}|{value['Definition']}|\n"
-
-    updatedPart += "\n" + myTools.divTagEnd
-
-    if len(csvData) != 0:
+        updatedPart += "\n" + myTools.divTagEnd
+    
         success, newNoteBody = myNotes.replace_text_between_tags(
             "Glossary", hubNote.noteBody, updatedPart
         )

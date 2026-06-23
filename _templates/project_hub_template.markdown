@@ -1,5 +1,5 @@
 ---
-title: [Project Name] Hub
+title: [Project Name]
 id: [YYYYMMDDHHMMSS] 
 type: project-hub
 created: [YYYY-MM-DD HH:MM:SS] 
@@ -38,13 +38,9 @@ shareWithStakeholders: Yes
 
 <!--End_Executive_Summary-->
 
-## Scope
+<!--Start_Scope-->
 
-### In Scope:
-
-### Out of Scope:
-
-## Stakeholders
+<!--End_Scope-->
 
 <!--Start_Stakeholders-->
 
@@ -70,36 +66,21 @@ Classification:
 
 -->
 
-## Glossary of Common Terms
-<!--Start_Glossary-->
+<!--Start_Schedule-->
 
-<!--End_Glossary-->
-
-
-## Schedule
-
-**Start Date:**
-
-**Projected Completion Date:**
-
-**Actual Completion Date:**
-
+<!--End_Schedule-->
 
 <!--Start_Budget-->
 
 <!--End_Budget-->
 
-
 <!--Start_BurnDown-->
 
 <!--End_BurnDown-->
 
----
-
 <!--Start_Milestones-->
 
 <!--End_Milestones-->
-
 
 # Change Requests
 
@@ -151,12 +132,18 @@ No decisions identified.
 
 ---
 
+<!--Start_Glossary-->
+
+<!--End_Glossary-->
+
 <div style="break-after: page;"></div>
 
 # Supporting Documentation  
 
 <!--Start_Supporting_Documentation-->
+
 No supporting documentation identified.
+
 <!--End_Supporting_Documentation-->
 
 ---

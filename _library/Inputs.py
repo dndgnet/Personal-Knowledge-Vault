@@ -483,7 +483,12 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
             actualDate = ask_date_from_user(datePrompt="Enter the actual date for this milestone (enter for none)", defaultIfNone="")
             note_Content = note_Content.replace("[actualDate]", actualDate)
             templateTags.remove("actualDate")
-
+        else:
+            #if it's not a milestone, remove the planned and actual date tags
+            note_Content = note_Content.replace("[plannedDate]", "")
+            note_Content = note_Content.replace("[actualDate]", "")
+            templateTags.discard("plannedDate")
+            templateTags.discard("actualDate")
 
     #capture the rest of the tags in the template
     for templateTag in templateTags:

@@ -35,6 +35,8 @@ projectNoteTypesWhereThereCanBeOnlyOne = (
     "roi",
     "transition_plan",
     "milestones",
+    "schedule",
+    "scope"
 )
 
 dataTypeDictionary = {

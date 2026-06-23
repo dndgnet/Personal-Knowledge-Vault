@@ -162,7 +162,10 @@ def main():
 
     # Construct the output filename and path
     if noteType in projectNoteTypesWhereThereCanBeOnlyOne:
-        output_filename = f"{noteType}.md"
+        if noteType == "hub":
+            output_filename = "Project Brief.md"
+        else:
+            output_filename = f"{noteType}.md"
     else:
         output_filename = f"{uniqueIdentifier}.md"
 
