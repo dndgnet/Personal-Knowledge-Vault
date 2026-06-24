@@ -476,11 +476,11 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
         templateTags.remove("isMilestone")
         if isMilestone:
             #if it's a milestone, also ask for the planned date
-            plannedDate = ask_date_from_user(datePrompt="Enter the planned date for this milestone (enter for today)", defaultIfNone=datetime.now().strftime(myPreferences.date_format()))
+            plannedDate = ask_date_from_user(datePrompt="Enter the planned date for this milestone (enter for today): ", defaultIfNone=datetime.now().strftime(myPreferences.date_format()))
             note_Content = note_Content.replace("[plannedDate]", plannedDate)
             templateTags.remove("plannedDate")
 
-            actualDate = ask_date_from_user(datePrompt="Enter the actual date for this milestone (enter for none)", defaultIfNone="")
+            actualDate = ask_date_from_user(datePrompt="Enter the actual date for this milestone (enter for none): ", defaultIfNone="")
             note_Content = note_Content.replace("[actualDate]", actualDate)
             templateTags.remove("actualDate")
         else:
