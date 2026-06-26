@@ -60,8 +60,33 @@ def ask_date_from_user(datePrompt = "enter a date time", defaultIfNone = "") -> 
     inputDate = input(f"{myTerminal.INPUTPROMPT}{datePrompt}{myTerminal.RESET}").strip()
     isDateTime, d = myTools.datetime_fromString(inputDate)
     if not isDateTime:
-        print(f"\t{myTerminal.YELLOW}Using default: {defaultIfNone}{myTerminal.RESET}")
-        return defaultIfNone
+        if inputDate.lower() in ("today","now","current"):
+            return datetime.now().strftime(myPreferences.date_format())
+        elif inputDate.lower() in ("yesterday"):
+            return (datetime.now() - timedelta(days=1)).strftime(myPreferences.date_format())
+        elif inputDate.lower() in ("tomorrow","next"):
+            return (datetime.now() + timedelta(days=1)).strftime(myPreferences.date_format())
+        elif inputDate.lower() == "next week":
+            return (datetime.now() + timedelta(days=7)).strftime(myPreferences.date_format())
+        elif inputDate.lower() == "next month":
+            next_month = datetime.now().month + 1 if datetime.now().month < 12 else 1
+            next_year = datetime.now().year if next_month > 1 else datetime.now().year + 1
+            return datetime(next_year, next_month, 1).strftime(myPreferences.date_format())
+        elif inputDate.lower() == "end of month":
+            next_month = datetime.now().month + 1 if datetime.now().month < 12 else 1
+            next_year = datetime.now().year if next_month > 1 else datetime.now().year + 1
+            last_day_of_next_month = (datetime(next_year, next_month, 1) - timedelta(days=1)).day
+            return datetime(next_year, next_month, last_day_of_next_month).strftime(myPreferences.date_format())
+        elif inputDate.lower() == "end of year":
+            return datetime(datetime.now().year, 12, 31).strftime(myPreferences.date_format())
+        elif inputDate.lower() == "end of week":
+            days_until_end_of_week = 6 - datetime.now().weekday()  # 6 is Sunday
+            return (datetime.now() + timedelta(days=days_until_end_of_week)).strftime(myPreferences.date_format())
+        elif inputDate.lower() in ("same"):
+            return "same"
+        else:
+            print(f"\t{myTerminal.YELLOW}Using default: {defaultIfNone}{myTerminal.RESET}")
+            return defaultIfNone
         
     return d.strftime(myPreferences.date_format())
 
@@ -481,6 +506,9 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
             templateTags.remove("plannedDate")
 
             actualDate = ask_date_from_user(datePrompt="Enter the actual date for this milestone (enter for none): ", defaultIfNone="")
+            if actualDate.lower() == "same":
+                actualDate = plannedDate
+            
             note_Content = note_Content.replace("[actualDate]", actualDate)
             templateTags.remove("actualDate")
         else:
