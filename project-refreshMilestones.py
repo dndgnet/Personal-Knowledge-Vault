@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+
+import os
+import shutil
+
+from _library import Inputs as myInputs
+from _library import Notes as myNotes
+from _library import Preferences as myPreferences
+from _library import Projects as myProjects
+from _library import Terminal as myTerminal
+from _library import Tools as myTools
+
+myTerminal.clearTerminal()
+selectedProject: str = ""
+
+print(
+    f"{myTerminal.INFORMATION}Refresh Milestone note{myTerminal.RESET}\n"
+)
+print("")
+
+# debug
+#selectedProject = "Adaptive Project Management Software"
+
+if selectedProject == "":
+    print("Available target projects:")
+    selectedProjectInput = myInputs.select_project_name(False, False)
+    if selectedProjectInput is not None:
+        selectedProject = selectedProjectInput
+
+if selectedProject == "":
+    print(f"{myTerminal.WARNING}No project selected.{myTerminal.RESET}")
+    exit(1)
+
+projectConfig = myProjects.get_ProjectConfig_as_dict(selectedProject)
+
+projectNotes = myNotes.get_Notes_from_Project(selectedProject)
+projectNotes.sort(key=lambda note: myTools.datetime_fromString(note.plannedDate)[1])
+
+hasMilestone = False
+milestoneNote = myNotes.NoteData()
+
+for note in projectNotes:
+    if note.type.lower().endswith("milestones"):
+        hasMilestone = True
+        milestoneNote = note
+        break
+
+if not hasMilestone:
+    print(f"{myTerminal.WARNING}No milestone note found for project '{selectedProject}'.{myTerminal.RESET}")
+    exit(1)
+
+plannedString = "\tsection Planned\n"
+actualString = "\tsection Actual\n"
+plannedCounter = 0
+
+for note in projectNotes:
+    if note.isMilestone:
+        plannedIsDate, plannedDate = myTools.datetime_fromString(note.plannedDate)
+        actualIsDate, actualDate = myTools.datetime_fromString(note.actualDate)
+        if plannedIsDate:
+            plannedCounter += 1
+            style = "milestone"
+            if actualIsDate:
+                if actualDate <= plannedDate:
+                    style = "milestone"
+                else:
+                    style = "done"
+            else:
+                style = "crit"
+            plannedString += f"\t{myTools.letters_and_numbers_only(note.title)} : {style}, p{plannedCounter}, {myTools.format_datetimeAsPreferred_Date_String(plannedDate)}, 1d\n"
+        if actualIsDate:
+            style = "milestone"
+            if actualDate <= plannedDate:
+                    style = "milestone"
+            else:
+                style = "done"
+
+            actualString += f"\t{myTools.letters_and_numbers_only(note.title)} : {style}, a{plannedCounter}, {myTools.format_datetimeAsPreferred_DateTime_String(actualDate)}, 1d\n"
+
+if plannedCounter == 0:
+    print(f"{myTerminal.WARNING}No planned dates found for milestone notes in project '{selectedProject}'.{myTerminal.RESET}")
+    exit(1)
+ 
+gantt = f"""
+```mermaid
+---
+config:
+  theme: 'forest'
+---
+
+gantt
+    title       Timeline
+    dateFormat  YYYY-MM-DD
+    tickInterval 1month
+    excludes    weekends
+
+{plannedString}
+
+{actualString}
+
+```
+"""
+print(gantt)
+
+if milestoneNote is not None:
+    success, newNoteBody = myNotes.replace_text_between_tags("milestones", milestoneNote.noteBody, gantt)
+    if success:
+        myNotes.update_NoteBody(milestoneNote, newNoteBody)
+
+myTools.open_note_in_editor(milestoneNote.filePath)

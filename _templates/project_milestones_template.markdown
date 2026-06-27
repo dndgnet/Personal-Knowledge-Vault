@@ -16,7 +16,10 @@ private: No
 shareWithStakeholders: No
 ---
 
-# Milestones:
+## Milestones:
+
+<!-start_milestones-->
+
 
 <!-- hidden mermaid example
 
@@ -52,3 +55,6 @@ gantt
 
 ```
 -->
+
+
+<!--end_milestones-->

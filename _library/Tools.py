@@ -81,6 +81,29 @@ def datetime_fromString(date_string: str) -> tuple[bool, datetime.datetime]:
 
     return isDateTime, d
 
+def format_datetimeAsPreferred_Date_String(dt: datetime.datetime) -> str:
+    """
+    Formats a datetime object as a string according to the preferred format.
+
+    Args:
+        dt (datetime.datetime): The datetime object to format.
+
+    Returns:
+        str: The formatted datetime string.
+    """
+    return dt.strftime(myPreferences.date_format())
+
+def format_datetimeAsPreferred_DateTime_String(dt: datetime.datetime) -> str:
+    """
+    Formats a datetime object as a string according to the preferred format.
+
+    Args:
+        dt (datetime.datetime): The datetime object to format.
+
+    Returns:
+        str: The formatted datetime string.
+    """
+    return dt.strftime(myPreferences.datetime_format())
 
 def now_YYYY_MM_DD_HH_MM_SS() -> str:
     """

@@ -59,6 +59,10 @@ class NoteData:
     plannedDate: str = ""  # optional planned date for the note
     actualDate: str = ""  # optional actual date for the note
 
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
     def __post_init__(self):
         self.typeSimple = self.type.strip().replace("project-", "")
 
@@ -999,8 +1003,11 @@ def get_note_body(wholeNote: str) -> str:
     """
     body = ""
     frontMatter = get_note_frontMatter(wholeNote)
+    frontMatter = f"---\n{frontMatter}\n---"
 
-    body = wholeNote.replace(f"---\n{frontMatter}\n---", "").strip()
+    body = wholeNote[len(frontMatter) :].strip() 
+    if not body.startswith("\n"):
+        body = "\n" + body
 
     return body
 
