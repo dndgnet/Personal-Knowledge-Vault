@@ -37,7 +37,7 @@ projectNotes = myNotes.get_Notes_from_Project(selectedProject)
 projectNotes.sort(key=lambda note: myTools.datetime_fromString(note.plannedDate)[1])
 
 hasMilestone = False
-milestoneNote = myNotes.NoteData()
+milestoneNote = myNotes.blankNoteData()
 
 for note in projectNotes:
     if note.type.lower().endswith("milestones"):

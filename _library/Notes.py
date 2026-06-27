@@ -60,11 +60,19 @@ class NoteData:
     actualDate: str = ""  # optional actual date for the note
 
     def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-    def __post_init__(self):
-        self.typeSimple = self.type.strip().replace("project-", "")
+        for field_name, field_value in kwargs.items():
+            setattr(self, field_name, field_value)
+        # Ensure that lists are initialized properly
+        if not hasattr(self, "tags"):
+            self.tags = []
+        if not hasattr(self, "keywords"):
+            self.keywords = []
+        if not hasattr(self, "backLinks"):
+            self.backLinks = []
+        if not hasattr(self, "actionItems"):
+            self.actionItems = []
+        if not hasattr(self, "actionItemsWithComments"):
+            self.actionItemsWithComments = {}
 
     def to_dict(self):
         return {
@@ -103,7 +111,41 @@ class NoteData:
             return f"{self.title} ({self.date}) from {self.project}"
         else:
             return f"{self.title} ({self.date})"
-
+        
+def blankNoteData() -> NoteData:
+    """
+    Returns a blank NoteData object with all fields initialized to default values.
+    """
+    return NoteData(
+        id="",
+        fileName="",
+        filePath="",
+        date="",
+        osFileDateTime="",
+        type="",
+        title="",
+        project="",
+        tags=[],
+        keywords=[],
+        retention="",
+        author="",
+        private=False,
+        shareWithStakeholders=False,
+        frontMatter="",
+        noteBody="",
+        backLinks=[],
+        archived=False,
+        hasActionItems=False,
+        actionItems=[],
+        actionItemsWithComments={},
+        archivedProject=False,
+        endDate="",
+        subId="",
+        typeSimple="",
+        isMilestone=False,
+        plannedDate="",
+        actualDate=""
+    )
 
 def _custom_serializer(obj):
     """Custom JSON serializer for objects that are not serializable by default"""
@@ -134,9 +176,7 @@ def get_Note_from_id(noteId: str) -> NoteData:
         if note.id == noteId:
             return note
 
-    return NoteData(
-        "", "", "", "", "", "", "", "", [], [], "", "", "", "", [], [], False, False
-    )
+    return NoteData()
 
 
 def get_Note_from_fileName(noteFileName: str) -> NoteData:
@@ -152,9 +192,7 @@ def get_Note_from_fileName(noteFileName: str) -> NoteData:
         if note.fileName == noteFileName:
             return note
 
-    return NoteData(
-        "", "", "", "", "", "", "", "", [], [], "", "", "", "", [], [], False, False
-    )
+    return NoteData()
 
 
 # === Functions to get notes by various criteria ===
@@ -375,9 +413,7 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
         print(
             f"{myTerminal.ERROR}Note file '{notePathAndFile}' does not exist.{myTerminal.RESET}"
         )
-        return NoteData(
-            "", "", "", "", "", "", "", "", [], [], "", "", "", "", [], [], False, False
-        )
+        return blankNoteData()
 
     with open(os.path.join(notePath, noteFileName), "r", encoding="utf-8") as f:
         noteContent = f.read()
@@ -776,9 +812,7 @@ def get_Note_Last_Project_Note_ByType(
 
     if not sortedNotes:
         print(f"{myTerminal.ERROR}No notes found.{myTerminal.RESET}")
-        return False, NoteData(
-            "", "", "", "", "", "", "", "", [], [], "", "", "", "", [], [], False, False
-        )
+        return False, blankNoteData()
 
     for note in sortedNotes:
         if (
@@ -787,9 +821,7 @@ def get_Note_Last_Project_Note_ByType(
         ):
             return True, note  # Return the first matching note
 
-    return False, NoteData(
-        "", "", "", "", "", "", "", "", [], [], "", "", "", "", [], [], False, False
-    )
+    return False, NoteData()
 
 
 def load_MostRecentProjectProgressNote(projectName: str) -> tuple[bool, NoteData]:
@@ -810,9 +842,7 @@ def load_MostRecentProjectProgressNote(projectName: str) -> tuple[bool, NoteData
 
     if not sortedNotes:
         print(f"{myTerminal.ERROR}No notes found.{myTerminal.RESET}")
-        return False, NoteData(
-            "", "", "", "", "", "", "", "", [], [], "", "", "", "", [], [], False, False
-        )
+        return False, NoteData()
 
     for note in sortedNotes:
         if (
@@ -821,9 +851,7 @@ def load_MostRecentProjectProgressNote(projectName: str) -> tuple[bool, NoteData
         ):
             return True, note  # Return the first matching note
 
-    return False, NoteData(
-        "", "", "", "", "", "", "", "", [], [], "", "", "", "", [], [], False, False
-    )
+    return False, NoteData()
 
 
 # === JSON Dump and Load Functions ===
