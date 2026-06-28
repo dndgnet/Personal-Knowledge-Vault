@@ -267,6 +267,23 @@ Square brackets containing other square brackets or no text will be ignored.
 `[tags]`,`[Tags]` and `[TAGS]`: will be populated with the values collecting when starting a note **if** the preferences `show_tag_prompt` value is `True`.  If *show_tag_prompt* is False the tag value will be left for the user to manually provide when they edit the note.
 
 
+### Date Prompts
+
+When prompted for a date, provide the date in the preferred format (YYYY-MM-DD) or use one of the following keywords to automatically calculate a date.
+
+| Input Value | Output Date Calculation | Notes |
+| --- | --- | --- |
+| "today", "now", "current" | Current system date and time (datetime.now()) | Returns the current date formatted according to user preferences (myPreferences.date_format()) |
+| "yesterday" | One day before today (datetime.now() - timedelta(days=1)) | Returns the previous day's date formatted per preference |
+| "tomorrow", "next" | One day after today (datetime.now() + timedelta(days=1)) | Returns the next day's date formatted per preference |
+| "next week" | Seven days after today (datetime.now() + timedelta(days=7)) | Returns the date of the next Sunday, formatted per preference |
+| "next month" | First day of the month that follows the current one | Handles year rollover (e.g., Jan → Feb, Dec → Jan) using month and year math |
+| "end of month" | Last day of the month that follows the current one | Calculates the last day of the next month using date arithmetic (e.g., Dec → Jan 31) |
+| "end of year" | December 31st of the current year | Returns the final day of the year formatted per preference |
+| "end of week" | Date of the next Sunday | Uses weekday() to calculate days until Sunday (6 = Sunday), then adds that number of days |
+| "same" | Returns "same" as string | Explicitly returns the literal string "same" without attempting to resolve a date |
+| All other cases | Falls back to defaultIfNone | If none of the above match, the function returns a default value (e.g., a fallback string or datetime object) |
+
 #### Event Templates
 
 Event templates are **super** short and designed to be used from the terminal without additional time spent in the text editor.  Event templates are intended to be a replacement for the things that you would scribble in the margins of your day book.

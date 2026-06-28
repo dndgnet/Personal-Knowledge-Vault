@@ -52,6 +52,7 @@ if not hasMilestone:
 plannedString = "\tsection Planned\n"
 actualString = "\tsection Actual\n"
 plannedCounter = 0
+actualAndPlannedAreTheSame = True
 
 for note in projectNotes:
     if note.isMilestone:
@@ -65,8 +66,11 @@ for note in projectNotes:
                     style = "milestone"
                 else:
                     style = "done"
+                    actualAndPlannedAreTheSame = False
             else:
                 style = "crit"
+                actualAndPlannedAreTheSame = False
+
             plannedString += f"\t{myTools.letters_and_numbers_only(note.title)} : {style}, p{plannedCounter}, {myTools.format_datetimeAsPreferred_Date_String(plannedDate)}, 1d\n"
         if actualIsDate:
             style = "milestone"
@@ -80,7 +84,16 @@ for note in projectNotes:
 if plannedCounter == 0:
     print(f"{myTerminal.WARNING}No planned dates found for milestone notes in project '{selectedProject}'.{myTerminal.RESET}")
     exit(1)
- 
+
+if actualAndPlannedAreTheSame:
+    print(f"{myTerminal.INFORMATION}All actual milestone dates are the same as planned dates.{myTerminal.RESET}")
+    plannedString = ""
+else:
+    if myInputs.ask_yes_no_from_user("Show planned baseline for milestones?", True):
+        plannedString = "" 
+
+
+
 gantt = f"""
 ```mermaid
 ---
@@ -91,7 +104,7 @@ config:
 gantt
     title       Timeline
     dateFormat  YYYY-MM-DD
-    tickInterval 1month
+    axisFormat  %b-%d
     excludes    weekends
 
 {plannedString}

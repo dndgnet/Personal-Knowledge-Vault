@@ -413,16 +413,17 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
         print(
             f"{myTerminal.ERROR}Note file '{notePathAndFile}' does not exist.{myTerminal.RESET}"
         )
-        return blankNoteData()
+        return NoteData()
 
     with open(os.path.join(notePath, noteFileName), "r", encoding="utf-8") as f:
         noteContent = f.read()
 
-    frontMatter = get_note_frontMatter(noteContent)
-
+    
     osFileDateTime = datetime.datetime.fromtimestamp(
         os.path.getmtime(notePathAndFile)
     ).strftime("%Y-%m-%d %H:%M:%S")
+
+    frontMatter = get_note_frontMatter(noteContent)
     date = get_note_date_from_frontMatter(frontMatter, dateProperty="start date")
     dateEnd = get_note_date_from_frontMatter(frontMatter, dateProperty="end date")
 
