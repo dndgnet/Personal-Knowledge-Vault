@@ -38,6 +38,10 @@ shareWithStakeholders: Yes
 
 <!--End_Executive_Summary-->
 
+<!--Start_ProgressStatement-->
+
+<!--End_ProgressStatement-->
+
 <!--Start_Scope-->
 
 <!--End_Scope-->

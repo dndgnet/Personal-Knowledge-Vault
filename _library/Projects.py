@@ -633,6 +633,19 @@ xychart-beta
 
     return burnDownVisualization
 
+def notePart_ProgressStatement( projectName: str) -> str:
+    """ 
+    """
+
+    progressNoteExists, lastProgressNote = myTools.load_MostRecentProjectProgressNote(projectName)
+    progressStatement = ""
+    if not progressNoteExists:
+        # return blank string
+        progressStatement = ""
+    else:
+        progressStatement = lastProgressNote.noteBody + f"\n\n*({lastProgressNote.date})*\n\n"
+        
+    return progressStatement
 
 def notePart_ChangeRequests(
     projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat=True

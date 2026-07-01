@@ -49,6 +49,8 @@ if not hasMilestone:
     print(f"{myTerminal.WARNING}No milestone note found for project '{selectedProject}'.{myTerminal.RESET}")
     exit(1)
 
+table = "|Title|Planned Date|Actual Date|\n|------------|-----------|-----|\n"
+
 plannedString = "\tsection Planned\n"
 actualString = "\tsection Actual\n"
 plannedCounter = 0
@@ -60,6 +62,7 @@ for note in projectNotes:
         actualIsDate, actualDate = myTools.datetime_fromString(note.actualDate)
         if plannedIsDate:
             plannedCounter += 1
+            table += f"|{note.title}|{myTools.format_datetimeAsPreferred_Date_String(plannedDate)}|{myTools.format_datetimeAsPreferred_Date_String(actualDate) if actualIsDate else ''}|\n"
             style = "milestone"
             if actualIsDate:
                 if actualDate <= plannedDate:
@@ -79,7 +82,7 @@ for note in projectNotes:
             else:
                 style = "done"
 
-            actualString += f"\t{myTools.letters_and_numbers_only(note.title)} : {style}, a{plannedCounter}, {myTools.format_datetimeAsPreferred_DateTime_String(actualDate)}, 1d\n"
+            actualString += f"\t{myTools.letters_and_numbers_only(note.title)} : {style}, a{plannedCounter}, {myTools.format_datetimeAsPreferred_Date_String(actualDate)}, 1d\n"
 
 if plannedCounter == 0:
     print(f"{myTerminal.WARNING}No planned dates found for milestone notes in project '{selectedProject}'.{myTerminal.RESET}")
@@ -89,9 +92,8 @@ if actualAndPlannedAreTheSame:
     print(f"{myTerminal.INFORMATION}All actual milestone dates are the same as planned dates.{myTerminal.RESET}")
     plannedString = ""
 else:
-    if myInputs.ask_yes_no_from_user("Show planned baseline for milestones?", True):
+    if not myInputs.ask_yes_no_from_user("Show planned baseline for milestones?", True):
         plannedString = "" 
-
 
 
 gantt = f"""
@@ -115,8 +117,13 @@ gantt
 """
 print(gantt)
 
+if myInputs.ask_yes_no_from_user("Show gantt diagram?", True):    
+    milestoneContent = f"\n{gantt}\n\n{myTools.divTagSmall}\n\n{table}\n\n{myTools.divTagEnd}\n\n"
+else:
+    milestoneContent = f"\n{myTools.divTagSmall}\n\n{table}\n\n{myTools.divTagEnd}\n\n"
+
 if milestoneNote is not None:
-    success, newNoteBody = myNotes.replace_text_between_tags("milestones", milestoneNote.noteBody, gantt)
+    success, newNoteBody = myNotes.replace_text_between_tags("milestones", milestoneNote.noteBody, milestoneContent)
     if success:
         myNotes.update_NoteBody(milestoneNote, newNoteBody)
 

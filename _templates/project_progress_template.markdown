@@ -16,9 +16,9 @@ private: No
 shareWithStakeholders: No
 ---
 
-# [Project Name] Progress Update 
+## Progress Statement 
 
-## Status
+### Status
 
 **Date:** [DATE]
 
@@ -34,7 +34,7 @@ Not stated, On Track, At Risk, Complete, Cancelled
 
 **Complete:** 0%
 
-## Budget
+### Budget
 
 **Budget:**
 
@@ -42,18 +42,18 @@ Not stated, On Track, At Risk, Complete, Cancelled
 
 **Forecast to Completion:**
 
-## Effort
+### Effort
 
 **Effort Budget:** 
 
 **Effort Actuals:**
 
-## Summary
+### Summary
 <!--hidden last summary>
 <last summary>
 -->
 
-## Achievements:
+### Achievements:
 <!-- hidden hints
 - Key milestones or deliverables.
 
@@ -62,7 +62,7 @@ Not stated, On Track, At Risk, Complete, Cancelled
 -->
 
 
-## Issues and Impediments:
+### Issues and Impediments:
 <!-- hidden hints
 - Challenges or blockers encountered.
 
@@ -71,7 +71,7 @@ Not stated, On Track, At Risk, Complete, Cancelled
 -->
 
 
-## Next Steps:
+### Next Steps:
 <!-- hidden hints
   - briefly describe the next period or sprint
 

@@ -152,7 +152,6 @@ else:
         f"{myTerminal.WARNING}Risks tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}"
     )
 
-
 # deal with assumptions
 assumptionsContent = myProjects.raid_Assumptions(
     selectedProject, allNotesForProject, returnTableFormat=True
@@ -185,7 +184,7 @@ else:
 
 # deal with decisions
 print("\nLong decisions are difficult to read in a table format. If you have long decisions, you may want to choose to not return the decisions in a table format.")
-returnTableFormat = True if input("Return decisions content in table format? (y/n, default n): ").lower() == "y" else False
+returnTableFormat = True if input("\nReturn decisions content in table format? (y/n, default n): ").lower() == "y" else False
 
 decisionsContent = myProjects.raid_Decisions(
     selectedProject, allNotesForProject, returnTableFormat=returnTableFormat
@@ -201,8 +200,23 @@ else:
         f"{myTerminal.WARNING}Decisions tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}"
     )
 
+# deal with Progress Statements
+
+progressStatement = myProjects.notePart_ProgressStatement(selectedProject)
+success, newNoteBody = myNotes.replace_text_between_tags(
+    "ProgressStatement", hubNote.noteBody, progressStatement
+)
+if success:
+    hubNote.noteBody = newNoteBody
+    myNotes.update_NoteBody(hubNote, newNoteBody)
+else:
+    print(
+        f"{myTerminal.WARNING}ProgressStatement tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}"
+    )
+
+
 # deal with Change Requests
-returnTableFormat = True if input("Return change requests content in table format? (y/n, default n): ").lower() == "y" else False
+returnTableFormat = True if input("\nReturn change requests content in table format? (y/n, default n): ").lower() == "y" else False
 changeRequestsContent = myProjects.notePart_ChangeRequests(
     selectedProject, allNotesForProject, returnTableFormat=returnTableFormat
 )
