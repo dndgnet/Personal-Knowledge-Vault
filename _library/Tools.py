@@ -689,9 +689,7 @@ def load_MostRecentProjectProgressNote(projectName: str) -> tuple[bool, NoteData
 
     if not sortedNotes:
         print(f"{myTerminal.ERROR}No notes found.{myTerminal.RESET}")
-        return False, NoteData(
-            "", "", "", "", "", "", "", "", [], [], "", "", "", "", [], [], False, False
-        )
+        return False, NoteData()
 
     for note in sortedNotes:
         if (
@@ -700,9 +698,7 @@ def load_MostRecentProjectProgressNote(projectName: str) -> tuple[bool, NoteData
         ):
             return True, note  # Return the first matching note
 
-    return False, NoteData(
-        "", "", "", "", "", "", "", "", [], [], "", "", "", "", [], [], False, False
-    )
+    return False, NoteData()
 
 
 def get_pkv_tags() -> dict:
