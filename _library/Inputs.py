@@ -62,7 +62,7 @@ def ask_date_from_user(datePrompt = "enter a date time", defaultIfNone = "") -> 
     if not isDateTime:
         if inputDate.lower() in ("today","now","current"):
             return datetime.now().strftime(myPreferences.date_format())
-        elif inputDate.lower() in ("yesterday"):
+        elif inputDate.lower() == "yesterday":
             return (datetime.now() - timedelta(days=1)).strftime(myPreferences.date_format())
         elif inputDate.lower() in ("tomorrow","next"):
             return (datetime.now() + timedelta(days=1)).strftime(myPreferences.date_format())
@@ -82,10 +82,10 @@ def ask_date_from_user(datePrompt = "enter a date time", defaultIfNone = "") -> 
         elif inputDate.lower() == "end of week":
             days_until_end_of_week = 6 - datetime.now().weekday()  # 6 is Sunday
             return (datetime.now() + timedelta(days=days_until_end_of_week)).strftime(myPreferences.date_format())
-        elif inputDate.lower() in ("same"):
+        elif inputDate.lower() == "same":
             return "same"
         else:
-            print(f"\t{myTerminal.YELLOW}Using default: {defaultIfNone}{myTerminal.RESET}")
+            print(f"\t{myTerminal.YELLOW}Using default '{defaultIfNone}' {myTerminal.RESET}")
             return defaultIfNone
         
     return d.strftime(myPreferences.date_format())
