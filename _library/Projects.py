@@ -786,7 +786,8 @@ def raid_Risks(
                     + "|"
                     + myNotes.get_stringValue_from_noteBody("Impact", risk.noteBody)
                     + "|"
-                    + myNotes.get_stringValue_from_noteBody("Likelihood", risk.noteBody)
+                    + myNotes.get_stringValue_from_noteBody("Likelihood", risk.noteBody) 
+                    + "<br/>**Triggered**" if myNotes.get_stringValue_from_noteBody("Triggered",risk.noteBody).lower() not in ("not triggered","no","false") else ""
                 )
                 newNotePart += "|" + myNotes.get_sectionValue_from_noteBody(
                     "Response Strategy", risk.noteBody
