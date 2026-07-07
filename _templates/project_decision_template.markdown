@@ -37,7 +37,7 @@ Often the only part read by senior executives — must stand alone.
 -->
 
 
-## Background / Problem Statement or Opportunity
+### Background / Problem Statement or Opportunity
 
 <!-- hidden
 
@@ -46,7 +46,7 @@ Reference to strategic alignment (link to organizational goals, portfolio priori
 Current state or baseline context.
 -->
 
-## Options / Alternatives Considered
+### Options / Alternatives Considered
 <!-- hidden
 
 List of feasible options (usually 2–4, including "Do Nothing" or status quo).
@@ -55,7 +55,7 @@ High-level description of each (what it entails, major differences).
 -->
 
 
-## Evaluation / Analysis of Options
+### Evaluation / Analysis of Options
 <!-- hidden
 
 Criteria used for assessment (tailored to the decision type — e.g., financial, strategic, risk, feasibility, compliance).
@@ -65,7 +65,7 @@ Recommendation justification — why the preferred option is best (often with sc
 
 -->
 
-## Risks, Assumptions, Constraints, and Dependencies
+### Risks, Assumptions, Constraints, and Dependencies
 
 <!-- hidden
 
@@ -76,7 +76,7 @@ Dependencies on other projects, decisions, or external factors.
 
 -->
 
-## Financial / Benefits Summary
+### Financial / Benefits Summary
 <!-- hidden
 
 Total estimated cost (including contingency/management reserves if relevant).
@@ -86,7 +86,7 @@ Alignment with benefits management plan or value delivery goals.
 
 -->
 
-## Implementation
+### Implementation
 <!-- hidden
 
 High-level plan for moving forward (timeline, milestones, resources needed).
@@ -94,7 +94,7 @@ Transition or change management considerations.
 Governance requirements (e.g., next gate, approvals needed).
 -->
 
-## Approvals 
+### Approvals 
 
 <!-- hidden
 

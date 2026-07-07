@@ -1,14 +1,25 @@
+#!/usr/bin/env python3
+
 import os 
 import json
+import sys
 from _library import Tools as myTools, Preferences as myPreferences, Inputs as myInputs
 from _library import Notes as myNotes
 import datetime 
 
+#if input arguments include an integer, use that for days to go back
+daysToGoBack = 8
+
+if len(sys.argv) == 2:
+    input_value = sys.argv[1]
+    if input_value.isdigit():
+        daysToGoBack = int(input_value)
+    
 projects = myTools.get_pkv_projects()
 projectThatNeedsWeeklyProgressNoteFound = False
 
-weeklyReview = f"# Weekly Project Review \n\n *prepared on {datetime.datetime.now().strftime('%Y-%m-%d')}*\n\n"
-filterDate = (datetime.datetime.now() - datetime.timedelta(days=8)).strftime('%Y-%m-%d')
+weeklyReview = f"# Last {daysToGoBack} Days Project Review \n\n *prepared on {datetime.datetime.now().strftime('%Y-%m-%d')}*\n\n"
+filterDate = (datetime.datetime.now() - datetime.timedelta(days=daysToGoBack)).strftime('%Y-%m-%d')
 
 for projectName in projects.keys():
     projectPath = projects[projectName]
@@ -18,7 +29,7 @@ for projectName in projects.keys():
             projectConfig = json.load(open(os.path.join(projectPath, ".ProjectConfig.json"), 'r'))
             archived = projectConfig.get("Archived", False)
             needsWeeklyUpdate = projectConfig.get("Needs Weekly Progress Update", False)
-            if not projectConfig.get("Archived",False) and projectConfig.get("Needs Weekly Progress Update", False):
+            if not archived and needsWeeklyUpdate:
                 projectThatNeedsWeeklyProgressNoteFound = True
                 print(f"{projectName} is active and should get a weekly review.")
                 weeklyReview += f"## {projectName}\n\n"

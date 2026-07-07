@@ -1233,10 +1233,12 @@ def get_sectionValue_from_noteBody(valueLabel: str, noteBody: str) -> str:
         str: found value or blank string if not found.
     """
     returnValue = ""
+    sectionDepth = 0
     sectionFound = False
     inHiddenSection = False
 
     for line in noteBody.splitlines():
+        #get to the starting point of the section we are looking for
         if (
             line.startswith(f"# {valueLabel}")
             or line.startswith(f"## {valueLabel}")
@@ -1245,11 +1247,18 @@ def get_sectionValue_from_noteBody(valueLabel: str, noteBody: str) -> str:
             or line.startswith(f"##### {valueLabel}")
             or line.startswith(f"###### {valueLabel}")
         ):
+            sectionDepth = line.count("#")
             sectionFound = True
             continue
 
         if sectionFound:
             if "# " in line:
+                lineDepth = line[:10].count("#")
+            else:
+                lineDepth = 0
+
+            if lineDepth <= sectionDepth and lineDepth > 0:
+                # if line section header has fewer or equal # than the section we are looking for, we have reached the end of the section
                 break  # we reached the next section header
             elif line.startswith("-->") and inHiddenSection:
                 inHiddenSection = False
