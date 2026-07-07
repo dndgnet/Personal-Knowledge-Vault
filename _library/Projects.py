@@ -665,26 +665,24 @@ def notePart_ChangeRequests(
         newNotePart += "*No documented change requests at this time.*\n\n"
     else:
         newNotePart += "\n\n"
-
         if returnTableFormat:
             newNotePart += f"{myTools.divTagSmall}\n"
             newNotePart += "|ID|Identified|Change Request        |State|\n"
             newNotePart += "|--|----------|----------------------|------|\n"
             for decision in selectedNotes:
+                dateSubmitted = myNotes.get_stringValue_from_noteBody("Date Submitted", decision.noteBody)
+                decisionText = myNotes.get_stringValue_from_noteBody("Decision", decision.noteBody)
+
                 newNotePart += (
                     "|"
                     + decision.subId
                     + "|"
-                    + myNotes.get_stringValue_from_noteBody(
-                        "Date Submitted", decision.noteBody
-                    )
+                    + dateSubmitted
                 )
                 newNotePart += "|" + decision.title
                 newNotePart += (
                     "|"
-                    + myNotes.get_stringValue_from_noteBody(
-                        "Decision", decision.noteBody
-                    )
+                    + decisionText
                     + "|\n"
                 )
 
@@ -696,7 +694,9 @@ def notePart_ChangeRequests(
                 newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Date Submitted', decision.noteBody)}\n"
                 newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('Decision', decision.noteBody)}\n"
                 newNotePart += f"**Description**: \n{myNotes.get_sectionValue_from_noteBody('Change Description', decision.noteBody)}\n\n"
-                newNotePart += f"**Justification**: \n{myNotes.get_sectionValue_from_noteBody('Change Justification', decision.noteBody)}\n\n"
+                justification = myNotes.get_sectionValue_from_noteBody('Change Justification', decision.noteBody)
+                if justification != "":
+                    newNotePart += f"**Justification**: \n{justification}\n\n"
 
     return newNotePart
 

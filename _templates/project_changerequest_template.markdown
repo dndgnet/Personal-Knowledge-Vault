@@ -30,13 +30,13 @@ shareWithStakeholders: Yes
 
 **Change Owner:** [Change Owner]
 
-## Change Description
+### Change Description
 
 
-## Change Justification
+### Change Justification
 
 
-## Impact Assessment
+### Impact Assessment
 
 | Area              | Impact Description | Estimated Impact |
 |-------------------| -------------------| -----------------|
@@ -50,19 +50,19 @@ shareWithStakeholders: Yes
 **Total Estimated Cost Impact:** +$20,000  
 **Total Estimated Schedule Impact:** +14 calendar days  
 
-## Alternatives Considered
+### Alternatives Considered
 
 - **Option A (Recommended):** Implement [Title]
 - **Option B:** 
 - **Option C:** 
 
-## Recommendation
+### Recommendation
 **Recommended Action:** Approve Option A – [Title].  
 
 **Justification:**  
  
 
-## Approvals
+### Approvals
 
 | Role                    | Name | Approve / Reject | Date | Comments |
 |-------------------------|------|------------------|------|----------|
