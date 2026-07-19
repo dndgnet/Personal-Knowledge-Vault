@@ -12,7 +12,7 @@ from _library import Terminal as myTerminal
 from _library import Tools as myTools
 from _library import VersionControl as myVersionControl
 from _library.Projects import projectNoteTypesWhereThereCanBeOnlyOne
-from _library.Templates import read_Template
+from _library.Templates import read_Template, templateNamePartsToReplace
 
 # Define the template and output paths
 template_pathRoot = myPreferences.root_templates()
@@ -40,13 +40,8 @@ def main():
     # templates should have a prefix that tells what group of template they belong to
     # and a suffix that shows they are a template
     noteType = selectedTemplateName
-    templateNamePartsToReplace = [
-        "PKV_",
-        "project_",
-        "_template.markdown",
-        "_template.md",
-    ]
-    for part in templateNamePartsToReplace:
+    
+    for part in myTemplate.templateNamePartsToReplace:
         noteType = noteType.replace(part, "")
 
     if selectedProjectName != "":

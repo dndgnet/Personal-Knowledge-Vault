@@ -16,12 +16,13 @@ myTerminal.clearTerminal()
 
 projectList = addLine("# List of Projects in Vault")
 projectList += addLine(f"prepared *{datetime.now().strftime('%Y-%m-%d')}*")
-
+print(f"Preparing list of projects in {myPreferences.root_projects()}")
 # iterate through the project folder and find each project folder
 for filename in sorted(os.listdir(myPreferences.root_projects())):
     if os.path.isdir(os.path.join(myPreferences.root_projects(), filename)):
         projectConfig = myTools.get_ProjectConfig_as_dict(filename)
         projectName = projectConfig.get("ProjectName", "")
+        print(f"\tProcessing project '{projectName}'")
         projectFolder = projectConfig.get("ProjectFolder", "")
         archived = projectConfig.get("Archived", False)
         noteTypes = {}
@@ -37,7 +38,7 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
                 lastNote = note
 
         if archived:
-            projectList += addLine(f"## Project '{projectName}' (archived)**")
+            projectList += addLine(f"## Archived Project '{projectName}'")
         else:
             projectList += addLine(f"## Project '{projectName}'")
 

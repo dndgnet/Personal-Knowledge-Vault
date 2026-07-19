@@ -448,6 +448,9 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
     type = get_stringValue_from_frontMatter("type", frontMatter)
     if type == "":
         type = "unknown"
+    
+    typeSimple = type.replace(f"{project}-", "") if project != "" else type
+
     title = get_stringValue_from_frontMatter("title", frontMatter)
     tags = get_tags_from_Text(noteContent)
     keywords = get_listValue_from_frontMatter("keywords", frontMatter)
@@ -551,6 +554,7 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
         date=date,
         osFileDateTime=osFileDateTime,
         type=type,
+        typeSimple=typeSimple,
         title=title,
         project=project,
         archivedProject=archivedProject,

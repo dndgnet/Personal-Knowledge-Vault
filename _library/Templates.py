@@ -7,6 +7,13 @@ import re
 # Import NoteData from Notes module
 from .Tools import generate_unique_identifier, letters_and_numbers_only
 
+templateNamePartsToReplace = [
+        "PKV_",
+        "project_",
+        "_template.markdown",
+        "_template.md",
+    ]
+
 def read_Template(templatePath: str) -> str:
     """
     Reads the content of a template file.
