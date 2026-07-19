@@ -26,18 +26,22 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
         print(f"\tProcessing project '{projectName}'")
         publicShareFolder = projectConfig.get("PublicShareFolder", "")
         PublicShareFolderURL = projectConfig.get("PublicShareFolderURL", "")
+        NeedsWeeklyProgressUpdate = projectConfig.get("Needs Weekly Progress Update", False)
         TimeCode = projectConfig.get("TimeCode", "")
         ProjectManagementSoftwareURL = projectConfig.get("ProjectManagementSoftwareURL", "")
-
         archived = projectConfig.get("Archived", False)
-        if archived:
-            continue  # skip archived projects
         noteTypes = {}
         lastNote = None
         firstNote = None
         hubNote = None
         lastProgressNote = None
         executiveSummaryNote = None
+
+        if archived:
+            continue  # skip archived projects
+        if not NeedsWeeklyProgressUpdate:
+            continue  # skip projects that don't need weekly progress updates   
+        
 
         projectNotes = myNotes.get_Notes_from_Project(projectName=projectName)
 
@@ -63,7 +67,7 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
             if hubNote is None and note.typeSimple == "hub":
                 hubNote = note
 
-            if executiveSummaryNote is None and note.typeSimple == "executive summary":
+            if executiveSummaryNote is None and note.typeSimple == "executive_summary":
                 executiveSummaryNote = note
 
             if lastProgressNote is None and note.typeSimple == "progress":
@@ -83,22 +87,26 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
         
         if PublicShareFolderURL:
             projectList += addLine(f"Public Share Folder: [link]({PublicShareFolderURL})")
+
         if TimeCode:
             projectList += addLine(f"Time Code: {TimeCode}")
         
         if ProjectManagementSoftwareURL:
             projectList += addLine(f"Project Management Software URL: [link]({ProjectManagementSoftwareURL})")
 
+        projectList += addLine("**Note and Event types:**")
+        for noteType, noteTypeCount in noteTypes.items():
+            projectList += addLine(f"- {noteTypeCount:>3}: {noteType}")
 
         if firstNote:
-            projectList += addLine(
-                f"First project event is {firstNote.typeSimple} '{firstNote.title}' from {firstNote.date}"
-            )
-
-            if lastNote:
+            if firstNote != lastNote:
                 projectList += addLine(
-                    f"Last project event is {lastNote.typeSimple} '{lastNote.title}' from {lastNote.date}"
+                    f"First project event is '{firstNote.typeSimple}' from {firstNote.date}, last project event is '{lastNote.typeSimple}' from {lastNote.date}"
                 )
+            else:   
+                projectList += addLine(
+                    f"First project event is '{firstNote.typeSimple}' from {firstNote.date}"
+            ) 
 
             # if hubNote:
             #     projectList += addLine(
@@ -110,23 +118,18 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
                     f"Executive summary note is from {executiveSummaryNote.date}"
                 )
 
-                projectList += f"""<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'>\n\n{executiveSummaryNote.noteBody.replace("# ", "## ")}\n\n</div>\n\n"""
+                projectList += f"""<div style="font-size:small; margin-left: 6em;">\n\n{executiveSummaryNote.noteBody.replace("# ", "## ")}\n\n</div>\n\n"""
 
                 projectList += addLine("")
 
             if lastProgressNote:
                 projectList += addLine(
-                    f"Last progress note is [[./_projects/{lastProgressNote.project}/{lastProgressNote.fileName}]] from {lastProgressNote.date}"
+                    f"Last progress note is from {lastProgressNote.date}."
                 )
 
-                projectList += f"""<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'>\n\n{lastProgressNote.noteBody.replace("# ", "## ")}\n\n</div>\n\n"""
+                projectList += f"""<div style="font-size:small; margin-left: 6em;">\n\n{lastProgressNote.noteBody.replace("# ", "## ")}\n\n</div>\n\n"""
 
                 projectList += addLine("")
-
-            projectList += addLine("### Note types:")
-
-            for noteType, noteTypeCount in noteTypes.items():
-                projectList += addLine(f"- {noteTypeCount:>3}: {noteType}")
 
             projectList += addLine("")
 
