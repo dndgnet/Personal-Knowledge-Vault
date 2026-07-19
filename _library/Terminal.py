@@ -124,18 +124,20 @@ def printWithoutLineWrap(prefixText: str, textToAdd: str):
     print(printText)
 
 
-def executePythonScript(scriptPath: str) -> None:
+def executePythonScript(scriptPath: str, *args: str) -> None:
     """
     Executes a Python script located at the given path.
 
     Args:
         scriptPath (str): The path to the Python script to execute.
+        *args (str): Optional command line arguments to pass to the script.
     """
+    argString = " ".join(f'"{arg}"' for arg in args)
 
     if os.path.exists(scriptPath):
         if os.name == "nt":  # Windows
-            os.system(f"python3 {scriptPath}")
+            os.system(f"""py {scriptPath} {argString}""")
         else:
-            os.system(f"python3 {scriptPath}")
+            os.system(f"""python3 {scriptPath} {argString}""")
     else:
         print(f"{ERROR}Script '{scriptPath}' does not exist.{RESET}")

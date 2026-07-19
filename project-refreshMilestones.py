@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import shutil
 
 from _library import Inputs as myInputs
@@ -12,6 +13,12 @@ from _library import Tools as myTools
 
 myTerminal.clearTerminal()
 selectedProject: str = ""
+silentMode: bool = False
+for arg in sys.argv[1:]:
+    if arg.startswith("--project="):
+        selectedProject = arg.split("=")[1]
+        silentMode = True
+
 
 print(
     f"{myTerminal.INFORMATION}Refresh Milestone note{myTerminal.RESET}\n"
@@ -92,6 +99,7 @@ if actualAndPlannedAreTheSame:
     print(f"{myTerminal.INFORMATION}All actual milestone dates are the same as planned dates.{myTerminal.RESET}")
     plannedString = ""
 else:
+    
     if not myInputs.ask_yes_no_from_user("Show planned baseline for milestones?", True):
         plannedString = "" 
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 from _library import Terminal as myTerminal
 from _library import Projects as myProjects
 from _library import Preferences as myPreferences
@@ -10,12 +11,18 @@ from _library import Notes as myNotes
 
 myTerminal.clearTerminal()
 selectedProject = None
+silentMode = False
 
 print(f"{myTerminal.INFORMATION}Prepare a RAID Log{myTerminal.RESET}\n")
 print("")
 
 #debug
 #selectedProject = "Legal Services Request App 2026 Enhancements"
+
+for arg in sys.argv[1:]:
+    if arg.startswith("--project="):
+        selectedProject = arg.split("=")[1]
+        silentMode = True
 
 if selectedProject is None or selectedProject == "":
     print("Available target projects:") 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import sys 
 
 from _library import Inputs as myInputs
 from _library import Notes as myNotes
@@ -11,7 +12,13 @@ from _library import Tools as myTools
 
 myTerminal.clearTerminal()
 selectedProject = None
+silentMode = False
 
+for arg in sys.argv[1:]:
+    if arg.startswith("--project="):
+        selectedProject = arg.split("=")[1]
+        silentMode = True
+        
 print(f"{myTerminal.INFORMATION}Refresh Project Hub Note{myTerminal.RESET}\n")
 print("")
 
@@ -21,6 +28,8 @@ print("")
 if selectedProject is None or selectedProject == "":
     print("Available target projects:")
     selectedProject = myInputs.select_project_name(False, False)
+
+myTerminal.executePythonScript("""project-refreshMilestones.py""", f"--project={selectedProject}")
 
 if selectedProject is None or selectedProject == "":
     print(f"{myTerminal.WARNING}No project selected.{myTerminal.RESET}")

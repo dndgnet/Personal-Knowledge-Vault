@@ -25,7 +25,7 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
         projectConfig = myTools.get_ProjectConfig_as_dict(filename)
         projectName = projectConfig.get("ProjectName", "")
         print(f"\tProcessing project '{projectName}'")
-        projectFolder = projectConfig.get("ProjectFolder", "")
+        publicShareFolder = projectConfig.get("PublicShareFolder", "")
         archived = projectConfig.get("Archived", False)
         noteTypes = {}
         lastNote = None
@@ -64,6 +64,8 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
             projectList += addLine(f"## Archived Project '{projectName}'")
         else:
             projectList += addLine(f"## Project '{projectName}'")
+
+        projectList += addLine(f"Public Share Folder: {publicShareFolder}") 
 
         if firstNote:
             projectList += addLine(
