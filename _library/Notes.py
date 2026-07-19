@@ -450,6 +450,7 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
         type = "unknown"
     
     typeSimple = type.replace(f"{project}-", "") if project != "" else type
+    typeSimple = typeSimple.replace("project-", "")
 
     title = get_stringValue_from_frontMatter("title", frontMatter)
     tags = get_tags_from_Text(noteContent)

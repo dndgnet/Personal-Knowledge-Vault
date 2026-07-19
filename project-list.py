@@ -27,6 +27,9 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
         archived = projectConfig.get("Archived", False)
         noteTypes = {}
         lastNote = None
+        firstNote = None
+        hubNote = None
+        lastProgressNote = None
         projectNotes = myNotes.get_Notes_from_Project(projectName=projectName)
 
         for note in projectNotes:
@@ -37,23 +40,60 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
             else:
                 lastNote = note
 
+            if firstNote:
+                if note.date < firstNote.date:
+                    firstNote = note
+            else:
+                firstNote = note
+
+            if hubNote is None and note.typeSimple == "hub":
+                hubNote = note
+
+            if lastProgressNote is None and note.typeSimple == "progress":
+                lastProgressNote = note
+            elif (
+                lastProgressNote
+                and note.typeSimple == "progress"
+                and note.date > lastProgressNote.date
+            ):
+                lastProgressNote = note
+
         if archived:
             projectList += addLine(f"## Archived Project '{projectName}'")
         else:
             projectList += addLine(f"## Project '{projectName}'")
 
-        if lastNote:
+        if firstNote:
             projectList += addLine(
-                f"last note is {lastNote.typeSimple} '{lastNote.title}' from {lastNote.date}"
+                f"first note is {firstNote.typeSimple} '{firstNote.title}' from {firstNote.date}"
             )
+
+            if lastNote:
+                projectList += addLine(
+                    f"last note is {lastNote.typeSimple} '{lastNote.title}' from {lastNote.date}"
+                )
+
+            if hubNote:
+                projectList += addLine(
+                    f"hub note is '{hubNote.title}' [[{hubNote.filePath}]]"
+                )
+
+            if lastProgressNote:
+                projectList += addLine(
+                    f"last progress note is ({lastProgressNote.title})[{lastProgressNote.filePath}]"
+                )
+                projectList += addLine("")
+
             projectList += addLine("Note types:")
 
             for noteType, noteTypeCount in noteTypes.items():
                 projectList += addLine(f"- {noteTypeCount:>3}: {noteType}")
+
+            projectList += addLine("")
+
         else:
             projectList += addLine("- has no notes")
-
-        projectList += addLine("")
+            projectList += addLine("")
 
 projectListFileNameAndPath = os.path.join(myPreferences.root_pkv(), "ProjectList.md")
 myNotes.write_Note_to_path(

@@ -41,7 +41,7 @@ def main():
     # and a suffix that shows they are a template
     noteType = selectedTemplateName
     
-    for part in myTemplate.templateNamePartsToReplace:
+    for part in templateNamePartsToReplace:
         noteType = noteType.replace(part, "")
 
     if selectedProjectName != "":
