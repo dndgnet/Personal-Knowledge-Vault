@@ -96,9 +96,6 @@ def addColourToLine(textToPrint: str, colour: str = "Red") -> str:
 
     return (f"{textColour}{textToPrint}{RESET}")
 
-
-
-
 def printWithoutLineWrap(prefixText: str, textToAdd: str):
     """
     Returns as much of textToAdd without wrapping the terminal to the next line.
@@ -125,3 +122,20 @@ def printWithoutLineWrap(prefixText: str, textToAdd: str):
             printText = prefixText + " " + textToAdd[:remainingLength]
 
     print(printText)
+
+
+def executePythonScript(scriptPath: str) -> None:
+    """
+    Executes a Python script located at the given path.
+
+    Args:
+        scriptPath (str): The path to the Python script to execute.
+    """
+
+    if os.path.exists(scriptPath):
+        if os.name == "nt":  # Windows
+            os.system(f"python3 {scriptPath}")
+        else:
+            os.system(f"python3 {scriptPath}")
+    else:
+        print(f"{ERROR}Script '{scriptPath}' does not exist.{RESET}")

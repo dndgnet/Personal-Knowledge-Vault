@@ -14,6 +14,8 @@ from _library.Notes import addLine
 
 myTerminal.clearTerminal()
 
+myTerminal.executePythonScript("open-vault.py")
+
 projectList = addLine("# List of Projects in Vault")
 projectList += addLine(f"prepared *{datetime.now().strftime('%Y-%m-%d')}*")
 print(f"Preparing list of projects in {myPreferences.root_projects()}")
@@ -75,12 +77,12 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
 
             if hubNote:
                 projectList += addLine(
-                    f"hub note is '{hubNote.title}' [[{hubNote.filePath}]]"
+                    f"hub note is '{hubNote.title}' [[./_projects/{hubNote.project}/{hubNote.fileName}]]"
                 )
 
             if lastProgressNote:
                 projectList += addLine(
-                    f"last progress note is ({lastProgressNote.title})[{lastProgressNote.filePath}]"
+                    f"last progress note is [[./_projects/{lastProgressNote.project}/{lastProgressNote.fileName}]] from {lastProgressNote.date}"
                 )
                 projectList += addLine("")
 
