@@ -25,6 +25,8 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
         print(f"\tProcessing project '{projectName}'")
         publicShareFolder = projectConfig.get("PublicShareFolder", "")
         archived = projectConfig.get("Archived", False)
+        if archived:
+            continue  # skip archived projects
         noteTypes = {}
         lastNote = None
         firstNote = None
