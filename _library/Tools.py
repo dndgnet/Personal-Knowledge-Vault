@@ -271,6 +271,9 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
         "Sync": False,
         "PrivateShareFolder": "",
         "PublicShareFolder": "",
+        "PublicShareFolderURL": "",
+        "TimeCode": "",
+        "ProjectManagementSoftwareURL": "",
         "Needs Weekly Progress Update": False,
         "Needs Monthly Progress Update": False,
     }

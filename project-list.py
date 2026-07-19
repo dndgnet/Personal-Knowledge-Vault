@@ -13,10 +13,11 @@ from _library import Tools as myTools
 from _library.Notes import addLine
 
 myTerminal.clearTerminal()
-
-projectList = addLine("# List of Projects in Vault")
-projectList += addLine(f"prepared *{datetime.now().strftime('%Y-%m-%d')}*")
 print(f"Preparing list of projects in {myPreferences.root_projects()}")
+
+projectList = addLine("# PKV Project Summary")
+projectList += addLine(f"prepared *{datetime.now().strftime('%Y-%m-%d')}*")
+
 # iterate through the project folder and find each project folder
 for filename in sorted(os.listdir(myPreferences.root_projects())):
     if os.path.isdir(os.path.join(myPreferences.root_projects(), filename)):
@@ -24,6 +25,10 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
         projectName = projectConfig.get("ProjectName", "")
         print(f"\tProcessing project '{projectName}'")
         publicShareFolder = projectConfig.get("PublicShareFolder", "")
+        PublicShareFolderURL = projectConfig.get("PublicShareFolderURL", "")
+        TimeCode = projectConfig.get("TimeCode", "")
+        ProjectManagementSoftwareURL = projectConfig.get("ProjectManagementSoftwareURL", "")
+
         archived = projectConfig.get("Archived", False)
         if archived:
             continue  # skip archived projects
@@ -32,9 +37,16 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
         firstNote = None
         hubNote = None
         lastProgressNote = None
+        executiveSummaryNote = None
+
         projectNotes = myNotes.get_Notes_from_Project(projectName=projectName)
 
+        #gather important notes
         for note in projectNotes:
+            #skip private notes
+            if note.private:
+                continue
+
             noteTypes[note.typeSimple] = noteTypes.get(note.typeSimple, 0) + 1
             if lastNote:
                 if note.date > lastNote.date:
@@ -51,6 +63,9 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
             if hubNote is None and note.typeSimple == "hub":
                 hubNote = note
 
+            if executiveSummaryNote is None and note.typeSimple == "executive summary":
+                executiveSummaryNote = note
+
             if lastProgressNote is None and note.typeSimple == "progress":
                 lastProgressNote = note
             elif (
@@ -60,38 +75,55 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
             ):
                 lastProgressNote = note
 
+        #display project information
         if archived:
-            projectList += addLine(f"## Archived Project '{projectName}'")
+            projectList += addLine(f"<div style='break-after: page;'></div>\n\n # Archived Project '{projectName}'")
         else:
-            projectList += addLine(f"## Project '{projectName}'")
+            projectList += addLine(f"<div style='break-after: page;'></div>\n\n # Project '{projectName}'")
+        
+        if PublicShareFolderURL:
+            projectList += addLine(f"Public Share Folder: [link]({PublicShareFolderURL})")
+        if TimeCode:
+            projectList += addLine(f"Time Code: {TimeCode}")
+        
+        if ProjectManagementSoftwareURL:
+            projectList += addLine(f"Project Management Software URL: [link]({ProjectManagementSoftwareURL})")
 
-        projectList += addLine(f"Public Share Folder: {publicShareFolder}") 
 
         if firstNote:
             projectList += addLine(
-                f"first note is {firstNote.typeSimple} '{firstNote.title}' from {firstNote.date}"
+                f"First project event is {firstNote.typeSimple} '{firstNote.title}' from {firstNote.date}"
             )
 
             if lastNote:
                 projectList += addLine(
-                    f"last note is {lastNote.typeSimple} '{lastNote.title}' from {lastNote.date}"
+                    f"Last project event is {lastNote.typeSimple} '{lastNote.title}' from {lastNote.date}"
                 )
 
-            if hubNote:
+            # if hubNote:
+            #     projectList += addLine(
+            #         f"hub note is '{hubNote.title}' [[./_projects/{hubNote.project}/{hubNote.fileName}]]"
+            #     )
+
+            if executiveSummaryNote:
                 projectList += addLine(
-                    f"hub note is '{hubNote.title}' [[./_projects/{hubNote.project}/{hubNote.fileName}]]"
+                    f"Executive summary note is from {executiveSummaryNote.date}"
                 )
+
+                projectList += f"""<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'>\n\n{executiveSummaryNote.noteBody.replace("# ", "## ")}\n\n</div>\n\n"""
+
+                projectList += addLine("")
 
             if lastProgressNote:
                 projectList += addLine(
-                    f"last progress note is [[./_projects/{lastProgressNote.project}/{lastProgressNote.fileName}]] from {lastProgressNote.date}"
+                    f"Last progress note is [[./_projects/{lastProgressNote.project}/{lastProgressNote.fileName}]] from {lastProgressNote.date}"
                 )
 
                 projectList += f"""<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'>\n\n{lastProgressNote.noteBody.replace("# ", "## ")}\n\n</div>\n\n"""
 
                 projectList += addLine("")
 
-            projectList += addLine("Note types:")
+            projectList += addLine("### Note types:")
 
             for noteType, noteTypeCount in noteTypes.items():
                 projectList += addLine(f"- {noteTypeCount:>3}: {noteType}")
