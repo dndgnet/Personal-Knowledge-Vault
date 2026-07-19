@@ -86,6 +86,9 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
                 projectList += addLine(
                     f"last progress note is [[./_projects/{lastProgressNote.project}/{lastProgressNote.fileName}]] from {lastProgressNote.date}"
                 )
+
+                projectList += f"""<div style='border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;'>\n\n{lastProgressNote.noteBody.replace("# ", "## ")}\n\n</div>\n\n"""
+
                 projectList += addLine("")
 
             projectList += addLine("Note types:")
