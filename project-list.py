@@ -14,8 +14,6 @@ from _library.Notes import addLine
 
 myTerminal.clearTerminal()
 
-myTerminal.executePythonScript("open-vault.py")
-
 projectList = addLine("# List of Projects in Vault")
 projectList += addLine(f"prepared *{datetime.now().strftime('%Y-%m-%d')}*")
 print(f"Preparing list of projects in {myPreferences.root_projects()}")
@@ -103,4 +101,6 @@ projectListFileNameAndPath = os.path.join(myPreferences.root_pkv(), "ProjectList
 myNotes.write_Note_to_path(
     notePathAndFile=projectListFileNameAndPath, noteContent=projectList
 )
+
+myTerminal.executePythonScript("open-vault.py")
 myNotes.open_note_in_editor(projectListFileNameAndPath)
