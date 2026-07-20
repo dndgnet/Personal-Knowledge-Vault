@@ -2,7 +2,7 @@
 
 import os
 import shutil
-from datetime import datetime
+from datetime import datetime,date, timedelta
 
 from _library import Inputs as myInputs
 from _library import Notes as myNotes
@@ -136,11 +136,20 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
         else:
             projectList += addLine("- has no notes")
             projectList += addLine("")
+today = date.today()
+monday = today - timedelta(days=today.weekday())
+saveFile=True 
+weeklySummaryFileAndPath = os.path.join(myPreferences.root_pkv(), f"{monday} Summary.md")
+if os.path.exists(weeklySummaryFileAndPath):
+    if not myInputs.ask_yes_no_from_user(f"Project list file '{weeklySummaryFileAndPath}' already exists. Do you want to overwrite it?: ",True):
+        saveFile=False
 
-projectListFileNameAndPath = os.path.join(myPreferences.root_pkv(), "ProjectList.md")
-myNotes.write_Note_to_path(
-    notePathAndFile=projectListFileNameAndPath, noteContent=projectList
-)
-
+if saveFile:
+    myNotes.write_Note_to_path(
+        notePathAndFile=weeklySummaryFileAndPath, noteContent=projectList
+    )
+else:
+    print(f"No changes, opening the existing file '{weeklySummaryFileAndPath}' file.")
+    
 myTerminal.executePythonScript("open-vault.py")
-myNotes.open_note_in_editor(projectListFileNameAndPath)
+myNotes.open_note_in_editor(weeklySummaryFileAndPath)
