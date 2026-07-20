@@ -94,12 +94,12 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
         if ProjectManagementSoftwareURL:
             projectList += addLine(f"Project Management Software URL: [link]({ProjectManagementSoftwareURL})")
 
-        projectList += addLine("**Note and Event types:**")
-        for noteType, noteTypeCount in noteTypes.items():
-            projectList += addLine(f"- {noteTypeCount:>3}: {noteType}")
+        # projectList += addLine("**Note and Event types:**")
+        # for noteType, noteTypeCount in noteTypes.items():
+        #     projectList += addLine(f"- {noteTypeCount:>3}: {noteType}")
 
         if firstNote:
-            if firstNote != lastNote:
+            if firstNote != lastNote and lastNote:
                 projectList += addLine(
                     f"First project event is '{firstNote.typeSimple}' from {firstNote.date}, last project event is '{lastNote.typeSimple}' from {lastNote.date}"
                 )
@@ -150,6 +150,6 @@ if saveFile:
     )
 else:
     print(f"No changes, opening the existing file '{weeklySummaryFileAndPath}' file.")
-    
+
 myTerminal.executePythonScript("open-vault.py")
 myNotes.open_note_in_editor(weeklySummaryFileAndPath)
