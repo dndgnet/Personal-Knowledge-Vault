@@ -85,7 +85,7 @@ def main():
             #     exit(0)
 
             openExisting = myInputs.ask_yes_no_from_user(
-                "Do you want to open this note?", default=False
+                "Do you want to open this note?", default=True  
             )
             if openExisting:
                 print("Opening the existing note.")
@@ -118,6 +118,9 @@ def main():
             "Enter the date and time for the note (or leave blank for system default):",
             datetime.now(),
         )
+
+    if title is None or title == "" or title.lower() == "untitled":
+        title = noteType.replace("project_", "").replace("_template", "")
 
     timestamp_id = selectedDateTime.strftime(myPreferences.timestamp_id_format())
     timestamp_date = selectedDateTime.strftime(myPreferences.date_format())
