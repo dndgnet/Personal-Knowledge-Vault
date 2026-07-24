@@ -15,7 +15,7 @@ from _library.Notes import addLine
 myTerminal.clearTerminal()
 print(f"Preparing list of projects in {myPreferences.root_projects()}")
 
-reportBody = addLine("# PKV Project Summary")
+reportBody = addLine("# Team Project Summary")
 reportBody += addLine(f"prepared *{datetime.now().strftime('%Y-%m-%d')}*")
 
 groupReports = {}
@@ -49,7 +49,7 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
 
         if groupReports.get(ProgressReportGroup) is None:
             #start the reportGroup
-            groupReports[ProgressReportGroup] = f"# PKV {ProgressReportGroup} Summary\n\n"
+            groupReports[ProgressReportGroup] = f"# {ProgressReportGroup} Summary\n\n"
             groupReports[ProgressReportGroup] += addLine(f"prepared *{datetime.now().strftime('%Y-%m-%d')}*")
 
 
@@ -80,13 +80,9 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
             if executiveSummaryNote is None and note.typeSimple == "executive_summary":
                 executiveSummaryNote = note
 
-            if lastProgressNote is None and note.typeSimple == "progress":
-                lastProgressNote = note
-            elif (
-                lastProgressNote
-                and note.typeSimple == "progress"
-                and note.date > lastProgressNote.date
-            ):
+            if (note.typeSimple == "progress"
+                and (lastProgressNote is None
+                    or note.date > lastProgressNote.date)):
                 lastProgressNote = note
 
         #display project information
@@ -201,9 +197,8 @@ for group, report in groupReports.items():
 
     groupReportFileAndPath = os.path.join(myPreferences.root_pkv(), f"{monday} {group} Summary.md")
     saveFile=True 
-    if os.path.exists(groupReportFileAndPath):
-        if not myInputs.ask_yes_no_from_user(f"Project list file '{groupReportFileAndPath}' already exists. Do you want to overwrite it?: ",True):
-            saveFile=False
+    if os.path.exists(groupReportFileAndPath) and not myInputs.ask_yes_no_from_user(f"Project list file '{groupReportFileAndPath}' already exists. Do you want to overwrite it?: ",True):
+        saveFile=False
 
     if saveFile:
         myNotes.write_Note_to_path(
