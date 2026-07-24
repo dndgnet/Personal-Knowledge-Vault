@@ -41,8 +41,10 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
         executiveSummaryNote = None
 
         if archived:
+            print(f"\t\tProject '{projectName}' is archived, skipping.")
             continue  # skip archived projects
         if not NeedsWeeklyProgressUpdate:
+            print(f"\t\tProject '{projectName}' does not need weekly progress updates, skipping.")
             continue  # skip projects that don't need weekly progress updates   
 
         if groupReports.get(ProgressReportGroup) is None:
