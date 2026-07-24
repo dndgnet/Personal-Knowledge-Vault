@@ -15,13 +15,15 @@ from _library.Notes import addLine
 myTerminal.clearTerminal()
 print(f"Preparing list of projects in {myPreferences.root_projects()}")
 
-projectList = addLine("# PKV Project Summary")
-projectList += addLine(f"prepared *{datetime.now().strftime('%Y-%m-%d')}*")
+reportBody = addLine("# PKV Project Summary")
+reportBody += addLine(f"prepared *{datetime.now().strftime('%Y-%m-%d')}*")
+
+groupReports = {}
 
 # iterate through the project folder and find each project folder
 for filename in sorted(os.listdir(myPreferences.root_projects())):
     if os.path.isdir(os.path.join(myPreferences.root_projects(), filename)):
-        projectConfig = myTools.get_ProjectConfig_as_dict(filename)
+        projectConfig = myProjects.get_ProjectConfig_as_dict(filename)
         projectName = projectConfig.get("ProjectName", "")
         print(f"\tProcessing project '{projectName}'")
         publicShareFolder = projectConfig.get("PublicShareFolder", "")
@@ -29,6 +31,7 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
         NeedsWeeklyProgressUpdate = projectConfig.get("Needs Weekly Progress Update", False)
         TimeCode = projectConfig.get("TimeCode", "")
         ProjectManagementSoftwareURL = projectConfig.get("ProjectManagementSoftwareURL", "")
+        ProgressReportGroup = projectConfig.get("ProgressReportGroup", "")
         archived = projectConfig.get("Archived", False)
         noteTypes = {}
         lastNote = None
@@ -41,7 +44,12 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
             continue  # skip archived projects
         if not NeedsWeeklyProgressUpdate:
             continue  # skip projects that don't need weekly progress updates   
-        
+
+        if groupReports.get(ProgressReportGroup) is None:
+            #start the reportGroup
+            groupReports[ProgressReportGroup] = f"# PKV {ProgressReportGroup} Summary\n\n"
+            groupReports[ProgressReportGroup] += addLine(f"prepared *{datetime.now().strftime('%Y-%m-%d')}*")
+
 
         projectNotes = myNotes.get_Notes_from_Project(projectName=projectName)
 
@@ -81,18 +89,26 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
 
         #display project information
         if archived:
-            projectList += addLine(f"<div style='break-after: page;'></div>\n\n # Archived Project '{projectName}'")
+            reportBody += addLine(f"<div style='break-after: page;'></div>\n\n # Archived Project '{projectName}'")
         else:
-            projectList += addLine(f"<div style='break-after: page;'></div>\n\n # Project '{projectName}'")
+            line = addLine(f"<div style='break-after: page;'></div>\n\n # Project '{projectName}'")
+            reportBody += line
+            groupReports[ProgressReportGroup] += line 
         
         if PublicShareFolderURL:
-            projectList += addLine(f"Public Share Folder: [link]({PublicShareFolderURL})")
+            line = addLine(f"Public Share Folder: [link]({PublicShareFolderURL})")
+            reportBody += line
+            groupReports[ProgressReportGroup] += line 
 
         if TimeCode:
-            projectList += addLine(f"Time Code: {TimeCode}")
+            line = addLine(f"Time Code: {TimeCode}")
+            reportBody += line
+            groupReports[ProgressReportGroup] += line
         
         if ProjectManagementSoftwareURL:
-            projectList += addLine(f"Project Management Software URL: [link]({ProjectManagementSoftwareURL})")
+            line = addLine(f"Project Management Software URL: [link]({ProjectManagementSoftwareURL})")
+            reportBody += line
+            groupReports[ProgressReportGroup] += line
 
         # projectList += addLine("**Note and Event types:**")
         # for noteType, noteTypeCount in noteTypes.items():
@@ -100,13 +116,18 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
 
         if firstNote:
             if firstNote != lastNote and lastNote:
-                projectList += addLine(
+                line = addLine(
                     f"First project event is '{firstNote.typeSimple}' from {firstNote.date}, last project event is '{lastNote.typeSimple}' from {lastNote.date}"
                 )
+                reportBody += line
+                groupReports[ProgressReportGroup] += line
+                
             else:   
-                projectList += addLine(
+                line = addLine(
                     f"First project event is '{firstNote.typeSimple}' from {firstNote.date}"
-            ) 
+                )
+                reportBody += line
+                groupReports[ProgressReportGroup] += line
 
             # if hubNote:
             #     projectList += addLine(
@@ -114,31 +135,47 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
             #     )
 
             if executiveSummaryNote:
-                projectList += addLine(
+                line = addLine(
                     f"Executive summary note is from {executiveSummaryNote.date}"
                 )
-
-                projectList += f"""<div style="font-size:small; margin-left: 6em;">\n\n{executiveSummaryNote.noteBody.replace("# ", "## ")}\n\n</div>\n\n"""
-
-                projectList += addLine("")
+                reportBody += line
+                groupReports[ProgressReportGroup] += line
+                line = addLine(
+                    f"Executive summary note is from {executiveSummaryNote.date}"
+                )
+                reportBody += line
+                groupReports[ProgressReportGroup] += line
+    
+                line = addLine(f"""<div style="font-size:small; margin-left: 6em;">\n\n{executiveSummaryNote.noteBody.replace("# ", "## ")}\n\n</div>\n\n""")
+                reportBody += line
+                groupReports[ProgressReportGroup] += line
+                
 
             if lastProgressNote:
-                projectList += addLine(
+                line = addLine(
                     f"Last progress note is from {lastProgressNote.date}."
                 )
+                reportBody += line
+                groupReports[ProgressReportGroup] += line   
+                
+                line = addLine(f"""<div style="font-size:small; margin-left: 6em;">\n\n{lastProgressNote.noteBody.replace("# ", "## ")}\n\n</div>\n\n\n""")
+                reportBody += line
+                groupReports[ProgressReportGroup] += line
+                
+                 
 
-                projectList += f"""<div style="font-size:small; margin-left: 6em;">\n\n{lastProgressNote.noteBody.replace("# ", "## ")}\n\n</div>\n\n"""
-
-                projectList += addLine("")
-
-            projectList += addLine("")
+            reportBody += addLine("")
+            groupReports[ProgressReportGroup] += addLine("")
 
         else:
-            projectList += addLine("- has no notes")
-            projectList += addLine("")
+            reportBody += addLine("- has no notes\n\n")
+            groupReports[ProgressReportGroup] += addLine("- has no notes\n\n")
+
 today = date.today()
 monday = today - timedelta(days=today.weekday())
 saveFile=True 
+
+#save one big report for all groups
 weeklySummaryFileAndPath = os.path.join(myPreferences.root_pkv(), f"{monday} Summary.md")
 if os.path.exists(weeklySummaryFileAndPath):
     if not myInputs.ask_yes_no_from_user(f"Project list file '{weeklySummaryFileAndPath}' already exists. Do you want to overwrite it?: ",True):
@@ -146,10 +183,32 @@ if os.path.exists(weeklySummaryFileAndPath):
 
 if saveFile:
     myNotes.write_Note_to_path(
-        notePathAndFile=weeklySummaryFileAndPath, noteContent=projectList
+        notePathAndFile=weeklySummaryFileAndPath, noteContent=reportBody
     )
 else:
     print(f"No changes, opening the existing file '{weeklySummaryFileAndPath}' file.")
 
 myTerminal.executePythonScript("open-vault.py")
 myNotes.open_note_in_editor(weeklySummaryFileAndPath)
+
+#save one report for each group
+for group, report in groupReports.items():
+    if group == "":
+        group = "Other"
+    print (f"Preparing report for group '{group}' for '{monday}' with a length of {len(report)} characters.")
+
+    groupReportFileAndPath = os.path.join(myPreferences.root_pkv(), f"{monday} {group} Summary.md")
+    saveFile=True 
+    if os.path.exists(groupReportFileAndPath):
+        if not myInputs.ask_yes_no_from_user(f"Project list file '{groupReportFileAndPath}' already exists. Do you want to overwrite it?: ",True):
+            saveFile=False
+
+    if saveFile:
+        myNotes.write_Note_to_path(
+            notePathAndFile=groupReportFileAndPath, noteContent=report
+        )
+    else:
+        print(f"No changes, opening the existing file '{groupReportFileAndPath}' file.")
+
+    myTerminal.executePythonScript("open-vault.py")
+    myNotes.open_note_in_editor(groupReportFileAndPath)
