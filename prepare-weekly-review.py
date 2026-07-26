@@ -39,6 +39,7 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
         hubNote = None
         lastProgressNote = None
         executiveSummaryNote = None
+        introductionNote = None
 
         if archived:
             print(f"\t\tProject '{projectName}' is archived, skipping.")
@@ -79,6 +80,9 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
 
             if executiveSummaryNote is None and note.typeSimple == "executive_summary":
                 executiveSummaryNote = note
+
+            if introductionNote is None and note.typeSimple == "introduction":
+                introductionNote = note
 
             if (note.typeSimple == "progress"
                 and (lastProgressNote is None
@@ -132,7 +136,25 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
             #         f"hub note is '{hubNote.title}' [[./_projects/{hubNote.project}/{hubNote.fileName}]]"
             #     )
 
-            if executiveSummaryNote:
+            hasIntroductionNote = False
+            if introductionNote:
+                hasIntroductionNote = True
+                line = addLine(
+                    f"Project Introduction note is from {introductionNote.date}"
+                )
+                reportBody += line
+                groupReports[ProgressReportGroup] += line
+                line = addLine(
+                    f"Project Introduction note is from {introductionNote.date}"
+                )
+                reportBody += line
+                groupReports[ProgressReportGroup] += line
+    
+                line = addLine(f"""<div style="font-size:small; margin-left: 6em;">\n\n{introductionNote.noteBody.replace("# ", "## ")}\n\n</div>\n\n""")
+                reportBody += line
+                groupReports[ProgressReportGroup] += line
+
+            if executiveSummaryNote and not hasIntroductionNote:
                 line = addLine(
                     f"Executive summary note is from {executiveSummaryNote.date}"
                 )
@@ -173,6 +195,8 @@ today = date.today()
 monday = today - timedelta(days=today.weekday())
 saveFile=True 
 
+filesToOpen = []
+
 #save one big report for all groups
 weeklySummaryFileAndPath = os.path.join(myPreferences.root_pkv(), f"{monday} Summary.md")
 if os.path.exists(weeklySummaryFileAndPath):
@@ -186,8 +210,7 @@ if saveFile:
 else:
     print(f"No changes, opening the existing file '{weeklySummaryFileAndPath}' file.")
 
-myTerminal.executePythonScript("open-vault.py")
-myNotes.open_note_in_editor(weeklySummaryFileAndPath)
+filesToOpen.append(weeklySummaryFileAndPath)
 
 #save one report for each group
 for group, report in groupReports.items():
@@ -207,5 +230,8 @@ for group, report in groupReports.items():
     else:
         print(f"No changes, opening the existing file '{groupReportFileAndPath}' file.")
 
-    myTerminal.executePythonScript("open-vault.py")
-    myNotes.open_note_in_editor(groupReportFileAndPath)
+    filesToOpen.append(groupReportFileAndPath)
+
+myTerminal.executePythonScript("open-vault.py")
+for filePath in filesToOpen:
+    myNotes.open_note_in_editor(filePath)

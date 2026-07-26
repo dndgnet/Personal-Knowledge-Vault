@@ -31,6 +31,7 @@ monthStringNames = [
 projectNoteTypesWhereThereCanBeOnlyOne = (
     "hub",
     "executive_summary",
+    "introduction",
     "budget",
     "roi",
     "transition_plan",
