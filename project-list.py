@@ -98,7 +98,7 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
         
         if ProjectManagementSoftwareURL:
             print("\tTracked by project management software")
-            print("\t\t",ProjectManagementSoftwareURL)
+            #print("\t\t",ProjectManagementSoftwareURL)
 
         if ProgressReportGroup:
             print(f"\tProgress Report Group: {ProgressReportGroup}")
