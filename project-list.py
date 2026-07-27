@@ -3,7 +3,7 @@
 import os
 import shutil
 from datetime import datetime,date, timedelta
-
+import re
 from _library import Inputs as myInputs
 from _library import Notes as myNotes
 from _library import Preferences as myPreferences
@@ -155,9 +155,10 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
                     f"Last progress note is from {lastProgressNote.date}."
                 )
                 print(f"\t{line}")   
-
+                cleanProgressNoteBody = lastProgressNote.noteBody.replace("## Progress Statement", "").strip()
+                cleanProgressNoteBody = re.sub(r'<!--.*?-->', '', cleanProgressNoteBody, flags=re.DOTALL).strip()
                 line = addLine(
-                    f"{len(lastProgressNote.noteBody)} characters \n\t\t{lastProgressNote.noteBody[:100].replace('#', '').replace('\n','\n\t\t')}..."
+                    f"{len(cleanProgressNoteBody)} characters \n\t\t{cleanProgressNoteBody[:100].replace('#', '').replace('\n','\n\t\t')}..."
                 )              
                 print(f"\t{line}")
 
