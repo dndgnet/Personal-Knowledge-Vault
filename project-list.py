@@ -158,7 +158,7 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
                 cleanProgressNoteBody = lastProgressNote.noteBody.replace("## Progress Statement", "").strip()
                 cleanProgressNoteBody = re.sub(r'<!--.*?-->', '', cleanProgressNoteBody, flags=re.DOTALL).strip()
                 line = addLine(
-                    f"{len(cleanProgressNoteBody)} characters \n\t\t{cleanProgressNoteBody[:100].replace('#', '').replace('\n','\n\t\t')}..."
+                    f"{len(cleanProgressNoteBody)} characters \n\t\t{cleanProgressNoteBody[:400].replace('#', '').replace('\n','\n\t\t')}..."
                 )              
                 print(f"\t{line}")
 
