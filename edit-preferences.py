@@ -15,8 +15,10 @@ _exampleEmptyPreferences = {
     "documents_path": "os default", #where documents are stored, use 'os default' to let the OS decide
     "attachmentPickUp_path": "os default", #where we can look for new attachment, use 'os default' to let the OS return the downloads folder
     "screenCapture_path": "os default", #where we can look for new screen captures, use 'os default' to let the OS return the screenshots folder
-    "default_editor": "code" #default editor to use for opening files, can be 'code' for VS Code, 'zed' for Zed, or any other editor command
-    }
+    "default_editor": "code", #default editor to use for opening files, can be 'code' for VS Code, 'zed' for Zed, or any other editor command
+    "TeamSharePointSiteURL": "https://yourcompany.sharepoint.com/sites/YourTeamSite", #URL of the team sharepoint site
+    "TeamSharePointListName": "Team Backlog", #name of the sharepoint list where team projects are tracked
+}
 
 """
 

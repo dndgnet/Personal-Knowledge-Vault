@@ -263,7 +263,7 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
     projectPath = os.path.join(myPreferences.root_projects(), projectName)
 
     # starting point for the project config
-    _example_ConfigBody = {
+    _exampleConfigBody = {
         "ProjectFolderName": f"{projectName}",
         "ProjectName": f"{projectName}",
         "Programs": [],
@@ -277,6 +277,9 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
         "ProgressReportGroup": "",  #the group or name of the manager that will receive the weekly progress report
         "Needs Weekly Progress Update": False,
         "Needs Monthly Progress Update": False,
+        "TeamSharePointSiteURL": "",
+        "TeamSharePointBackLogListName": "Team Backlog",
+        "TeamSharePointBackLogListRowID": 0,
     }
 
     if not os.path.isdir(projectPath):
@@ -289,7 +292,7 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
         with open(
             os.path.join(projectPath, ".ProjectConfig.json"), "w", encoding="utf-8"
         ) as f:
-            json.dump(_example_ConfigBody, f, indent=4)
+            json.dump(_exampleConfigBody, f, indent=4)
 
     configPath = os.path.join(projectPath, ".ProjectConfig.json")
     if not os.path.isfile(configPath):
@@ -302,7 +305,7 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
 
             missingProjectConfigKey = False
 
-            for key, value in _example_ConfigBody.items():
+            for key, value in _exampleConfigBody.items():
                 if key not in config.keys():
                     missingProjectConfigKey = True
                     # print(f"Project '{projectName}' missing config value '{key}'")
