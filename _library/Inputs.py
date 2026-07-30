@@ -131,7 +131,7 @@ def ask_for_list_selection_from_user(prompt: str, options: dict, no_selection_ma
     
     return int(selection)
 
-def select_project_name_withDict(showNewProjectOption = True, showNoProjectOption = True, hideArchivedProjects = True) -> tuple[dict,str, int]:
+def select_project_name_withDict(showNewProjectOption = True, showNoProjectOption = True, hideArchivedProjects = True, promptProjectNameFilter = True) -> tuple[dict,str, int]:
     """
     Prompt the user to select a project from a list of available projects.
     If the user selects "No Project", return an empty string.
@@ -143,6 +143,10 @@ def select_project_name_withDict(showNewProjectOption = True, showNoProjectOptio
     """
     projectIndex = 1
     projects = {}
+
+    projectFilterValue = ""
+    if promptProjectNameFilter:
+        projectFilterValue = input(f"{myTerminal.INPUTPROMPT}Enter project name filter(leave blank for all): {myTerminal.RESET}").strip()
 
     #let hte user pic which project to use
     #print(f"{myTerminal.INPUTPROMPT}Available projects:{myTerminal.RESET}")
@@ -160,8 +164,12 @@ def select_project_name_withDict(showNewProjectOption = True, showNoProjectOptio
     if showNewProjectOption:
         projects[projectIndex] = "Start a new project"
         print(f"""\t{myTerminal.GREY}{projectIndex:>2}. {projects.get(1, "Start a new project")}{myTerminal.RESET}""")
-    
-    print(f"{myTerminal.WHITE}Available projects:{myTerminal.RESET}")
+
+    if projectFilterValue == "":
+        print(f"{myTerminal.WHITE}Available projects:{myTerminal.RESET}")
+    else:
+        print(f"{myTerminal.WHITE}Available projects containing (*{projectFilterValue}*):{myTerminal.RESET}")
+
     for filename in sorted(os.listdir(myPreferences.root_projects())):
         if os.path.isdir(os.path.join(myPreferences.root_projects(), filename)):
             projectConfig = myTools.get_ProjectConfig_as_dict(filename)
@@ -169,6 +177,8 @@ def select_project_name_withDict(showNewProjectOption = True, showNoProjectOptio
             if projectIsArchived and hideArchivedProjects:
                 continue  # Skip archived projects
             else:
+                if projectFilterValue and projectFilterValue.lower() not in filename.lower():
+                    continue  # Skip projects that don't match the filter
                 projectIndex += 1
                 if projectIndex%2==0:
                     print(f"\t{projectIndex:>2}. {filename}")
@@ -397,7 +407,7 @@ def select_recent_note(noteTypeContains = "",  showActionItems = False,
 
     if not sortedNotes:
         print(f"{myTerminal.ERROR}No notes found.{myTerminal.RESET}")
-        return 0, NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)
+        return 0, NoteData()
     
     if noteTypeContains == "":
         print(f"{myTerminal.INPUTPROMPT}Recent notes:{myTerminal.RESET}")
@@ -433,7 +443,7 @@ def select_recent_note(noteTypeContains = "",  showActionItems = False,
     selectedNoteId = input(f"\n{myTerminal.INPUTPROMPT}Select a note number or press Enter to skip: {myTerminal.RESET}").strip()
     
     if not selectedNoteId.isdigit() or int(selectedNoteId) < 1 or int(selectedNoteId) > noteIndex:
-        return 0, NoteData("", "", "", "", "", "", "", "", [], [], "", "", "", "", [],[], False, False)
+        return 0, NoteData()
 
 
     selectedNote = displayedNotes[int(selectedNoteId) - 1]
