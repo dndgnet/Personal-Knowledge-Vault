@@ -2,6 +2,7 @@
 
 import os
 import shutil
+import sys
 
 from _library import Inputs as myInputs
 from _library import Notes as myNotes
@@ -12,13 +13,24 @@ from _library import Tools as myTools
 
 myTerminal.clearTerminal()
 selectedProject: str = ""
+silentMode: bool = False
+
+#get selected project from command line argument if provided
+if len(sys.argv) > 1:
+    for arg in sys.argv[1:]:
+        selectedProject += arg + " "
+    selectedProject = selectedProject.strip()
+    silentMode = True
+
+    #print(f"'{selectedProject}'")
+
 
 removeFrontMatterFromSharedNotes = True
 
 print(
     f"{myTerminal.INFORMATION}Sync Project Content with a shared Stakeholder folder{myTerminal.RESET}\n"
 )
-print("")
+print()
 
 # debug
 #selectedProject = "Adaptive Project Management Software"

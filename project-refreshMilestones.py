@@ -14,16 +14,20 @@ from _library import Tools as myTools
 myTerminal.clearTerminal()
 selectedProject: str = ""
 silentMode: bool = False
-for arg in sys.argv[1:]:
-    if arg.startswith("--project="):
-        selectedProject = arg.split("=")[1]
-        silentMode = True
+
+#get selected project from command line argument if provided
+if len(sys.argv) > 1:
+    for arg in sys.argv[1:]:
+        selectedProject += arg + " "
+    selectedProject = selectedProject.strip()
+    silentMode = True
+    print (f"'{selectedProject}'")
 
 
 print(
     f"{myTerminal.INFORMATION}Refresh Milestone note{myTerminal.RESET}\n"
 )
-print("")
+print()
 
 # debug
 #selectedProject = "Adaptive Project Management Software"
@@ -99,8 +103,9 @@ if actualAndPlannedAreTheSame:
     print(f"{myTerminal.INFORMATION}All actual milestone dates are the same as planned dates.{myTerminal.RESET}")
     plannedString = ""
 else:
+
     
-    if not myInputs.ask_yes_no_from_user("Show planned baseline for milestones?", True):
+    if silentMode or not myInputs.ask_yes_no_from_user("Show planned baseline for milestones?", True):
         plannedString = "" 
 
 
@@ -125,7 +130,7 @@ gantt
 """
 print(gantt)
 
-if myInputs.ask_yes_no_from_user("Show gantt diagram?", True):    
+if silentMode or myInputs.ask_yes_no_from_user("Show gantt diagram?", True):
     milestoneContent = f"\n{gantt}\n\n{myTools.divTagSmall}\n\n{table}\n\n{myTools.divTagEnd}\n\n"
 else:
     milestoneContent = f"\n{myTools.divTagSmall}\n\n{table}\n\n{myTools.divTagEnd}\n\n"
