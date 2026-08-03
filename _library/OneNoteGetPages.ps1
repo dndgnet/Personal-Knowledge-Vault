@@ -191,8 +191,20 @@ foreach ($page in $pages) {
             }
         }
 
-        #markdown replace pkvfrontmatter with $pkvStatement
-        $markdown = $markdown -replace 'pkvfrontmatter', $pkvStatement
+        #if "pkvfrontmatter" exists in the markdown, replace it with the pkvStatement if it does not exist, add the pkvStatement to the top of the markdown
+        if (-not $markdown.Contains('pkvfrontmatter')) {
+    $markdown = @"
+---
+$pkvStatement
+---
+
+$markdown
+"@
+}
+        else {
+            # Replace literal token with the statement
+            $markdown = $markdown.Replace('pkvfrontmatter', $pkvStatement)
+        }
 
         $mdFile = Join-Path $sectionFolder "$safeName.md"
 

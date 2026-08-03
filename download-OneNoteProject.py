@@ -43,10 +43,10 @@ if configuredNotebookName == "" or configuredSectionName == "":
 sectionName = configuredSectionName
 noteBookName = configuredNotebookName
 
-localExportPath = r"C:\tempOneNoteExports"
+temporaryOneNoteExportFolder = r"C:\tempOneNoteExports"
 noteBookName = "IMTOGC Notebook"
 
-section_path = os.path.join(localExportPath, sectionName)
+section_path = os.path.join(temporaryOneNoteExportFolder, sectionName)
 
 if os.path.exists(section_path):
     shutil.rmtree(section_path)
@@ -58,7 +58,7 @@ result = subprocess.run(
         "-File",".\\_library\\OneNoteGetPages.ps1",
         "-NotebookName", noteBookName,
         "-SectionName", sectionName,
-        "-OutputFolder", localExportPath,
+        "-OutputFolder", temporaryOneNoteExportFolder,
     ],
     capture_output=True,
     check=True,
@@ -77,7 +77,7 @@ else:
         exit()
 
 #read a OneNoteFile
-oneNoteTempLocation = localExportPath
+oneNoteTempLocation = temporaryOneNoteExportFolder
 oneNoteSectionName = sectionName
 
 #for markdown files in the localExportPath\sectionName, read the front matter and body, and create a new note in the project folder
@@ -91,6 +91,8 @@ for markDownFileName in os.listdir(os.path.join(oneNoteTempLocation,oneNoteSecti
         frontMatter = myNotes.get_note_frontMatter(page)
         body = page.replace(frontMatter,"")
         title = myNotes.get_stringValue_from_frontMatter("title",frontMatter)
+        if title =="":
+            title = markDownFileName.split("\\")[-1].replace(".md","") 
         id = myNotes.get_stringValue_from_frontMatter("id",frontMatter)
         noteType = myNotes.get_stringValue_from_frontMatter("type",frontMatter)
         keyWords = myNotes.get_stringValue_from_frontMatter("keywords",frontMatter)
@@ -103,56 +105,35 @@ for markDownFileName in os.listdir(os.path.join(oneNoteTempLocation,oneNoteSecti
 
         if "{" in id:
             id=id.split("{")[-1].replace("}","")
+ 
 
-    fileAndPath = os.path.join(oneNoteTempLocation,oneNoteSectionName,markDownFileName)
-    page = ""
-    with open(fileAndPath, "r", encoding="utf-8") as f:
-        page = f.read()
-
-
-    frontMatter = myNotes.get_note_frontMatter(page)
-    body = page.replace(frontMatter,"")
-    title = myNotes.get_stringValue_from_frontMatter("title",frontMatter)
-    id = myNotes.get_stringValue_from_frontMatter("id",frontMatter)
-    noteType = myNotes.get_stringValue_from_frontMatter("type",frontMatter)
-    keyWords = myNotes.get_stringValue_from_frontMatter("keywords",frontMatter)
-    modified = myNotes.get_stringValue_from_frontMatter("modified",frontMatter)[:10]
-    date = myNotes.get_stringValue_from_frontMatter("date",frontMatter)
-    date = modified if date =="" else date 
-    author = myNotes.get_stringValue_from_frontMatter("author",frontMatter).lower()
-    private = myNotes.get_stringValue_from_frontMatter("private",frontMatter).lower()
-    shareWithStakeholders = myNotes.get_stringValue_from_frontMatter("shareWithStakeholders",frontMatter).lower()
-
-    if "{" in id:
-        id=id.split("{")[-1].replace("}","")
-
-    print(title)
-    print(id)
-    print(id[-5:])
-    print(date)
-    print(modified)
-    print(author)
-    print(noteType)
-    print()
-    print(body[:200])
+        print(title)
+        print(id)
+        print(id[-5:])
+        print(date)
+        print(modified)
+        print(author)
+        print(noteType)
+        print()
+        print(body[:200])
 
 
-    import shutil
-    pkvProjectName = "Legal Services Email Records Management"
-    projectPath = os.path.join(myPreferences.root_projects(),pkvProjectName)
-    projectAttachments = os.path.join(projectPath,"_Attachments")
+        import shutil
+        pkvProjectName =selectedProject
+        projectPath = os.path.join(myPreferences.root_projects(),pkvProjectName)
+        projectAttachments = os.path.join(projectPath,"_Attachments")
 
-    #copy the fileAnadPath to the projectAttachments folder
-    source=fileAndPath.replace(".md",".pdf")
-    destinationFileName = ""
-    if os.path.exists(source):
-        destinationFileName = markDownFileName.replace(".md",f"_OneNote_{id[-8:]}.pdf")
-        destination=os.path.join(projectAttachments,destinationFileName)
-        shutil.copy2(source, destination)
-    else:
-        print (f"\t'{source}' does not exist")
-        
-    newNote = f"""---
+        #copy the fileAnadPath to the projectAttachments folder
+        source=fileAndPath.replace(".md",".pdf")
+        destinationFileName = ""
+        if os.path.exists(source):
+            destinationFileName = markDownFileName.replace(".md",f"_OneNote_{id[-8:]}.pdf")
+            destination=os.path.join(projectAttachments,destinationFileName)
+            shutil.copy2(source, destination)
+        else:
+            print (f"\t'{source}' does not exist")
+            
+        newNote = f"""---
 title: {title}
 id: {id}
 type: {"project-event" if noteType =="" else noteType}
@@ -163,31 +144,31 @@ end date: {date}
 retention: Long
 tags:  
 keywords: {keyWords} 
-project: Legal Services Email Records Management
+project: {pkvProjectName}
 author: {author if author != "" else "OneNote"}
 private: No
 ---
 
 # {title}
 
-"""
+    """
 
-    if destinationFileName != "":
-        newNote += f"""
+        if destinationFileName != "":
+            newNote += f"""
 [OneNote Page PDF](<./_Attachments/{destinationFileName}>)
 
 {body}
 
-"""
-    else:
-        newNote += f"""
+    """
+        else:
+            newNote += f"""
 
 {body}
 
-"""
+    """
 
-    newNoteFileNameAndPath = os.path.join(projectPath,f"OneNote_{date}{title}.md")
-    myNotes.write_Note_to_path(newNoteFileNameAndPath,newNote)
+        newNoteFileNameAndPath = os.path.join(projectPath,f"OneNote_{date}{title}.md")
+        myNotes.write_Note_to_path(newNoteFileNameAndPath,newNote)
 
 
 
