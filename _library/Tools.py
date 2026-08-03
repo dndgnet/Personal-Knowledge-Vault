@@ -280,6 +280,8 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
         "TeamSharePointSiteURL": "",
         "TeamSharePointBackLogListName": "Team Backlog",
         "TeamSharePointBackLogListRowID": 0,
+        "OneNote_noteBookName": "",
+        "OneNote_sectionName": "",
     }
 
     if not os.path.isdir(projectPath):

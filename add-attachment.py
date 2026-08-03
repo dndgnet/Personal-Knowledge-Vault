@@ -15,6 +15,7 @@ recentFiles = sorted(files, key=lambda x: x[1], reverse=True)
 
 fileIndex = 0
 fileList = []
+
 print(f"{myTerminal.INPUTPROMPT}Recent files in attachment pick up folder:{myTerminal.RESET}")
 for file in recentFiles:
     fileIndex += 1
@@ -34,7 +35,11 @@ if input_string.isdigit() and 1 <= int(input_string) <= fileIndex:
     selected_file = fileList[int(input_string) - 1]
     sourcefile_path = os.path.join(downloads_folder, selected_file)
 
-    selectedNoteId, selectedNote = myInputs.select_recent_note(noteTypeContains="Any", showActionItems = False)
+    selectedProject = myInputs.select_project_name(showNewProjectOption=False)
+    answer = input("Days to go back? (blank default 7): ")
+    daysToGoBack = int(answer) if answer.isdigit() else 7
+
+    selectedNoteId, selectedNote = myInputs.select_recent_note(noteTypeContains="Any", showActionItems = False, DaysToGoBack=daysToGoBack, projectName=selectedProject)
 
     if selectedNoteId != 0:
         selectedProject = selectedNote.project

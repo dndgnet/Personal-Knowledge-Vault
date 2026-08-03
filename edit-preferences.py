@@ -18,6 +18,7 @@ _exampleEmptyPreferences = {
     "default_editor": "code", #default editor to use for opening files, can be 'code' for VS Code, 'zed' for Zed, or any other editor command
     "TeamSharePointSiteURL": "https://yourcompany.sharepoint.com/sites/YourTeamSite", #URL of the team sharepoint site
     "TeamSharePointListName": "Team Backlog", #name of the sharepoint list where team projects are tracked
+    "TemporaryOneNoteExportFolder": "C:\\tempOneNoteExport", #temporary folder for exporting OneNote pages
 }
 
 """

@@ -594,24 +594,31 @@ def get_Notes_as_list(
     noteList = []
     for root, dirs, files in os.walk(target_dir, topdown=True):
         for file in files:
-            if (
-                not file.startswith(".")
-                and not file.startswith("_")
-                and file.endswith(".md")
-            ):  # Skip hidden files and non markdown files
-                note = get_Note_from_path(root, file)
+            try:
+                if (
+                    not file.startswith(".")
+                    and not file.startswith("_")
+                    and file.endswith(".md")
+                ):  # Skip hidden files and non markdown files
+                    note = get_Note_from_path(root, file)
 
-                if note.private is True and includePrivateNotes is False:
-                    pass  # skip private notes if not including them
-                elif note.project != "" and includeArchivedProjects is False:
-                    projectConfig = myTools.get_ProjectConfig_as_dict(note.project)
-                    if projectConfig.get("Archived", False) is True:
-                        pass  # skip notes from archived projects
+                    if note.private is True and includePrivateNotes is False:
+                        pass  # skip private notes if not including them
+                    elif note.project != "" and includeArchivedProjects is False:
+                        projectConfig = myTools.get_ProjectConfig_as_dict(note.project)
+                        if projectConfig.get("Archived", False) is True:
+                            pass  # skip notes from archived projects
+                        else:
+                            noteList.append(note)
                     else:
                         noteList.append(note)
-                else:
-                    noteList.append(note)
-
+            except Exception as e:
+                print(
+                    f"{myTerminal.ERROR}Error processing note '{file}' in '{root}': {e}{myTerminal.RESET}"
+                )
+                input("Press Enter to continue...")
+                continue
+            
     return noteList
 
 

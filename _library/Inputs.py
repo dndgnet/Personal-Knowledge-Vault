@@ -389,7 +389,8 @@ def select_attachment_from_user(projectName="", uniqueIdentifier = "") -> tuple[
 
 def select_recent_note(noteTypeContains = "",  showActionItems = False, 
                        groupByProject = True,
-                       DaysToGoBack = None) -> tuple[int, NoteData]:
+                       DaysToGoBack = None,
+                       projectName = None) -> tuple[int, NoteData]:
     """
     Get the most recent note from the user.
     Returns the note ID and the NoteData object.
@@ -399,8 +400,11 @@ def select_recent_note(noteTypeContains = "",  showActionItems = False,
 
     numberOfNotesToShow = maxNumberOfNotesToShow
 
-
-    allNotes = myTools.get_Notes_as_list(myPreferences.root_pkv())
+    if projectName is None or projectName == "":
+        allNotes = myTools.get_Notes_as_list(myPreferences.root_pkv())
+    else:
+        allNotes = myTools.get_Notes_as_list(os.path.join(myPreferences.root_projects(), projectName))  
+        
     sortedNotes = sorted(allNotes, key=lambda note: (note.project, note.date), reverse=True)
 
     displayedNotes = []

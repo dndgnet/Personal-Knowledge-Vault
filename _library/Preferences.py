@@ -41,7 +41,7 @@ _exampleEmptyPreferences = {
     "automatically_open_event_notes": "False",  # set to true if the add new note commands should automatically open the created note in the default editor, set to false if the author will open it manually
     "use_versioncontrol": "True",  # set to true if the PKV should use git for version control, set to false if the author does not want to use git
     "author_name": "default",  # use default to use the system username, or provide a custom name to be used in notes
-    "example1": "ABC",
+    "TemporaryOneNoteExportFolder": "C:\\tempOneNoteExport", #temporary folder for exporting OneNote pages
 }
 
 _preferences = {}
@@ -91,7 +91,7 @@ _include_backlinks_to_DailyJournal = False
 _automatically_open_event_notes = False
 _author_name = ""
 _use_versioncontrol = False
-
+_temporaryOneNoteExportFolder = ""
 
 def root_pkv() -> str:
     """Returns the documents subfolder for the pkv."""
@@ -180,6 +180,9 @@ def use_versioncontrol() -> bool:
     """Returns whether to use git for version control."""
     return _use_versioncontrol
 
+def temporaryOneNoteExportFolder() -> str:
+    """Returns the temporary folder for exporting OneNote pages."""
+    return _temporaryOneNoteExportFolder
 
 def preferences() -> dict:
     """Returns the loaded preferences."""
@@ -217,6 +220,7 @@ if not os.path.exists(preferences_File_Path):
 try:
     with open(preferences_File_Path, "r") as file:
         _preferences = json.load(file)
+        _temporaryOneNoteExportFolder = _preferences["TemporaryOneNoteExportFolder"]
         _pkv_baseFolderName = _preferences["pkv_root"]
         _attachment_root = _preferences["attachments_root"]
         _projects_root = _preferences["projects_root"]
@@ -248,6 +252,7 @@ try:
             print(f"""{myTerminal.ERROR}Template path '{_template_path}' does not exist,
                   consider creating it or editing your preferences.{myTerminal.RESET} """)
             exit(1)
+
 
         _show_tag_prompt = (
             _preferences.get("show_tag_prompt", "False").upper() == "TRUE"
