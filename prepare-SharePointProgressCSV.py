@@ -87,7 +87,7 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
                 lastProgressNote = note
 
         if NeedsWeeklyProgressUpdate and TeamSharePointBackLogListRowID != 0 and lastProgressNote:
-
+            print (f"\t\tProject '{projectName}' has a last progress note on {lastProgressNote.date}, preparing update for SharePoint Backlog List")
             cleanNoteBody = lastProgressNote.noteBody.replace("## Progress Statement", "").strip()
             cleanNoteBody = cleanNoteBody.replace("#", "").replace("*", "").strip()
             #Replace anything in between hidden tags <-- and -> with an empty string
