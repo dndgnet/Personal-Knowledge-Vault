@@ -19,6 +19,7 @@ template_pathRoot = myPreferences.root_templates()
 
 
 def main():
+    noteToOpenList = []
     projects, selectedProjectName, selectedProjectIndex = (
         myInputs.select_project_name_withDict()
     )
@@ -89,8 +90,8 @@ def main():
             )
             if openExisting:
                 print("Opening the existing note.")
-                myNotes.open_note_in_editor(existingNote.filePath)
-
+                noteToOpenList.append(existingNote.filePath)
+               
     # make sure the new note directory directory exists
     if selectedProjectName == "" or selectedProjectName is None:
         # project selected, save in the project folder
@@ -240,6 +241,9 @@ def main():
     myVersionControl.add_and_commit(
         output_path, f"Added new {noteType} note: {title} on {timestamp_full}"
     )
+
+    for notePath in noteToOpenList:
+        myNotes.open_note_in_editor(notePath)
 
     if noteType != "event" or myPreferences.automatically_open_event_notes():
         # os.system(f'{myPreferences.default_editor()} "{output_path}"')

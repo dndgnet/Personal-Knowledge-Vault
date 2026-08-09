@@ -40,3 +40,16 @@ colours = {
     "Green":"#1ABC9C",
     "Orange":"#FF8C33",
     "Blue":"#3357FF"}
+
+# Project note types that can only have one instance
+projectNoteTypesWhereThereCanBeOnlyOne = (
+    "hub",
+    "executive_summary",
+    "introduction",
+    "budget",
+    "roi",
+    "transition_plan",
+    "milestones",
+    "schedule",
+    "scope"
+)

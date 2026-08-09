@@ -10,6 +10,7 @@ from . import Notes as myNotes
 from . import Preferences as myPreferences
 from . import Terminal as myTerminal
 from . import Tools as myTools
+from . import Variables as myVariables
 from .Templates import merge_template_with_values, read_Template
 
 monthStringNames = [
@@ -27,18 +28,8 @@ monthStringNames = [
     "Dec",
 ]
 
-# for some project notes we only want one created
-projectNoteTypesWhereThereCanBeOnlyOne = (
-    "hub",
-    "executive_summary",
-    "introduction",
-    "budget",
-    "roi",
-    "transition_plan",
-    "milestones",
-    "schedule",
-    "scope"
-)
+# for some project notes we only want one created (now imported from Variables)
+projectNoteTypesWhereThereCanBeOnlyOne = myVariables.projectNoteTypesWhereThereCanBeOnlyOne
 
 dataTypeDictionary = {
     "BurnDown": "x-axis,Planned Budget,Actual,Earned Value,Notes",

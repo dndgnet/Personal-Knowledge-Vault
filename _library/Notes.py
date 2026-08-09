@@ -1,8 +1,4 @@
-"""
-Notes module - Contains NoteData class and all note-related operations.
-"""
-
-import datetime
+from datetime import datetime
 import json
 import os
 import re
@@ -14,14 +10,18 @@ try:
     from . import ActionItems as myActionItems
     from . import Preferences as myPreferences
     from . import Terminal as myTerminal
+    from . import Templates as myTemplates
     from . import Variables as myVariables
+    from .Templates import read_Template
 
-except ImportError:
+except ImportError as ex:
+    print(ex)
     import ActionItems as myActionItems
     import Preferences as myPreferences
     import Terminal as myTerminal
+    import Templates as myTemplates
     import Variables as myVariables
-
+    from Templates import read_Template
 
 @dataclass
 class NoteData:
@@ -419,7 +419,7 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
         noteContent = f.read()
 
     
-    osFileDateTime = datetime.datetime.fromtimestamp(
+    osFileDateTime = datetime.fromtimestamp(
         os.path.getmtime(notePathAndFile)
     ).strftime("%Y-%m-%d %H:%M:%S")
 
@@ -953,7 +953,7 @@ def clone_note(sourceNotePath) -> str:
 
     date = get_note_date_from_frontMatter(frontMatter)
     if date == "":
-        date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     newBody = body
     # Replace the date line in the body with the current date
@@ -963,8 +963,8 @@ def clone_note(sourceNotePath) -> str:
 
     oldTitle = get_stringValue_from_frontMatter("title", frontMatter)
 
-    timestamp_id = datetime.datetime.now().strftime(myPreferences.timestamp_id_format())
-    selectedDateTime = datetime.datetime.now()
+    timestamp_id = datetime.now().strftime(myPreferences.timestamp_id_format())
+    selectedDateTime = datetime.now()
     timestamp_full = selectedDateTime.strftime(myPreferences.datetime_format())
 
     newFileName = myTools.generate_unique_identifier(timestamp_id, "", oldTitle) + ".md"
@@ -1378,6 +1378,113 @@ def get_attachments_from_note(note: NoteData) -> list[str]:
 
     return unique_attachments
 
+def make_note_from_template(selectedProjectName: str, selectedTemplateName: str, suggestedDateTime: datetime, mergeData: dict, 
+                            suggestedTitle: str) -> tuple[str, str, str]:
+    """
+    Creates a note from a template by merging template content with provided data.
+    
+    Args:
+        selectedProjectName: The name of the project to create the note for
+        selectedTemplateName: The name of the template file to use
+        suggestedDateTime: The datetime to use for timestamps in the note
+        mergeData: Dictionary of data to merge into the template
+        suggestedTitle: The suggested title for the note
+        
+    Returns:
+        tuple: (output_path, note_Content, uniqueIdentifier) containing the file path,
+               the generated note content, and the unique identifier for the note
+    """
+    try:
+        from . import Tools as myTools
+    except ImportError as ex:
+        print(ex)
+        import Tools as myTools     
+
+    # based on the selected template, figure out which output folder to use
+    selectedTemplatePath = os.path.join(myPreferences.root_templates(), selectedTemplateName)
+
+    # get rid of unnecessary parts of the template name
+    # templates should have a prefix that tells what group of template they belong to
+    # and a suffix that shows they are a template
+    noteType = selectedTemplateName
+
+    for part in myTemplates.templateNamePartsToReplace:
+        noteType = noteType.replace(part, "")
+    
+
+    # make sure the new note directory directory exists
+    if selectedProjectName == "" or selectedProjectName is None:
+        # project selected, save in the project folder
+        newNote_directory = myPreferences.root_pkv()
+    else:
+        # project not selected, save in the root of the PKV
+        newNote_directory = os.path.join(
+            myPreferences.root_projects(), selectedProjectName
+        )
+
+    os.makedirs(newNote_directory, exist_ok=True)
+
+
+    title = suggestedTitle if suggestedTitle else  noteType
+        
+    # collect information that should be seeded into the note fields
+    if noteType in myVariables.projectNoteTypesWhereThereCanBeOnlyOne:
+        selectedDateTime, title = datetime.now(), noteType
+
+    if suggestedDateTime is None:
+        selectedDateTime = datetime.now(tz=datetime.timezone.utc)
+    else:
+        selectedDateTime = suggestedDateTime
+
+    timestamp_id = selectedDateTime.strftime(myPreferences.timestamp_id_format())
+    timestamp_date = selectedDateTime.strftime(myPreferences.date_format())
+    timestamp_full = selectedDateTime.strftime(myPreferences.datetime_format())
+
+    titleLettersAndNumbers = myTools.letters_and_numbers_only(
+        title
+    )  # Limit to 200 characters and remove special characters
+
+    uniqueIdentifier = myTools.generate_unique_identifier(
+        timestamp_id, noteType, titleLettersAndNumbers
+    )
+
+    # Read the template content
+    templateBody = read_Template(selectedTemplatePath)
+
+    mergeData["title"] = title
+    mergeData["timestamp_id"] = timestamp_id
+    mergeData["timestamp_date"] = timestamp_date
+    mergeData["timestamp_full"] = timestamp_full
+    mergeData["Tags"] = myTools.generate_tag_from_projectName(selectedProjectName)
+    mergeData["noteType"] = noteType
+    
+    uniqueIdentifier, note_Content = myTemplates.merge_template_with_values(
+        timestamp_id,
+        timestamp_full,
+        selectedProjectName,
+        templateBody,
+        mergeData=mergeData,
+        runSilent=True,
+        processUnPopulatedNoteBodyMergeTags=True,
+        prefilledUniqueIdentifier=uniqueIdentifier
+    )
+    
+    output_filename = f"{uniqueIdentifier}.md"
+    output_path = os.path.join(newNote_directory, output_filename)
+
+    if os.path.exists(output_path):
+        print(
+            f"\t\t{myTerminal.ERROR}A note with the unique identifier '{uniqueIdentifier}' already exists.{myTerminal.RESET}"
+        )
+    else:
+        # Save the new note
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(note_Content)
+        print(f"{myTerminal.SUCCESS}Note created:{myTerminal.RESET} {output_path}")
+
+    return output_path, note_Content, uniqueIdentifier
+
+
 
 def __test_AddNote__():
     """
@@ -1407,8 +1514,8 @@ def __test_AddNote__():
     project_name = project_names[0]
     project_path = os.path.join(projects_root, project_name)
 
-    timestamp_id = datetime.datetime.now().strftime(myPreferences.timestamp_id_format())
-    timestamp_full = datetime.datetime.now().strftime(myPreferences.datetime_format())
+    timestamp_id = datetime.now().strftime(myPreferences.timestamp_id_format())
+    timestamp_full = datetime.now().strftime(myPreferences.datetime_format())
     file_name = f"{timestamp_id}_test_add_note.md"
     file_path = os.path.join(project_path, file_name)
 

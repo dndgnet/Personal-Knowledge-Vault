@@ -42,6 +42,7 @@ _exampleEmptyPreferences = {
     "use_versioncontrol": "True",  # set to true if the PKV should use git for version control, set to false if the author does not want to use git
     "author_name": "default",  # use default to use the system username, or provide a custom name to be used in notes
     "TemporaryOneNoteExportFolder": "C:\\tempOneNoteExport", #temporary folder for exporting OneNote pages
+    "TemporarySharePointListCommentsPath": "/Users/david/temp/SharePointListComments.csv", #temporary folder for exporting SharePoint list comments
 }
 
 _preferences = {}
@@ -92,6 +93,7 @@ _automatically_open_event_notes = False
 _author_name = ""
 _use_versioncontrol = False
 _temporaryOneNoteExportFolder = ""
+_temporarySharePointListCommentsPath = ""
 
 def root_pkv() -> str:
     """Returns the documents subfolder for the pkv."""
@@ -184,6 +186,10 @@ def temporaryOneNoteExportFolder() -> str:
     """Returns the temporary folder for exporting OneNote pages."""
     return _temporaryOneNoteExportFolder
 
+def temporarySharePointListCommentsPath() -> str:
+    """Returns the temporary path for exporting SharePoint list comments."""
+    return _temporarySharePointListCommentsPath
+
 def preferences() -> dict:
     """Returns the loaded preferences."""
     return _preferences
@@ -221,6 +227,7 @@ try:
     with open(preferences_File_Path, "r") as file:
         _preferences = json.load(file)
         _temporaryOneNoteExportFolder = _preferences["TemporaryOneNoteExportFolder"]
+        _temporarySharePointListCommentsPath = _preferences["TemporarySharePointListCommentsPath"]
         _pkv_baseFolderName = _preferences["pkv_root"]
         _attachment_root = _preferences["attachments_root"]
         _projects_root = _preferences["projects_root"]

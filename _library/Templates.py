@@ -4,8 +4,8 @@ from . import Inputs as myInput
 import os
 import re
 
-# Import NoteData from Notes module
-from .Tools import generate_unique_identifier, letters_and_numbers_only
+# Note: Tools imports are done lazily inside functions to avoid circular dependency
+# (Tools imports Notes, Notes imports Templates, Templates would import Tools)
 
 templateNamePartsToReplace = [
         "PKV_",
@@ -54,7 +54,8 @@ def merge_template_with_values(timestamp_id, timestamp_full, selectedProjectName
                                template: str, 
                                mergeData: dict,
                                runSilent: bool = False,
-                               processUnPopulatedNoteBodyMergeTags: bool = True) -> tuple[str, str]:
+                               processUnPopulatedNoteBodyMergeTags: bool = True,
+                               prefilledUniqueIdentifier: str = "") -> tuple[str, str]:
     """
     Merges a template string with values from a dictionary.
     
@@ -64,10 +65,13 @@ def merge_template_with_values(timestamp_id, timestamp_full, selectedProjectName
         runSilent (bool): If True, skips prompting for missing tags, replacing them with blank strings.
         processUnPopulatedNoteBodyMergeTags (bool): If False, skips prompting for missing tags in the body, use this
         option when building an atomic note from an existing body to avoid treating backlinks as mergeable tags.
+        prefilledUniqueIdentifier (str): If provided, this unique identifier will be used instead of generating a new one.
 
     Returns:
-        str: The merged string with placeholders replaced by actual values.
+        tuple[str, str]: A tuple containing the unique identifier and the merged template string.
     """
+    # Lazy import to avoid circular dependency (Tools imports Notes, Notes imports Templates)
+    from .Tools import generate_unique_identifier, letters_and_numbers_only
      
     #handle the common date tags with hard coded values 
     timestamp_id = timestamp_id.split("_")[0]  # Ensure timestamp_id is just the date part
@@ -77,7 +81,7 @@ def merge_template_with_values(timestamp_id, timestamp_full, selectedProjectName
     template = template.replace("[DATETIME]", timestamp_full)
     template = template.replace("[YYYY-MM-DD]", timestamp_full.split(" ")[0])
     template = template.replace("[DATE]", timestamp_full.split(" ")[0])
-    template = template.replace("[Current User]", myPreferences.author_name())
+    #template = template.replace("[Current User]", myPreferences.author_name())
 
     #handle the project, author and tags with synonyms    
     projectTag_synonyms = ["Project Name", "ProjectName", "Project"]
@@ -87,7 +91,8 @@ def merge_template_with_values(timestamp_id, timestamp_full, selectedProjectName
     checkboxCompleteTag_synonyms = ["CHECKBOX_CHECKED", "CHECKBOX COMPLETE"] 
     title = ""
 
-    mergeData["Current User"] = myPreferences.author_name()
+    if mergeData.get("Current User","") == "":
+        mergeData["Current User"] = myPreferences.author_name()
 
     for key, value in mergeData.items():
         if key in projectTag_synonyms:
@@ -135,6 +140,9 @@ def merge_template_with_values(timestamp_id, timestamp_full, selectedProjectName
                     template = template.replace(f"{tag}", userInput)
     
     titleLettersAndNumbers = letters_and_numbers_only(title)  # Limit to 200 characters and remove special characters
-    uniqueIdentifier = generate_unique_identifier(timestamp_id, ("task" if processUnPopulatedNoteBodyMergeTags else "atomic"), titleLettersAndNumbers)
+    if prefilledUniqueIdentifier:
+        uniqueIdentifier = prefilledUniqueIdentifier
+    else:
+        uniqueIdentifier = generate_unique_identifier(timestamp_id, ("task" if processUnPopulatedNoteBodyMergeTags else "atomic"), titleLettersAndNumbers)
 
     return uniqueIdentifier, template
