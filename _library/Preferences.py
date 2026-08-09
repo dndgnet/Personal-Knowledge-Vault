@@ -226,8 +226,8 @@ if not os.path.exists(preferences_File_Path):
 try:
     with open(preferences_File_Path, "r") as file:
         _preferences = json.load(file)
-        _temporaryOneNoteExportFolder = _preferences["TemporaryOneNoteExportFolder"]
-        _temporarySharePointListCommentsPath = _preferences["TemporarySharePointListCommentsPath"]
+        _temporaryOneNoteExportFolder = _preferences.get("TemporaryOneNoteExportFolder")
+        _temporarySharePointListCommentsPath = _preferences.get("TemporarySharePointListCommentsPath")
         _pkv_baseFolderName = _preferences["pkv_root"]
         _attachment_root = _preferences["attachments_root"]
         _projects_root = _preferences["projects_root"]
