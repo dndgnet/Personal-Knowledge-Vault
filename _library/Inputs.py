@@ -4,6 +4,8 @@ Collect inputs from users for specific tasks.
 
 #from pandas import options
 
+from attr import has
+
 from . import Preferences as myPreferences
 from . import Tools as myTools
 from . import Terminal as myTerminal
@@ -579,8 +581,7 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
     attachmentCount = 0
     if promptForAttachments:
         addAttachment = input(f"{myTerminal.INPUTPROMPT}Add attachment? (y/n): {myTerminal.RESET}").strip().upper()
-
-        print("")
+        print()
         while addAttachment == "Y":
             selectedFile, attachmentTagValue = select_attachment_from_user(projectName=selectedProjectName, uniqueIdentifier=timestamp_id)
             if attachmentTagValue != "":
@@ -589,6 +590,14 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
                 
                 attachmentCount += 1
                 note_Content += f"\n[{selectedFile}](./_Attachments/{attachmentTagValue})\n"
+                if selectedFile.endswith(".eml"):
+                    success, hasAttachments, emailContent = email_as_Text(os.path.join(myPreferences.root_projects(), selectedProjectName, "_Attachments", attachmentTagValue))
+
+                    if success:
+                        note_Content += emailContent
+                    else:
+                        print(f"\t\t{myTerminal.WARNING}Failed to process email attachment '{selectedFile}': {emailContent}{myTerminal.RESET}")
+
                 print(f"\t\t{myTerminal.SUCCESS}Attachment added '{selectedFile}'.{myTerminal.RESET}")
                 addAttachment = input(f"{myTerminal.INPUTPROMPT}Add another attachment? (y/n): {myTerminal.RESET}").strip().upper()
             else:
@@ -596,6 +605,49 @@ def get_templateMerge_Values_From_User(timestamp_id,timestamp_date,timestamp_ful
                 addAttachment = "N"
                
     return note_Content
+
+def email_as_Text(emailFilePath: str) -> tuple[bool,bool,str]:
+    """
+    Convert an email file (.eml) to plain text.
+    Returns a tuple of (success, email content as text).
+    """
+    try:
+        import email
+        from email import policy
+        from email.parser import BytesParser
+        returnString = """\n<!--Email Content for search>\n\n<div style="font-size:small; margin-left: 6em;">\n\n"""
+
+        with open(emailFilePath, 'rb') as f:
+            msg = BytesParser(policy=policy.default).parse(f)
+
+        returnString += f"Date: {msg.get('date')}\n"
+        returnString += f"From: {msg.get('from')}\n"
+        returnString += f"To: {msg.get('to')}\n"
+        returnString += f"Subject: {msg.get('subject')}\n"
+        hasAttachments = False
+        if msg.get('X-MS-Has-Attach') == 'yes':
+            returnString += "Has Attachments\n"
+            hasAttachments = True
+            returnString += "Attachments:\n"
+            for part in msg.walk():
+                if part.get_content_disposition() == 'attachment':
+                    returnString += f" - {part.get_filename()}\n"
+        
+        if msg.is_multipart():
+            for part in msg.walk():
+                ctype = part.get_content_type()
+                disp = part.get_content_disposition()
+                if ctype == "text/plain" and disp != "attachment":
+                    returnString += f"Body: {part.get_content()}\n"
+                    break
+        else:
+            returnString += f"Body: {msg.get_content()}\n"
+
+        returnString += "\n</div>\n\n<!--Email Content for search -->\n\n"
+        return True,hasAttachments, returnString
+    except Exception as e:
+        return False, False, f"Error processing email: {e}"
+    
 
 def get_templateMerge_Values_From_ExistingData(templateData: Union[NoteData, dict], note_Content: str) -> tuple[str,str,str]:
     """
