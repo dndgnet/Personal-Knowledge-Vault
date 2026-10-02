@@ -225,20 +225,8 @@ if not os.path.exists(preferences_File_Path):
 
 try:
     with open(preferences_File_Path, "r") as file:
-        _preferences = json.load(file)
-        _temporaryOneNoteExportFolder = _preferences.get("TemporaryOneNoteExportFolder")
-        _temporarySharePointListCommentsPath = _preferences.get("TemporarySharePointListCommentsPath")
-        _pkv_baseFolderName = _preferences["pkv_root"]
-        _attachment_root = _preferences["attachments_root"]
-        _projects_root = _preferences["projects_root"]
-        _archive_root = _preferences["archive_root"]
-        _timestamp_id_format = _preferences["timestamp_id_format"]
-        _datetime_format = _preferences["datetime_format"]
-        _date_format = _preferences["date_format"]
-        _documents_path = _preferences["documents_path"]
-        if _documents_path == "default":
-            _documents_path = os_documents_Path
 
+        _os_user_name = os.getenv("USERNAME", "default")
         _author_name = _preferences.get("author_name", "default")
         if _author_name == "default":
             if sys.platform in ("linux", "linux2", "darwin"):
@@ -247,6 +235,22 @@ try:
                 _author_name = os.getenv("USERNAME", "default")
             else:
                 _author_name = "default"
+
+        _preferences = json.load(file)
+        _temporaryOneNoteExportFolder = _preferences.get("TemporaryOneNoteExportFolder").replace('[username]', _os_user_name)
+        _temporarySharePointListCommentsPath = _preferences.get("TemporarySharePointListCommentsPath").replace('[username]', _os_user_name)
+        _pkv_baseFolderName = _preferences["pkv_root"]
+        _attachment_root = _preferences["attachments_root"]
+        _projects_root = _preferences["projects_root"]
+        _archive_root = _preferences["archive_root"]
+        _timestamp_id_format = _preferences["timestamp_id_format"]
+        _datetime_format = _preferences["datetime_format"]
+        _date_format = _preferences["date_format"]
+        _documents_path = _preferences["documents_path"].replace('[username]', _os_user_name)
+        if _documents_path == "default":
+            _documents_path = os_documents_Path
+
+
 
         _template_path = (
             os.path.join(os.getcwd(), "_templates")
@@ -284,7 +288,7 @@ try:
             print(f"""{myTerminal.ERROR}Attachment pickup path '{_attachmentPickUp_path}' does not exist,
                   consider creating it or editing your preferences.{myTerminal.RESET} """)
 
-        _screenCaptures_path = _preferences["screenCapture_path"]
+        _screenCaptures_path = _preferences["screenCapture_path"].replace('[username]', _os_user_name)
         if _screenCaptures_path in ("default", ""):
             if sys.platform in ("linux", "linux2", "darwin"):
                 _screenCaptures_path = os.path.expanduser("~/Pictures/ScreenShots")
