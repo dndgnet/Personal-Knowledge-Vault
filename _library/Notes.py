@@ -1335,6 +1335,7 @@ def get_attachments_from_note(note: NoteData) -> list[str]:
     # and standard markdown links/images ](...)
     wikilink_pattern = r"!?\[\[([^\]]+)\]\]"
     markdown_pattern = r"\]\(([^)]+)\)"
+    markdown_pattern_AngleBrackets = r"\]\(<([^)]+)>\)"
 
     # Find wikilink-style attachments
     wikilink_matches = re.findall(wikilink_pattern, note.noteBody)
@@ -1355,6 +1356,22 @@ def get_attachments_from_note(note: NoteData) -> list[str]:
     # Find markdown-style attachments
     markdown_matches = re.findall(markdown_pattern, note.noteBody)
     for match in markdown_matches:
+        # Skip if it's a web link
+        if match.startswith("http://") or match.startswith("https://"):
+            continue
+
+        # Extract filename (already clean from the regex)
+        filename = match.strip()
+
+        # Check if the file has a supported extension
+        if "." in filename:
+            extension = filename.split(".")[-1].lower()
+            if extension in supported_extensions:
+                attachments.append(filename)
+
+    # Find markdown-style attachments with angle brackets
+    markdown_angle_matches = re.findall(markdown_pattern_AngleBrackets, note.noteBody)
+    for match in markdown_angle_matches:
         # Skip if it's a web link
         if match.startswith("http://") or match.startswith("https://"):
             continue
