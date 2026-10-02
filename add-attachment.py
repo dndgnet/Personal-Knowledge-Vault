@@ -3,6 +3,7 @@
 from _library import Preferences as myPreferences, Terminal as myTerminal, Inputs as myInputs, VersionControl as myVersionControl
 import os
 import datetime
+import _library.Tools as myTools
 
 downloads_folder = myPreferences.attachmentPickUp_path()
 files = []
@@ -79,7 +80,16 @@ if input_string.isdigit() and 1 <= int(input_string) <= fileIndex:
         if "### Attachments" not in selectedNote.noteBody:
             newNoteBody +=  "\n\n\n### Attachments\n\n"
         
-        newNoteBody += f"""\n\n[{selected_file}](./_Attachments/{attachment_file_name})\n"""
+        newNoteBody += f"""\n\n[{selected_file}](<./_Attachments/{attachment_file_name}>)\n"""
+        if selected_file.endswith(".eml"):
+            success, hasAttachments, emailContent = myTools.email_as_Text(os.path.join(myPreferences.root_projects(), selectedProject, "_Attachments", attachment_file_name))
+
+            if success:
+                newNoteBody += emailContent
+            else:
+                print(f"\t\t{myTerminal.WARNING}Failed to process email attachment '{selected_file}': {emailContent}{myTerminal.RESET}")
+
+            print(f"\t\t{myTerminal.SUCCESS}Attachment added '{selected_file}'.{myTerminal.RESET}")
 
         #assume that the user has the Visual Studio autosave on, so the note is already saved
         #_ = input(f"{myTerminal.WARNING} Make sure you have saved the note '{selectedNote.title}' before continuing (pressing enter).{myTerminal.RESET}")
@@ -93,5 +103,5 @@ if input_string.isdigit() and 1 <= int(input_string) <= fileIndex:
 
     else:
         #print(f"{myTools.GREEN}File '{selected_file}' moved to attachments.{myTerminal.RESET}")
-        print(f"\t{myTerminal.SUCCESS}moved file to PKV, use  \n \t\t[{selected_file}]({selected_file}) \n\tas a back link in notes.{myTerminal.RESET}")
+        print(f"\t{myTerminal.SUCCESS}moved file to PKV, use  \n \t\t[{selected_file}](<{selected_file}>) \n\tas a back link in notes.{myTerminal.RESET}")
     
