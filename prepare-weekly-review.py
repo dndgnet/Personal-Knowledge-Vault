@@ -26,7 +26,7 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
         projectConfig = myProjects.get_ProjectConfig_as_dict(filename)
         projectName = projectConfig.get("ProjectName", "")
         print(f"\tProcessing project '{projectName}'")
-        publicShareFolder = projectConfig.get("PublicShareFolder", "")
+        publicShareFolder = projectConfig.get("PublicShareFolder", "").replace("[username]", myPreferences.os_user_name())
         PublicShareFolderURL = projectConfig.get("PublicShareFolderURL", "")
         NeedsWeeklyProgressUpdate = projectConfig.get("Needs Weekly Progress Update", False)
         TimeCode = projectConfig.get("TimeCode", "")

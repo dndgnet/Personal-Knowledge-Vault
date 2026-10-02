@@ -60,7 +60,7 @@ if not projectConfig.get("Sync", False):
     exit(1)
 
 # get physical locations for the sync
-synchFolderPath = projectConfig.get("PublicShareFolder", "")
+synchFolderPath = projectConfig.get("PublicShareFolder", "").replace("[username]", myPreferences.os_user_name())
 synchFolderAttachmentPath = (
     os.path.join(synchFolderPath, "_Attachments") if synchFolderPath else ""
 )

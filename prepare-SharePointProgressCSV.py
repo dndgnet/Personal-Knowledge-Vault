@@ -25,7 +25,7 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
     if os.path.isdir(os.path.join(myPreferences.root_projects(), filename)):
         projectConfig = myProjects.get_ProjectConfig_as_dict(filename)
         projectName = projectConfig.get("ProjectName", "")
-        publicShareFolder = projectConfig.get("PublicShareFolder", "")
+        publicShareFolder = projectConfig.get("PublicShareFolder", "").replace("[username]", myPreferences.os_user_name())
         PublicShareFolderURL = projectConfig.get("PublicShareFolderURL", "")
         NeedsWeeklyProgressUpdate = projectConfig.get("Needs Weekly Progress Update", False)
 
