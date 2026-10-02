@@ -1,5 +1,5 @@
 ---
-title: Daily Journal [DATE]
+title: [Title]
 id: [YYYYMMDDHHMMSS] 
 type: journal
 created: [YYYY-MM-DD HH:MM:SS] 

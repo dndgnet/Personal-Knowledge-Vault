@@ -75,6 +75,7 @@ else:
 
 
 # shared preferences
+_os_user_name = ""
 _pkv_baseFolderName = ""
 _attachment_root = ""
 _projects_root = ""
@@ -94,6 +95,10 @@ _author_name = ""
 _use_versioncontrol = False
 _temporaryOneNoteExportFolder = ""
 _temporarySharePointListCommentsPath = ""
+
+def os_user_name() -> str:
+    """Returns the OS user name."""
+    return _os_user_name
 
 def root_pkv() -> str:
     """Returns the documents subfolder for the pkv."""
@@ -226,13 +231,14 @@ if not os.path.exists(preferences_File_Path):
 try:
     with open(preferences_File_Path, "r") as file:
 
-        _os_user_name = os.getenv("USERNAME", "default")
         _author_name = _preferences.get("author_name", "default")
         if _author_name == "default":
             if sys.platform in ("linux", "linux2", "darwin"):
                 _author_name = os.getenv("USER", "default")
+                _os_user_name = os.getenv("USER", "default")
             elif sys.platform in ("win32", "windows"):
                 _author_name = os.getenv("USERNAME", "default")
+                _os_user_name = os.getenv("USERNAME", "default")
             else:
                 _author_name = "default"
 
