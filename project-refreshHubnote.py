@@ -2,6 +2,7 @@
 
 import os
 import sys 
+import subprocess 
 
 from _library import Inputs as myInputs
 from _library import Notes as myNotes
@@ -14,11 +15,14 @@ myTerminal.clearTerminal()
 selectedProject = None
 silentMode = False
 
-for arg in sys.argv[1:]:
-    if arg.startswith("--project="):
-        selectedProject = arg.split("=")[1]
-        silentMode = True
-        
+selectedProject = ""
+if len(sys.argv) > 1:
+    for arg in sys.argv[1:]:
+        selectedProject += arg + " "
+        selectedProject = selectedProject.strip()
+    print (f"'{selectedProject}'")
+    silentMode = True
+
 print(f"{myTerminal.INFORMATION}Refresh Project Hub Note{myTerminal.RESET}\n")
 print("")
 
@@ -29,7 +33,7 @@ if selectedProject is None or selectedProject == "":
     print("Available target projects:")
     selectedProject = myInputs.select_project_name(False, False)
 
-myTerminal.executePythonScript("""project-refreshMilestones.py""", f"--project={selectedProject}")
+myTerminal.executePythonScript("""project-refreshMilestones.py""", selectedProject)
 
 if selectedProject is None or selectedProject == "":
     print(f"{myTerminal.WARNING}No project selected.{myTerminal.RESET}")

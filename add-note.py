@@ -247,6 +247,7 @@ def main():
 
     if noteType != "event" or myPreferences.automatically_open_event_notes():
         # os.system(f'{myPreferences.default_editor()} "{output_path}"')
+        myTools.open_vault()
         myTools.open_note_in_editor(output_path)
 
 

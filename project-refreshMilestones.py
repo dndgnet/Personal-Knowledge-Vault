@@ -15,6 +15,8 @@ myTerminal.clearTerminal()
 selectedProject: str = ""
 silentMode: bool = False
 
+openMilestonesAfterRefresh = True
+
 #get selected project from command line argument if provided
 if len(sys.argv) > 1:
     for arg in sys.argv[1:]:
@@ -22,6 +24,7 @@ if len(sys.argv) > 1:
     selectedProject = selectedProject.strip()
     silentMode = True
     print (f"'{selectedProject}'")
+    openMilestonesAfterRefresh = False
 
 
 print(
@@ -47,16 +50,16 @@ projectConfig = myProjects.get_ProjectConfig_as_dict(selectedProject)
 projectNotes = myNotes.get_Notes_from_Project(selectedProject)
 projectNotes.sort(key=lambda note: myTools.datetime_fromString(note.plannedDate)[1])
 
-hasMilestone = False
+hasMasterMileStoneNote = False
 milestoneNote = myNotes.blankNoteData()
 
 for note in projectNotes:
-    if note.type.lower().endswith("milestones"):
-        hasMilestone = True
+    if  note.type.lower().endswith("milestones"):
+        hasMasterMileStoneNote = True
         milestoneNote = note
         break
 
-if not hasMilestone:
+if not hasMasterMileStoneNote:
     print(f"{myTerminal.WARNING}No milestone note found for project '{selectedProject}'.{myTerminal.RESET}")
     exit(1)
 
@@ -105,7 +108,7 @@ if actualAndPlannedAreTheSame:
 else:
 
     
-    if silentMode or not myInputs.ask_yes_no_from_user("Show planned baseline for milestones?", True):
+    if silentMode==False and not myInputs.ask_yes_no_from_user("Show planned baseline for milestones?", True):
         plannedString = "" 
 
 
@@ -140,4 +143,5 @@ if milestoneNote is not None:
     if success:
         myNotes.update_NoteBody(milestoneNote, newNoteBody)
 
-myTools.open_note_in_editor(milestoneNote.filePath)
+if openMilestonesAfterRefresh:
+    myTools.open_note_in_editor(milestoneNote.filePath)
