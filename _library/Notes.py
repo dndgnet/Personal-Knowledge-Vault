@@ -159,7 +159,7 @@ def addLine(newString="") -> str:
     standardizes EOL behavior
     """
 
-    return f"{newString}"
+    return f"{newString}\n"
 
 
 # == main functions to open notes by id or file name ===
