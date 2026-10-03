@@ -19,7 +19,7 @@ selectedProject = ""
 if len(sys.argv) > 1:
     for arg in sys.argv[1:]:
         selectedProject += arg + " "
-        selectedProject = selectedProject.strip()
+    selectedProject = selectedProject.strip()
     print (f"'{selectedProject}'")
     silentMode = True
 
@@ -149,7 +149,12 @@ else:
     )
 
 allNotesForProject = myNotes.get_Notes_from_Project(selectedProject)
-returnTableFormat = True if input("Return risks content in table format? (y/n, default n): ").lower() != "n" else False
+returnTableFormat = True
+if silentMode or input("Return risks content in table format? (y/n, default n): ").lower() != "n":
+    returnTableFormat = False
+else:
+    returnTableFormat = True
+
 # deal with risks
 risksContent = myProjects.raid_Risks(
     selectedProject, allNotesForProject, returnTableFormat=returnTableFormat
@@ -197,7 +202,10 @@ else:
 
 # deal with decisions
 print("\nLong decisions are difficult to read in a table format. If you have long decisions, you may want to choose to not return the decisions in a table format.")
-returnTableFormat = True if input("\nReturn decisions content in table format? (y/n, default n): ").lower() == "y" else False
+if silentMode or input("\nReturn decisions content in table format? (y/n, default n): ").lower() != "n":
+    returnTableFormat = False
+else:
+    returnTableFormat = True
 
 decisionsContent = myProjects.raid_Decisions(
     selectedProject, allNotesForProject, returnTableFormat=returnTableFormat
@@ -229,7 +237,10 @@ else:
 
 
 # deal with Change Requests
-returnTableFormat = True if input("\nReturn change requests content in table format? (y/n, default n): ").lower() == "y" else False
+if silentMode or input("\nReturn change requests content in table format? (y/n, default n): ").lower() != "n":
+    returnTableFormat = True
+else:
+    returnTableFormat = False
 changeRequestsContent = myProjects.notePart_ChangeRequests(
     selectedProject, allNotesForProject, returnTableFormat=returnTableFormat
 )

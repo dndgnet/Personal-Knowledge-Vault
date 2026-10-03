@@ -1000,10 +1000,13 @@ def raid_Decisions(
                 possibleSummarySections = ['Executive Summary / Recommendation',"Summary","Recommendation","Executive Summary"]
                 summaryText = ""
                 for section in possibleSummarySections:
-                    summaryText = myNotes.get_sectionValue_from_noteBody(section, decision.noteBody)
+                    summaryText = myNotes.get_sectionValue_from_noteBody(section, decision.noteBody, False)
                     if summaryText != "":
                         break
                 newNotePart += f"**Summary**: {summaryText}\n\n"
+                if decision.shareWithStakeholders == True:
+                    #include a relative link to the actual decision document
+                    newNotePart += f"[link](<./{decision.fileName}>)\n\n"
 
     return newNotePart
 

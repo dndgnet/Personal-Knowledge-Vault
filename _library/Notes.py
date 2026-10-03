@@ -1232,7 +1232,7 @@ def get_sectionValue_from_noteBodyForTableCell(valueLabel: str, noteBody: str) -
     )
 
 
-def get_sectionValue_from_noteBody(valueLabel: str, noteBody: str) -> str:
+def get_sectionValue_from_noteBody(valueLabel: str, noteBody: str,includeChildSubsections: bool = True) -> str:
     """
     Extracts section from the body of a note based on a given label.  Assumes the
     label will start with #
@@ -1251,6 +1251,7 @@ def get_sectionValue_from_noteBody(valueLabel: str, noteBody: str) -> str:
 
     for line in noteBody.splitlines():
         #get to the starting point of the section we are looking for
+    
         if (
             line.startswith(f"# {valueLabel}")
             or line.startswith(f"## {valueLabel}")
@@ -1265,6 +1266,8 @@ def get_sectionValue_from_noteBody(valueLabel: str, noteBody: str) -> str:
 
         if sectionFound:
             if "# " in line:
+                if not includeChildSubsections:
+                    return returnValue
                 lineDepth = line[:10].count("#")
             else:
                 lineDepth = 0

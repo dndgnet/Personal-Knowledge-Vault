@@ -13,7 +13,7 @@ keywords:
 project: [Project Name]
 author: [Author]
 private: No
-shareWithStakeholders: No
+shareWithStakeholders: Yes
 ---
 
 # [Title]

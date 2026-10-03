@@ -12,7 +12,7 @@ keywords:
 project: [Project Name]
 author: [Current User]
 private: No
-shareWithStakeholders: No
+shareWithStakeholders: Yes
 isMilestone: [isMilestone]
 plannedDate: [plannedDate]
 actualDate: [actualDate]
