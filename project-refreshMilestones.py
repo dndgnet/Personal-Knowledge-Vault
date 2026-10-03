@@ -130,8 +130,7 @@ gantt
 {actualString}
 
 ```
-"""
-print(gantt)
+""" 
 
 if silentMode or myInputs.ask_yes_no_from_user("Show gantt diagram?", True):
     milestoneContent = f"\n{gantt}\n\n{myTools.divTagSmall}\n\n{table}\n\n{myTools.divTagEnd}\n\n"
