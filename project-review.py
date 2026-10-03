@@ -7,6 +7,11 @@ from _library import Tools as myTools, Preferences as myPreferences, Inputs as m
 from _library import Notes as myNotes
 import datetime 
 
+"""
+Project Review Script
+Generates a weekly review of projects based on recent notes.
+"""
+
 #if input arguments include an integer, use that for days to go back
 daysToGoBack = 8
 
@@ -53,7 +58,8 @@ for projectName in projects.keys():
         
         print(f"Project path does not exist: {projectPath}")
 
-summaryPath = os.path.join(myPreferences.root_pkv(), "WeeklyProjectReview.md")
+summaryPath = os.path.join(myPreferences.root_pkv(), f"{myPreferences.os_user_name} WeeklyProjectReview.md")
 
 myNotes.write_Note_to_path(summaryPath, weeklyReview)
+myTools.open_vault()
 myTools.open_note_in_editor(summaryPath)
