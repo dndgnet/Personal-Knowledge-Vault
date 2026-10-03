@@ -996,7 +996,14 @@ def raid_Decisions(
                 newNotePart += f"### {decision.subId} {decision.title}\n\n"
                 newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', decision.noteBody)}\n"
                 newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('State', decision.noteBody)}\n"
-                newNotePart += f"**Summary**: {myNotes.get_sectionValue_from_noteBody('Executive Summary / Recommendation', decision.noteBody)}\n\n"
+
+                possibleSummarySections = ['Executive Summary / Recommendation',"Summary","Recommendation","Executive Summary"]
+                summaryText = ""
+                for section in possibleSummarySections:
+                    summaryText = myNotes.get_sectionValue_from_noteBody(section, decision.noteBody)
+                    if summaryText != "":
+                        break
+                newNotePart += f"**Summary**: {summaryText}\n\n"
 
     return newNotePart
 
