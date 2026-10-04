@@ -19,10 +19,16 @@ print("")
 #debug
 #selectedProject = "Legal Services Request App 2026 Enhancements"
 
-for arg in sys.argv[1:]:
-    if arg.startswith("--project="):
-        selectedProject = arg.split("=")[1]
-        silentMode = True
+selectedProject = ""
+if len(sys.argv) > 1:
+    for arg in sys.argv[1:]:
+        selectedProject += arg + " "
+    selectedProject = selectedProject.strip()
+    print (f"'{selectedProject}'")
+    silentMode = True
+
+print(f"{myTerminal.INFORMATION}Refresh Project Hub Note{myTerminal.RESET}\n")
+print("")
 
 if selectedProject is None or selectedProject == "":
     print("Available target projects:") 
