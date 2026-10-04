@@ -869,7 +869,7 @@ def raid_Issues(
                     newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', issue.noteBody)}\n\n"
                     if issue.shareWithStakeholders == True:
                         #include a relative link to the actual issue document
-                        newNotePart += f"Link: [open](<./{issue.fileName}>)\n"
+                        newNotePart += f"Link: [open](<./{issue.fileName}>)\n\n"
                     newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Issue Owner', issue.noteBody)}\n\n"
                     newNotePart += f"**Status**: {myNotes.get_stringValue_from_noteBody('Issue Status', issue.noteBody)}\n\n"
                     newNotePart += f"**Description**: {myNotes.get_sectionValue_from_noteBody('Description', issue.noteBody)}\n\n"
@@ -940,7 +940,7 @@ def raid_Assumptions(
                 newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', assumption.noteBody)}\n\n"
                 if assumption.shareWithStakeholders == True:
                     #include a relative link to the actual assumption document
-                    newNotePart += f"Link: [open](<./{assumption.fileName}>)\n"
+                    newNotePart += f"Link: [open](<./{assumption.fileName}>)\n\n"
                 newNotePart += f"**Status**: {myNotes.get_stringValue_from_noteBody('Status', assumption.noteBody)}\n\n"
                 newNotePart += f"**Impact**: {myNotes.get_stringValue_from_noteBody('Impact', assumption.noteBody)}\n\n"
                 newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Identified by', assumption.noteBody)}\n\n"
@@ -1005,7 +1005,7 @@ def raid_Decisions(
                 newNotePart += f"### {decision.subId} {decision.title}\n\n"
                 if decision.shareWithStakeholders == True:
                     #include a relative link to the actual decision document
-                    newNotePart += f"Link: [open](<./{decision.fileName}>)\n"
+                    newNotePart += f"Link: [open](<./{decision.fileName}>)\n\n"
                 newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', decision.noteBody)}\n\n"
                 newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('State', decision.noteBody)}\n\n"
 
