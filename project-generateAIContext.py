@@ -2,6 +2,7 @@
 
 import os
 import sys 
+import base64
 
 from _library import Inputs as myInputs
 from _library import Notes as myNotes
@@ -20,6 +21,7 @@ if len(sys.argv) > 1:
 
 print(f"{myTerminal.INFORMATION}Generate AI Context File{myTerminal.RESET}\n")
 
+# Use silent mode if project provided via argument; otherwise prompt once
 if selectedProject == "":
     print("Available target projects:")
     selectedProject = myInputs.select_project_name(False, False)
@@ -28,7 +30,82 @@ if selectedProject is None or selectedProject == "":
     print(f"{myTerminal.WARNING}No project selected.{myTerminal.RESET}")
     sys.exit(1)
 
+print(f"{myTerminal.SUCCESS}Selected project: {selectedProject}{myTerminal.RESET}")
 print(f"Generating AI Context File for project: {selectedProject}")
+
+
+def image_to_data_url(image_path: str) -> str:
+    """Convert an image file to a data URL with base64 encoding."""
+    if not os.path.exists(image_path):
+        return f"[Image not found: {image_path}]"
+    try:
+        with open(image_path, "rb") as f:
+            img_data = f.read()
+        b64 = base64.b64encode(img_data).decode("utf-8")
+        ext = image_path.lower().split(".")[-1]
+        mime = {
+            "png": "image/png",
+            "jpg": "image/jpeg",
+            "jpeg": "image/jpeg",
+            "gif": "image/gif",
+            "webp": "image/webp",
+            "bmp": "image/bmp",
+            "svg": "image/svg+xml"
+        }.get(ext, "image/png")
+        return f"data:{mime};base64,{b64}"
+    except Exception as e:
+        return f"[Error embedding image {image_path}: {e}]"
+
+
+def replace_images_with_data_urls(note_body: str, project_name: str) -> str:
+    """Replace image links in the note body with embedded data URLs."""
+    import re
+    from _library import Preferences as myPrefs
+
+    pkv_attachments = myPrefs.root_attachments()
+    project_attachments = os.path.join(myPrefs.root_projects(), project_name, "_Attachments")
+    if not os.path.exists(project_attachments):
+        project_attachments = os.path.join(myPrefs.root_projects(), project_name, "attachments")  # fallback
+
+    def replace_match(match):
+        # Extract the image reference (handle both markdown and wikilink styles)
+        img_ref = match.group(1) or match.group(2) or match.group(3)
+        if not img_ref:
+            return match.group(0)
+
+        # Clean reference (remove display text after | or alt text)
+        img_ref = img_ref.split("|")[0].strip().split("]")[0].strip()
+
+        # Resolve full path - prefer project _Attachments, then root
+        possible_paths = []
+        if "/" in img_ref or "\\" in img_ref:
+            possible_paths.append(img_ref)  # already has path
+        else:
+            possible_paths.append(os.path.join(project_attachments, img_ref))
+            possible_paths.append(os.path.join(pkv_attachments, img_ref))
+
+        for path_candidate in possible_paths:
+            if os.path.exists(path_candidate):
+                data_url = image_to_data_url(path_candidate)
+                # Return as markdown image with data URL
+                return f"![{img_ref}]({data_url})"
+
+        # If not found, leave original
+        return match.group(0)
+
+    # Match common image patterns: ![alt](path), ![[path]], [[path]]
+    patterns = [
+        r'!\[([^\]]*)\]\(([^)]+)\)',           # ![alt](path)
+        r'!\[\[([^\]]+)\]\]',                   # ![[path]]
+        r'\[\[([^\]]+)\]\]'                     # [[path]]
+    ]
+
+    result = note_body
+    for pattern in patterns:
+        result = re.sub(pattern, replace_match, result, flags=re.IGNORECASE)
+
+    return result
+
 
 # Load all notes for the project
 allNotes = myNotes.get_Notes_from_Project(selectedProject)
@@ -69,12 +146,16 @@ contextContent = f"""# AI Context File for {selectedProject}
 
 for note in orderedNotes:
     note_date = note.date[:10] if len(note.date) >= 10 else note.date
+    
+    # Replace image links with embedded base64 data URLs
+    processed_body = replace_images_with_data_urls(note.noteBody, selectedProject)
+    
     contextContent += f"""## {note_date} - {note.title}
 
 **Type**: {note.type}
 **ID**: {note.id}
 
-{note.noteBody.strip()}
+{processed_body.strip()}
 
 ---
 
