@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 from datetime import datetime
-
 from _library import Inputs as myInputs
 from _library import Notes as myNotes
 
@@ -18,11 +18,23 @@ from _library.Templates import read_Template, templateNamePartsToReplace
 template_pathRoot = myPreferences.root_templates()
 
 
+
+
 def main():
     noteToOpenList = []
-    projects, selectedProjectName, selectedProjectIndex = (
-        myInputs.select_project_name_withDict()
-    )
+
+    selectedProjectName = ""
+    if len(sys.argv) > 1:
+        for arg in sys.argv[1:]:
+            selectedProjectName += arg + " "
+        selectedProjectName = selectedProjectName.strip()
+        print (f"Selected project: '{selectedProjectName}'")
+        silentMode = True
+
+    if selectedProjectName is None or selectedProjectName == "":
+        projects, selectedProjectName, selectedProjectIndex = (
+            myInputs.select_project_name_withDict()
+        )
 
     if selectedProjectName is None or selectedProjectName == "":
         selectedProjectName = ""
@@ -77,13 +89,15 @@ def main():
 
             # took this option out
             # 2026-06-17: I think it's better to just open the existing note and let the user decide what to do with it, rather than automatically cloning it. Cloning can lead to multiple similar notes which can create confusion. It's more straightforward to just open the existing note and let the user edit it if they want to create a new version.
-            # clone = myInputs.ask_yes_no_from_user("Do you want to clone this note?", default= False)
-            # if clone:
-            #     print("Cloning the existing note.")
-            #     clonedNotePath = myNotes.clone_note(existingNote.filePath)
-            #     #os.system(f'{myPreferences.default_editor()} "{clonedNotePath}"')
-            #     myNotes.open_note_in_editor(clonedNotePath)
-            #     exit(0)
+            # 2026-10-03: there is merit in cloning progress notes
+            if "progress" in noteType:
+                clone = myInputs.ask_yes_no_from_user("Do you want to clone this note?", default= False)
+                if clone:
+                    print("Cloning the existing note.")
+                    clonedNotePath = myNotes.clone_note(existingNote.filePath)
+                    #os.system(f'{myPreferences.default_editor()} "{clonedNotePath}"')
+                    myNotes.open_note_in_editor(clonedNotePath)
+                    exit(0)
 
             openExisting = myInputs.ask_yes_no_from_user(
                 "Do you want to open this note?", default=True  

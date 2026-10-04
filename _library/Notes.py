@@ -952,6 +952,7 @@ def clone_note(sourceNotePath) -> str:
     body = get_note_body(noteContent)
 
     date = get_note_date_from_frontMatter(frontMatter)
+    datesToReplace = []
     if date == "":
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -980,7 +981,22 @@ def clone_note(sourceNotePath) -> str:
         r"modified:\s*.*", f"modified: {timestamp_full}", newFrontMatter
     )  # Update the modified in front matter
 
-    newNoteContent = f"---\n{newFrontMatter}\n---\n\n{newBody}"
+    for oldDate in datesToReplace:
+        newFrontMatter = newFrontMatter.replace(oldDate, date)
+
+    newNoteContent = ""
+    shortDate = date[:10]
+    fullDate = date
+    for line in f"---\n{newFrontMatter}\n---\n\n{newBody}".splitlines():
+        if fullDate in line:
+            print(f"\treplacing {fullDate} in line: {line}")
+            line = line.replace(fullDate, date)
+        elif shortDate in line:
+            print(f"\treplacing {shortDate} in line: {line}")
+            line = line.replace(shortDate, date)
+            
+        newNoteContent += line + "\n"
+
 
     with open(os.path.join(notePath, newFileName), "w", encoding="utf-8") as f:
         f.write(newNoteContent)
