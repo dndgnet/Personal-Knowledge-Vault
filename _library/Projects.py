@@ -794,6 +794,9 @@ def raid_Risks(
             for risk in selectedNotes:
                 newNotePart += f"### {risk.subId} {risk.title}\n\n"
                 newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Risk Identified', risk.noteBody)}\n"
+                if risk.shareWithStakeholders == True:
+                    #include a relative link to the actual risk document
+                    newNotePart += f"Link: [open](<./{risk.fileName}>)\n"
                 newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Risk Owner', risk.noteBody)}\n"
                 newNotePart += f"**Impact**: {myNotes.get_stringValue_from_noteBody('Impact', risk.noteBody)} \n**Likelihood**: {myNotes.get_stringValue_from_noteBody('Likelihood', risk.noteBody)}\n"
                 newNotePart += f"**Triggered**: {myNotes.get_stringValue_from_noteBody('Triggered', risk.noteBody)}\n"
@@ -864,6 +867,9 @@ def raid_Issues(
                 for issue in selectedNotes:
                     newNotePart += f"### {issue.subId} {issue.title}\n\n"
                     newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', issue.noteBody)}\n"
+                    if issue.shareWithStakeholders == True:
+                        #include a relative link to the actual issue document
+                        newNotePart += f"Link: [open](<./{issue.fileName}>)\n"
                     newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Issue Owner', issue.noteBody)}\n"
                     newNotePart += f"**Status**: {myNotes.get_stringValue_from_noteBody('Issue Status', issue.noteBody)}\n"
                     newNotePart += f"**Description**: {myNotes.get_sectionValue_from_noteBody('Description', issue.noteBody)}\n"
@@ -932,6 +938,9 @@ def raid_Assumptions(
             for assumption in selectedNotes:
                 newNotePart += f"### {assumption.subId} {assumption.title}\n\n"
                 newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', assumption.noteBody)}\n"
+                if assumption.shareWithStakeholders == True:
+                    #include a relative link to the actual assumption document
+                    newNotePart += f"Link: [open](<./{assumption.fileName}>)\n"
                 newNotePart += f"**Status**: {myNotes.get_stringValue_from_noteBody('Status', assumption.noteBody)}\n"
                 newNotePart += f"**Impact**: {myNotes.get_stringValue_from_noteBody('Impact', assumption.noteBody)}\n"
                 newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Identified by', assumption.noteBody)}\n"
@@ -994,6 +1003,9 @@ def raid_Decisions(
         else:
             for decision in selectedNotes:
                 newNotePart += f"### {decision.subId} {decision.title}\n\n"
+                if decision.shareWithStakeholders == True:
+                    #include a relative link to the actual decision document
+                    newNotePart += f"Link: [open](<./{decision.fileName}>)\n"
                 newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', decision.noteBody)}\n"
                 newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('State', decision.noteBody)}\n"
 
@@ -1004,9 +1016,7 @@ def raid_Decisions(
                     if summaryText != "":
                         break
                 newNotePart += f"**Summary**: {summaryText}\n\n"
-                if decision.shareWithStakeholders == True:
-                    #include a relative link to the actual decision document
-                    newNotePart += f"[link](<./{decision.fileName}>)\n\n"
+
 
     return newNotePart
 
