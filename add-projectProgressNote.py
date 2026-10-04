@@ -181,6 +181,16 @@ if __name__ == "__main__":
         #print ("debug args:",' '.join(sys.argv[1:]))
         args = sys.argv[1:]
         selectedProjectName = args[0].replace('"','')
+        
+        # Check if the provided project name exists in known projects
+        known_projects = myTools.get_pkv_projects()
+        if selectedProjectName not in known_projects:
+            print(f"{myTerminal.WARNING}Project '{selectedProjectName}' not found in known projects.{myTerminal.RESET}")
+            print("Will prompt user to select a valid project.")
+            selectedProjectName = ""  # clear so main() will prompt
+        else:
+            print(f"{myTerminal.SUCCESS}Valid known project: {selectedProjectName}{myTerminal.RESET}")
+        
         main(selectedProjectName)
     else:
         main("")

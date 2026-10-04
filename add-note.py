@@ -17,18 +17,24 @@ from _library.Templates import read_Template, templateNamePartsToReplace
 # Define the template and output paths
 template_pathRoot = myPreferences.root_templates()
 
-
-
-
 def main():
     noteToOpenList = []
 
     selectedProjectName = ""
+
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
             selectedProjectName += arg + " "
         selectedProjectName = selectedProjectName.strip()
-        print (f"Selected project: '{selectedProjectName}'")
+        print(f"Selected project from arguments: '{selectedProjectName}'")
+        
+        # Check if the provided project name exists in known projects
+        known_projects = myTools.get_pkv_projects()
+        if selectedProjectName not in known_projects:
+            print(f"{myTerminal.WARNING}Project '{selectedProjectName}' not found in known projects.{myTerminal.RESET}")
+            selectedProjectName = ""  # clear so code below prompts the user
+        else:
+            print(f"{myTerminal.SUCCESS}Valid known project: {selectedProjectName}{myTerminal.RESET}")
         silentMode = True
 
     if selectedProjectName is None or selectedProjectName == "":

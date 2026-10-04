@@ -20,7 +20,16 @@ if len(sys.argv) > 1:
     for arg in sys.argv[1:]:
         selectedProject += arg + " "
     selectedProject = selectedProject.strip()
-    print (f"'{selectedProject}'")
+    print(f"Selected project from arguments: '{selectedProject}'")
+    
+    # Check if the provided project name exists in known projects
+    known_projects = myTools.get_pkv_projects()
+    if selectedProject not in known_projects:
+        print(f"{myTerminal.WARNING}Project '{selectedProject}' not found in known projects.{myTerminal.RESET}")
+        print("Will prompt user to select a valid project.")
+        selectedProject = ""  # clear so code below prompts the user
+    else:
+        print(f"{myTerminal.SUCCESS}Valid known project: {selectedProject}{myTerminal.RESET}")
     silentMode = True
 
 print(f"{myTerminal.INFORMATION}Refresh Project Hub Note{myTerminal.RESET}\n")
