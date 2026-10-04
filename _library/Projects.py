@@ -316,7 +316,7 @@ def open_ProjectData_in_Editor(projectName: str, dataType: str):
         if not os.path.exists(csvFilePath):
             csvFileName = f"data_{dataType}.csv"
             with open(csvFilePath, "w") as csvFile:
-                csvFile.write(f"{dataTypeDictionary[dataType]}\n")
+                csvFile.write(f"{dataTypeDictionary[dataType]}\n\n")
 
             print(f"""{myTerminal.ERROR}CSV file not found at {csvFilePath}.{myTerminal.RESET}
                 \nAn empty CSV file with the appropriate headers has been created. Please populate the CSV file with data and run the script again.{myTerminal.RESET}""")
@@ -350,7 +350,7 @@ def diagram_kanban_by_state(project_name: str, ticketBaseUrl: str = "") -> str:
             ticketStatement = f" ticket: '{task.ticket}', "
         projectBoardBuckets[task.KanBanColumn()] = (
             projectBoardBuckets.get(task.KanBanColumn(), "")
-            + f"\t{task.id}[{myTools.letters_and_numbers_only(task.title)}]{cardStart}{ticketStatement} assigned: '{task.assignedTo}'{cardEnd}\n"
+            + f"\t{task.id}[{myTools.letters_and_numbers_only(task.title)}]{cardStart}{ticketStatement} assigned: '{task.assignedTo}'{cardEnd}\n\n"
         )
 
     # start diagram
@@ -372,7 +372,7 @@ kanban
 
     # add cards to board
     for bucket, cardString in projectBoardBuckets.items():
-        board += f"{bucket}\n{cardString}\n"
+        board += f"{bucket}\n{cardString}\n\n"
 
     # end diagram
     board += """
@@ -407,7 +407,7 @@ def diagram_kanban_by_assigned(project_name: str, ticketBaseUrl: str = "") -> st
             if assignedTo.strip() in task.assignedTo:
                 projectBoardBuckets[assignedTo] = (
                     projectBoardBuckets.get(assignedTo, "")
-                    + f"\t{task.id}[{myTools.letters_and_numbers_only(task.title)}]{cardStart}{ticketStatement} assigned: '{task.state}'{cardEnd}\n"
+                    + f"\t{task.id}[{myTools.letters_and_numbers_only(task.title)}]{cardStart}{ticketStatement} assigned: '{task.state}'{cardEnd}\n\n"
                 )
 
     # start diagram
@@ -428,7 +428,7 @@ kanban
 """
     # add cards to board
     for bucket, cardString in projectBoardBuckets.items():
-        board += f"{bucket}\n{cardString}\n"
+        board += f"{bucket}\n{cardString}\n\n"
 
     # end diagram
     board += """
@@ -469,9 +469,9 @@ gantt
 
         if startDate != "" and endDate != "":
             if state != "":
-                gantt += f"    {myTools.letters_and_numbers_only(task.title)} :{state}, {task.id}, {startDate}, {endDate}\n"
+                gantt += f"    {myTools.letters_and_numbers_only(task.title)} :{state}, {task.id}, {startDate}, {endDate}\n\n"
             else:
-                gantt += f"    {myTools.letters_and_numbers_only(task.title)} : {task.id}, {startDate}, {endDate}\n"
+                gantt += f"    {myTools.letters_and_numbers_only(task.title)} : {task.id}, {startDate}, {endDate}\n\n"
 
     gantt += """
 ```
@@ -504,7 +504,7 @@ gantt
             state = "done"
 
             if startDate != "" and endDate != "":
-                gantt += f"    {myTools.letters_and_numbers_only(note.title)} :{state}, {note.id}, {startDate}, {endDate}\n"
+                gantt += f"    {myTools.letters_and_numbers_only(note.title)} :{state}, {note.id}, {startDate}, {endDate}\n\n"
 
     gantt += """
 ```
@@ -658,7 +658,7 @@ def notePart_ChangeRequests(
     else:
         newNotePart += "\n\n"
         if returnTableFormat:
-            newNotePart += f"{myTools.divTagSmall}\n"
+            newNotePart += f"{myTools.divTagSmall}\n\n"
             newNotePart += "|ID|Identified|Change Request        |State|\n"
             newNotePart += "|--|----------|----------------------|------|\n"
             for decision in selectedNotes:
@@ -683,8 +683,8 @@ def notePart_ChangeRequests(
         else:
             for decision in selectedNotes:
                 newNotePart += f"### {decision.subId} {decision.title}\n\n"
-                newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Date Submitted', decision.noteBody)}\n"
-                newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('Decision', decision.noteBody)}\n"
+                newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Date Submitted', decision.noteBody)}\n\n"
+                newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('Decision', decision.noteBody)}\n\n"
                 newNotePart += f"**Description**: \n{myNotes.get_sectionValue_from_noteBody('Change Description', decision.noteBody)}\n\n"
                 justification = myNotes.get_sectionValue_from_noteBody('Change Justification', decision.noteBody)
                 if justification != "":
@@ -713,7 +713,7 @@ def notePart_SupportingDocumentation(
         newNotePart += "\n\n"
 
         if returnTableFormat:
-            newNotePart += f"{myTools.divTagSmall}\n"
+            newNotePart += f"{myTools.divTagSmall}\n\n"
             newNotePart += "|ID|Identified|Document        |\n"
             newNotePart += "|--|----------|----------------------|\n"
             for document in selectedNotes:
@@ -759,7 +759,7 @@ def raid_Risks(
         newNotePart += "\n\n"
 
         if returnTableFormat:
-            newNotePart += f"{myTools.divTagSmall}\n"
+            newNotePart += f"{myTools.divTagSmall}\n\n"
             newNotePart += "|ID|Identified|Risk                  |Impact|Likelihood|Mitigation|Owner|\n"
             newNotePart += "|--|----------|----------------------|------|----------|----------|-----|\n"
 
@@ -793,14 +793,14 @@ def raid_Risks(
         else:
             for risk in selectedNotes:
                 newNotePart += f"### {risk.subId} {risk.title}\n\n"
-                newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Risk Identified', risk.noteBody)}\n"
+                newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Risk Identified', risk.noteBody)}\n\n"
                 if risk.shareWithStakeholders == True:
                     #include a relative link to the actual risk document
-                    newNotePart += f"Link: [open](<./{risk.fileName}>)\n"
-                newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Risk Owner', risk.noteBody)}\n"
-                newNotePart += f"**Impact**: {myNotes.get_stringValue_from_noteBody('Impact', risk.noteBody)} \n**Likelihood**: {myNotes.get_stringValue_from_noteBody('Likelihood', risk.noteBody)}\n"
-                newNotePart += f"**Triggered**: {myNotes.get_stringValue_from_noteBody('Triggered', risk.noteBody)}\n"
-                newNotePart += f"**Description**: {myNotes.get_sectionValue_from_noteBody('Description', risk.noteBody)}\n"
+                    newNotePart += f"Link: [open](<./{risk.fileName}>)\n\n"
+                newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Risk Owner', risk.noteBody)}\n\n"
+                newNotePart += f"**Impact**: {myNotes.get_stringValue_from_noteBody('Impact', risk.noteBody)} \n**Likelihood**: {myNotes.get_stringValue_from_noteBody('Likelihood', risk.noteBody)}\n\n"
+                newNotePart += f"**Triggered**: {myNotes.get_stringValue_from_noteBody('Triggered', risk.noteBody)}\n\n"
+                newNotePart += f"**Description**: {myNotes.get_sectionValue_from_noteBody('Description', risk.noteBody)}\n\n"
                 newNotePart += f"**Mitigation**: {myNotes.get_sectionValue_from_noteBody('Response Strategy', risk.noteBody)}\n\n"
 
     return newNotePart
@@ -826,7 +826,7 @@ def raid_Issues(
         newNotePart += "\n\n"
         for issue in selectedNotes:
             if returnTableFormat:
-                newNotePart += f"{myTools.divTagSmall}\n"
+                newNotePart += f"{myTools.divTagSmall}\n\n"
                 newNotePart += (
                     "|ID|Identified|Issue                  |Status|Owner|Description|\n"
                 )
@@ -866,13 +866,13 @@ def raid_Issues(
             else:
                 for issue in selectedNotes:
                     newNotePart += f"### {issue.subId} {issue.title}\n\n"
-                    newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', issue.noteBody)}\n"
+                    newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', issue.noteBody)}\n\n"
                     if issue.shareWithStakeholders == True:
                         #include a relative link to the actual issue document
                         newNotePart += f"Link: [open](<./{issue.fileName}>)\n"
-                    newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Issue Owner', issue.noteBody)}\n"
-                    newNotePart += f"**Status**: {myNotes.get_stringValue_from_noteBody('Issue Status', issue.noteBody)}\n"
-                    newNotePart += f"**Description**: {myNotes.get_sectionValue_from_noteBody('Description', issue.noteBody)}\n"
+                    newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Issue Owner', issue.noteBody)}\n\n"
+                    newNotePart += f"**Status**: {myNotes.get_stringValue_from_noteBody('Issue Status', issue.noteBody)}\n\n"
+                    newNotePart += f"**Description**: {myNotes.get_sectionValue_from_noteBody('Description', issue.noteBody)}\n\n"
                     newNotePart += f"**Resolution**: {myNotes.get_sectionValue_from_noteBody('Resolution', issue.noteBody)}\n\n"
 
     return newNotePart
@@ -898,7 +898,7 @@ def raid_Assumptions(
         newNotePart += "\n\n"
 
         if returnTableFormat:
-            newNotePart += f"{myTools.divTagSmall}\n"
+            newNotePart += f"{myTools.divTagSmall}\n\n"
             newNotePart += (
                 "|ID|Identified|Assumption            |Status|Owner|Description|\n"
             )
@@ -937,13 +937,13 @@ def raid_Assumptions(
         else:
             for assumption in selectedNotes:
                 newNotePart += f"### {assumption.subId} {assumption.title}\n\n"
-                newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', assumption.noteBody)}\n"
+                newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', assumption.noteBody)}\n\n"
                 if assumption.shareWithStakeholders == True:
                     #include a relative link to the actual assumption document
                     newNotePart += f"Link: [open](<./{assumption.fileName}>)\n"
-                newNotePart += f"**Status**: {myNotes.get_stringValue_from_noteBody('Status', assumption.noteBody)}\n"
-                newNotePart += f"**Impact**: {myNotes.get_stringValue_from_noteBody('Impact', assumption.noteBody)}\n"
-                newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Identified by', assumption.noteBody)}\n"
+                newNotePart += f"**Status**: {myNotes.get_stringValue_from_noteBody('Status', assumption.noteBody)}\n\n"
+                newNotePart += f"**Impact**: {myNotes.get_stringValue_from_noteBody('Impact', assumption.noteBody)}\n\n"
+                newNotePart += f"**Owner**: {myNotes.get_stringValue_from_noteBody('Identified by', assumption.noteBody)}\n\n"
                 description = myNotes.get_sectionValue_from_noteBody(
                     "Description", assumption.noteBody
                 ).replace("\n", "<br>")
@@ -972,7 +972,7 @@ def raid_Decisions(
         newNotePart += "\n\n"
 
         if returnTableFormat:
-            newNotePart += f"{myTools.divTagSmall}\n"
+            newNotePart += f"{myTools.divTagSmall}\n\n"
             newNotePart += "|ID|Identified|Decision              |State|Summary|\n"
             newNotePart += "|--|----------|----------------------|------|-----------|\n"
             for decision in selectedNotes:
@@ -1006,8 +1006,8 @@ def raid_Decisions(
                 if decision.shareWithStakeholders == True:
                     #include a relative link to the actual decision document
                     newNotePart += f"Link: [open](<./{decision.fileName}>)\n"
-                newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', decision.noteBody)}\n"
-                newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('State', decision.noteBody)}\n"
+                newNotePart += f"**Identified**: {myNotes.get_stringValue_from_noteBody('Identified', decision.noteBody)}\n\n"
+                newNotePart += f"**State**: {myNotes.get_stringValue_from_noteBody('State', decision.noteBody)}\n\n"
 
                 possibleSummarySections = ['Executive Summary / Recommendation',"Summary","Recommendation","Executive Summary"]
                 summaryText = ""
