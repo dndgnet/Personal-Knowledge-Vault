@@ -107,17 +107,22 @@ def replace_images_with_data_urls(note_body: str, project_name: str) -> str:
     return result
 
 
-# Load all notes for the project
+# Load all notes for the project (exclude private notes)
 allNotes = myNotes.get_Notes_from_Project(selectedProject)
 
-if not allNotes:
-    print(f"{myTerminal.WARNING}No notes found for project '{selectedProject}'.{myTerminal.RESET}")
+# Filter out private notes (note.private == True)
+nonPrivateNotes = [note for note in allNotes if not note.private]
+
+if not nonPrivateNotes:
+    print(f"{myTerminal.WARNING}No non-private notes found for project '{selectedProject}'.{myTerminal.RESET}")
     sys.exit(1)
 
-# Sort notes by date (oldest first)
-sortedNotes = myNotes.sort_Notes_by_date(allNotes, descending=False)
+print(f"{myTerminal.SUCCESS}Loaded {len(nonPrivateNotes)} non-private note(s) (skipped {len(allNotes) - len(nonPrivateNotes)} private note(s)).{myTerminal.RESET}")
 
-# Find executive summary if it exists (move to top)
+# Sort notes by date (oldest first)
+sortedNotes = myNotes.sort_Notes_by_date(nonPrivateNotes, descending=False)
+
+# Find executive summary if it exists (move to top). Executive summaries are typically not private.
 executiveSummaryNote = None
 regularNotes = []
 for note in sortedNotes:
@@ -161,17 +166,18 @@ for note in orderedNotes:
 
 """
     
-# Write to project folder
-projectPath = os.path.join(myPreferences.root_projects(), selectedProject)
-contextFilePath = os.path.join(projectPath, "AI Context File.md")
+# Save to user's Downloads folder as "AI Context <Project Name>.md"
+downloads_path = myPreferences.attachmentPickUp_path()
+safe_project_name = "".join(c if c.isalnum() or c in " _-" else "_" for c in selectedProject).strip()
+context_filename = f"AI Context {safe_project_name}.md"
+contextFilePath = os.path.join(downloads_path, context_filename)
 
-# Ensure project directory exists
-os.makedirs(projectPath, exist_ok=True)
+print(f"{myTerminal.INFORMATION}Saving to Downloads: {context_filename}{myTerminal.RESET}")
 
 success = myTools.write_text_to_file(contextFilePath, contextContent)
 
 if success:
-    print(f"{myTerminal.SUCCESS}Successfully created/updated: {contextFilePath}{myTerminal.RESET}")
+    print(f"{myTerminal.SUCCESS}Successfully created: {contextFilePath}{myTerminal.RESET}")
     print(f"   - {len(orderedNotes)} notes included")
     if executiveSummaryNote:
         print(f"   - Executive summary placed at top")
