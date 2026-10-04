@@ -789,7 +789,7 @@ def get_Note_with_ActionItems(target_dir: str) -> list[NoteData]:
 
     filteredNotes = []
     for note in get_Notes_as_list(target_dir):
-        if "[ ]" in note.noteBody:
+        if "[ ]" in note.noteBody and "hub" not in note.type and note.type != "":
             filteredNotes.append(note)
 
     filteredNotes = sorted(filteredNotes, key=lambda item: item.date, reverse=False)
