@@ -72,7 +72,7 @@ while selected.lower() != "stop":
                 print(f"\t\t\t{myTerminal.GREY}  - Comment: {actionItem.Comment[:40]:<40}{myTerminal.RESET}")
 
 
-    selected = input(f"\n{myTerminal.WHITE}Select note item by number (1-{index}) or press Enter or 'q' to exit: {myTerminal.RESET}")
+    selected = input(f"\n{myTerminal.WHITE}Select note item by number (1-{index}) to open \n\tor mark as done by typing 'done <number>'\n\tor press Enter or 'q' to exit \nyour selection: {myTerminal.RESET}")
 
     if selected.isdigit() and 1 <= int(selected) <= index:
         selectedActionItem = actionItemList[int(selected) - 1]
