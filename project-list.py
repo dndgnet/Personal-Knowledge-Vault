@@ -155,12 +155,12 @@ for filename in sorted(os.listdir(myPreferences.root_projects())):
                     f"Last progress note is from {lastProgressNote.date}."
                 )
                 print(f"\t{line}")   
-                cleanProgressNoteBody = lastProgressNote.noteBody.replace("## Progress Statement", "").strip()
-                cleanProgressNoteBody = re.sub(r'<!--.*?-->', '', cleanProgressNoteBody, flags=re.DOTALL).strip()
-                line = addLine(
-                    f"{len(cleanProgressNoteBody)} characters \n\t\t{cleanProgressNoteBody[:400].replace('#', '').replace('\n','\n\t\t')}..."
-                )              
-                print(f"\t{line}")
+                # cleanProgressNoteBody = lastProgressNote.noteBody.replace("## Progress Statement", "").strip()
+                # cleanProgressNoteBody = re.sub(r'<!--.*?-->', '', cleanProgressNoteBody, flags=re.DOTALL).strip()
+                # line = addLine(
+                #     f"{len(cleanProgressNoteBody)} characters \n\t\t{cleanProgressNoteBody[:400].replace('#', '').replace('\n','\n\t\t')}..."
+                # )              
+                # print(f"\t{line}")
 
             print (f"\t{len(projectNotes)} notes in project")
  
