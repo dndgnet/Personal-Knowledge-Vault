@@ -3,7 +3,9 @@ from . import Preferences as myPreferences
 from . import Terminal as myTerminal
 
 # for now assume that git is the version control of choice 
-vaultIsVersionControlled = os.path.isdir(os.path.join(myPreferences.root_pkv(), '.git'))
+vaultIsVersionControlled = False
+if os.path.exists(os.path.join(myPreferences.root_pkv(), '.git')) and os.path.isdir(os.path.join(myPreferences.root_pkv(), '.git')):
+    vaultIsVersionControlled = True
 useVersionControl = myPreferences.use_versioncontrol()
 
 if not useVersionControl and not vaultIsVersionControlled:
