@@ -202,13 +202,13 @@ def main():
         )
         notes = sorted(notes, key=lambda x: x.date, reverse=True)
 
+        # Use the new journal title format that includes the author/OS username (matching open-journal.py)
+        journalTitle = f"Daily Journal {myPreferences.os_user_name()} {selectedDateTime.strftime('%Y-%m-%d')}"
+
         for journal in notes:
-            if (
-                journal.title
-                == f"Daily Journal {selectedDateTime.strftime('%Y-%m-%d')}"
-            ):
+            if journal.title == journalTitle:
                 addToJournal = myInputs.ask_yes_no_from_user(
-                    f"Do you want to add this {noteType} note to the {selectedDateTime.strftime('%Y-%m-%d')} journal?",
+                    f"Do you want to add this {noteType} note to the {journalTitle} journal?",
                     default=True,
                 )
                 if addToJournal:
