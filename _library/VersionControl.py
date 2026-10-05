@@ -8,7 +8,7 @@ if os.path.exists(os.path.join(myPreferences.root_pkv(), '.git')):
     vaultIsVersionControlled = True
 useVersionControl = myPreferences.use_versioncontrol()
 
-if not useVersionControl and not vaultIsVersionControlled:
+if not useVersionControl and vaultIsVersionControlled:
     print (f"""{myPreferences.myTerminal.WARNING}Version control is not enabled in your preferences but your vault root has been initialized for Git.
            Consider enabling version control in your preferences{myPreferences.myTerminal.RESET}""")
 elif useVersionControl and not vaultIsVersionControlled:
