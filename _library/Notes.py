@@ -981,6 +981,21 @@ def clone_note(sourceNotePath) -> str:
         r"modified:\s*.*", f"modified: {timestamp_full}", newFrontMatter
     )  # Update the modified in front matter
 
+    # For progress notes (and other notes that use sub id), generate a fresh sequential sub id (001, 002, ...)
+    # instead of copying the source note's sub id (e.g. change "sub id: 005" to "sub id: 001")
+    if "sub Id:" in newFrontMatter or "sub id:" in newFrontMatter.lower():
+        from . import Inputs as myInputs
+        noteTypeForSubId = get_stringValue_from_frontMatter("type", newFrontMatter)
+        newSubId = myInputs.generate_subId(
+            get_stringValue_from_frontMatter("project", newFrontMatter), noteTypeForSubId
+        )
+        newFrontMatter = re.sub(
+            r"sub id:\s*.*", f"sub id: {newSubId}", newFrontMatter, flags=re.IGNORECASE
+        )
+        newFrontMatter = re.sub(
+            r"sub Id:\s*.*", f"sub Id: {newSubId}", newFrontMatter
+        )
+
     for oldDate in datesToReplace:
         newFrontMatter = newFrontMatter.replace(oldDate, date)
 
