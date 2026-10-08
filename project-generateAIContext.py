@@ -77,10 +77,17 @@ def replace_images_with_data_urls(note_body: str, project_name: str) -> str:
         project_attachments = os.path.join(myPrefs.root_projects(), project_name, "attachments")  # fallback
 
     def replace_match(match):
+        def safe_group(m, idx):
+            try:
+                val = m.group(idx)
+                return val.strip() if isinstance(val, str) else ""
+            except (IndexError, AttributeError):
+                return ""
+
         # Extract the image path (group 2 or 4 are the path groups in our patterns)
-        img_ref = (match.group(2) or match.group(4) or "").strip()
+        img_ref = safe_group(match, 2) or safe_group(match, 4)
         if not img_ref:
-            img_ref = (match.group(1) or match.group(3) or "").strip()
+            img_ref = safe_group(match, 1) or safe_group(match, 3)
         if not img_ref:
             return match.group(0)
 
