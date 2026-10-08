@@ -109,10 +109,12 @@ def replace_images_with_data_urls(note_body: str, project_name: str) -> str:
     # Match common image patterns including Obsidian-style with angle brackets:
     # ![alt](<path>), ![alt](path), ![[path]], [[path]]
     patterns = [
-        r'!\[([^\]]*?)\]\(\s*<([^>]+)>\s*\)',   # ![alt](<path>)  -- this is the one used in the test note
-        r'!\[([^\]]*?)\]\(([^)]+?)\)',           # ![alt](path)
-        r'!\[\[([^\]]+)\]\]',                    # ![[path]]
-        r'\[\[([^\]]+)\]\]'                      # [[path]]
+        r'!\[([^\]]*?)\]\(\s*<([^>]+)>\s*\)',       # ![alt](<path>)  -- this is the one used in the test note
+        r'!\[([^\]]*?)\]\(([^)]+?)\)',              # ![alt](path)
+        r'\[([^\]]*?)\]\(\s*<([^>]+)>\s*\)',        # [alt](<path>)
+        r'\[([^\]]*?)\]\(([^)]+?)\)',               # [alt](path)
+        r'!\[\[([^\]]+)\]\]',                       # ![[path]]
+        r'\[\[([^\]]+)\]\]'                         # [[path]]
     ]
 
     result = note_body
@@ -182,12 +184,12 @@ for note in orderedNotes:
 """
     
 # Save to user's Downloads folder as "AI Context <Project Name>.md"
-downloads_path = myPreferences.attachmentPickUp_path()
+downloads_path = myPreferences.path_to_ai_context_files()
 safe_project_name = "".join(c if c.isalnum() or c in " _-" else "_" for c in selectedProject).strip()
 context_filename = f"AI Context {safe_project_name}.md"
 contextFilePath = os.path.join(downloads_path, context_filename)
 
-print(f"{myTerminal.INFORMATION}Saving to Downloads: {context_filename}{myTerminal.RESET}")
+print(f"{myTerminal.INFORMATION}Saving to AI Context Files: {context_filename}{myTerminal.RESET}")
 
 success = myTools.write_text_to_file(contextFilePath, contextContent)
 

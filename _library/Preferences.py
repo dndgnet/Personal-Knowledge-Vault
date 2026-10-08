@@ -43,6 +43,7 @@ _exampleEmptyPreferences = {
     "author_name": "default",  # use default to use the system username, or provide a custom name to be used in notes
     "TemporaryOneNoteExportFolder": "C:\\tempOneNoteExport", #temporary folder for exporting OneNote pages
     "TemporarySharePointListCommentsPath": "/Users/david/temp/SharePointListComments.csv", #temporary folder for exporting SharePoint list comments
+    "PathToAIContextFiles": "C:/Users/[username]/OneDrive - CompanyName/Microsoft Copilot Chat Files/Copilot Notebook Uploads"
 }
 
 _preferences = {}
@@ -95,6 +96,7 @@ _author_name = ""
 _use_versioncontrol = False
 _temporaryOneNoteExportFolder = ""
 _temporarySharePointListCommentsPath = ""
+_path_to_ai_context_files = ""
 
 def os_user_name() -> str:
     """Returns the OS user name."""
@@ -207,6 +209,9 @@ def find_missing_preferences() -> list:
     missing = example_keys - loaded_keys
     return list(missing)
 
+def path_to_ai_context_files() -> str:
+    """Returns the path to the AI Context Files."""
+    return _path_to_ai_context_files
 
 preferences_Path = os.path.join(preferences_Path, applicationNameRoot)
 preferences_File_Path = os.path.join(preferences_Path, preferences_File)
@@ -245,6 +250,7 @@ try:
         _preferences = json.load(file)
         _temporaryOneNoteExportFolder = _preferences.get("TemporaryOneNoteExportFolder").replace('[username]', _os_user_name)
         _temporarySharePointListCommentsPath = _preferences.get("TemporarySharePointListCommentsPath").replace('[username]', _os_user_name)
+        _path_to_ai_context_files = _preferences.get("PathToAIContextFiles", "").replace('[username]', _os_user_name)
         _pkv_baseFolderName = _preferences["pkv_root"]
         _attachment_root = _preferences["attachments_root"]
         _projects_root = _preferences["projects_root"]
