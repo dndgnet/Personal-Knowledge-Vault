@@ -8,6 +8,7 @@ from . import Search as mySearch
 from . import Summary as mySummary
 from . import Templates as myTemplates
 from . import Terminal as myTerminal
+from .Terminal import RESET, SUCCESS, WARNING, INFORMATION, ERROR
 from . import Tools as myTools
 from . import Variables as myVariables
 from . import VersionControl as myVersionControl

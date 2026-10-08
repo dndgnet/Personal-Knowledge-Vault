@@ -77,21 +77,25 @@ def replace_images_with_data_urls(note_body: str, project_name: str) -> str:
         project_attachments = os.path.join(myPrefs.root_projects(), project_name, "attachments")  # fallback
 
     def replace_match(match):
-        # Extract the image reference (handle both markdown and wikilink styles)
-        img_ref = match.group(1) or match.group(2) or match.group(3)
+        # Extract the image path (group 2 or 4 are the path groups in our patterns)
+        img_ref = (match.group(2) or match.group(4) or "").strip()
+        if not img_ref:
+            img_ref = (match.group(1) or match.group(3) or "").strip()
         if not img_ref:
             return match.group(0)
 
-        # Clean reference (remove display text after | or alt text)
+        # Clean reference (remove display text after | and any trailing brackets)
         img_ref = img_ref.split("|")[0].strip().split("]")[0].strip()
 
-        # Resolve full path - prefer project _Attachments, then root
+        # Resolve full path - prefer project _Attachments, then root _Attachments
         possible_paths = []
-        if "/" in img_ref or "\\" in img_ref:
-            possible_paths.append(img_ref)  # already has path
+        # The note uses relative path starting with ./
+        if img_ref.startswith("./_Attachments/"):
+            clean_name = img_ref.replace("./_Attachments/", "")
+            possible_paths.append(os.path.join(project_attachments, clean_name))
         else:
             possible_paths.append(os.path.join(project_attachments, img_ref))
-            possible_paths.append(os.path.join(pkv_attachments, img_ref))
+        possible_paths.append(os.path.join(pkv_attachments, img_ref))
 
         for path_candidate in possible_paths:
             if os.path.exists(path_candidate):
@@ -102,11 +106,13 @@ def replace_images_with_data_urls(note_body: str, project_name: str) -> str:
         # If not found, leave original
         return match.group(0)
 
-    # Match common image patterns: ![alt](path), ![[path]], [[path]]
+    # Match common image patterns including Obsidian-style with angle brackets:
+    # ![alt](<path>), ![alt](path), ![[path]], [[path]]
     patterns = [
-        r'!\[([^\]]*)\]\(([^)]+)\)',           # ![alt](path)
-        r'!\[\[([^\]]+)\]\]',                   # ![[path]]
-        r'\[\[([^\]]+)\]\]'                     # [[path]]
+        r'!\[([^\]]*?)\]\(\s*<([^>]+)>\s*\)',   # ![alt](<path>)  -- this is the one used in the test note
+        r'!\[([^\]]*?)\]\(([^)]+?)\)',           # ![alt](path)
+        r'!\[\[([^\]]+)\]\]',                    # ![[path]]
+        r'\[\[([^\]]+)\]\]'                      # [[path]]
     ]
 
     result = note_body
