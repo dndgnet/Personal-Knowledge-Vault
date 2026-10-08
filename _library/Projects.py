@@ -734,6 +734,47 @@ def notePart_SupportingDocumentation(
 
     return newNotePart
 
+def notePart_SupportingDeterminations(
+    projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat=True
+) -> str:
+    selectedNotes = []
+
+    for note in allNotes:
+        noteType = note.type
+        if noteType.endswith("determination"):
+            selectedNotes.append(note)
+
+    selectedNotes = sorted(selectedNotes, key=lambda x: x.subId)
+
+    newNotePart = ""
+
+    if len(selectedNotes) == 0:
+        newNotePart += "*No supporting determinations at this time.*\n\n"
+    else:
+        newNotePart += "\n\n"
+
+        if returnTableFormat:
+            newNotePart += f"{myTools.divTagSmall}\n\n"
+            newNotePart += "|ID|Identified|Determination        |\n"
+            newNotePart += "|--|----------|----------------------|\n"
+            for document in selectedNotes:
+                newNotePart += "|" + document.subId + "|" + document.date
+                newNotePart += "|" + document.title + "|\n"
+
+            newNotePart += "\n" + myTools.divTagEnd + "\n\n"
+
+        else:
+            i = 0
+            for document in selectedNotes:
+                i += 1
+                newNotePart += (
+                    f"**{document.subId}** {document.date} \n\n {document.noteBody}\n\n"
+                )
+                if i < len(selectedNotes):
+                    newNotePart += """\n\n<div style="break-after: page;"></div>\n\n"""
+
+    return newNotePart
+
 
 def raid_Risks(
     projectName: str, allNotes: list[myNotes.NoteData], returnTableFormat=True

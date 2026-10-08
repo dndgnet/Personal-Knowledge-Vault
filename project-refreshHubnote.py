@@ -281,6 +281,23 @@ else:
         f"{myTerminal.WARNING}'Supporting Documentation' tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}"
     )
 
+# deal supporting determinations
+supportingDeterminations = myProjects.notePart_SupportingDeterminations(
+    selectedProject, allNotesForProject, returnTableFormat=False
+)
+
+success, newNoteBody = myNotes.replace_text_between_tags(
+    "Supporting_Determinations", hubNote.noteBody, supportingDeterminations
+)
+
+if success:
+    hubNote.noteBody = newNoteBody
+    myNotes.update_NoteBody(hubNote, newNoteBody)
+else:
+    print(
+        f"{myTerminal.WARNING}'Supporting Documentation' tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}"
+    )
+
 # deal with the single note project parts
 for sectionNoteType in myProjects.projectNoteTypesWhereThereCanBeOnlyOne:
     if sectionNoteType.lower() == "hub":

@@ -39,5 +39,4 @@ Use the display order front matter field to control the order that will be used 
 [Background and context]
 
 
-### Links 
-<!-- Add links to related documents, resources, or references here. -->
+ 
