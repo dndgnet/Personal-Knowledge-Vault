@@ -36,7 +36,7 @@ Not Started, In-progress, Testing, Complete, Cancelled
 
 **Actual End**: [actualEnd]
 
-**Estimated Effort**: 
+**Estimated Effort**: [effort in days]
 <!-- hidden hints
 effort in days
 -->
