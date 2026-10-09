@@ -62,7 +62,7 @@ def datetime_fromString(date_string: str) -> tuple[bool, datetime.datetime]:
     date_string = date_string.strip()
 
     isDateTime = False
-    d = datetime.datetime.now()
+    d = datetime.datetime(year=1900,month=1,day=1)
     for date_format in _datetime_formats:
         try:
             # if the date_string is ##:##, we need to add the current date to it before converting it to a datetime object
@@ -74,7 +74,7 @@ def datetime_fromString(date_string: str) -> tuple[bool, datetime.datetime]:
 
             d = datetime.datetime.strptime(date_string, date_format)
             isDateTime = True
-            break
+            return isDateTime, d
         except ValueError:
             isDateTime = False
             continue

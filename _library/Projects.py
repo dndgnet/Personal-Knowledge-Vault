@@ -512,8 +512,8 @@ gantt
     return gantt
 
 
-def diagram_Burndown(projectName: str) -> str:
-    """Generates a Burndown diagram data structure for a project.
+def diagram_BurnDown(projectName: str) -> str:
+    """Generates a BurnDown diagram data structure for a project.
     Expects a CSV file in the project folder with columns: Date, Planned Budget, Actual, Earned Value
     """
     csvFileName = "data_BurnDown.csv"
@@ -527,29 +527,29 @@ def diagram_Burndown(projectName: str) -> str:
             \nAn empty CSV file with the appropriate headers has been created. Please populate the CSV file with data and run the script again.{myTerminal.RESET}""")
         myTools.open_note_in_editor(csvFilePath)
 
-    # Read the CSV file into a burndown dictionary
-    burndown_data = myTools.read_csv_to_dict(csvFilePath, "x-axis")
+    # Read the CSV file into a burnDown dictionary
+    burnDown_data = myTools.read_csv_to_dict(csvFilePath, "x-axis")
     # with open(csvFilePath, "r") as csvFile:
     #     headers = csvFile.readline().strip().split(",")
     #     for line in csvFile:
     #         values = line.strip().split(",")
-    #         burndown_data[values[0]] = dict(zip(headers[1:],  map(float, values[1:])))
+    #         burnDown_data[values[0]] = dict(zip(headers[1:],  map(float, values[1:])))
 
     # get max budget for y-axis scaling
-    if len(burndown_data) == 0:
+    if len(burnDown_data) == 0:
         print(f"{myTerminal.WARNING}No data found in '{csvFileName}' CSV file.{myTerminal.RESET}")
         return ""
 
-    max_budget = max(entry["Planned Budget"] for entry in burndown_data.values())
+    max_budget = max(entry["Planned Budget"] for entry in burnDown_data.values())
     # make max_budget a multiple of 10 for better visualization
     max_budgetLabel = ((int(max_budget) // 10) + 1) * 10
 
     xaxis_List = []
     xaxis_Labels = ""
-    # for each date in the burndown data dictionary, format the date as "MM/DD" if
+    # for each date in the burnDown data dictionary, format the date as "MM/DD" if
     # the date is the same month as the previous date, otherwise format it as "DD"
     previous_month = None
-    for date in burndown_data.keys():
+    for date in burnDown_data.keys():
         year, month, day = date.split("-")
         if month == previous_month:
             xaxis_List.append(day)
@@ -563,35 +563,35 @@ def diagram_Burndown(projectName: str) -> str:
 
     budget_List = []
     budget_Labels = ""
-    for date in burndown_data.keys():
-        budget_List.append(burndown_data[date]["Planned Budget"])
-        budget_Labels += f"{burndown_data[date]['Planned Budget']}, "
+    for date in burnDown_data.keys():
+        budget_List.append(burnDown_data[date]["Planned Budget"])
+        budget_Labels += f"{burnDown_data[date]['Planned Budget']}, "
     # remove trailing comma and space from budget_Labels
     budget_Labels = budget_Labels.strip(", ")
 
     actual_List = []
     actual_Labels = ""
-    for date in burndown_data.keys():
-        if sum(actual_List) > 0 and burndown_data[date]["Actual"] == 0:
+    for date in burnDown_data.keys():
+        if sum(actual_List) > 0 and burnDown_data[date]["Actual"] == 0:
             # assume that the actual values for this period have not been entered and should not be plotted
             pass
         else:
-            actual_List.append(max_budget - burndown_data[date]["Actual"])
-            actual_Labels += f"{max_budget - burndown_data[date]['Actual']}, "
+            actual_List.append(max_budget - burnDown_data[date]["Actual"])
+            actual_Labels += f"{max_budget - burnDown_data[date]['Actual']}, "
 
     # remove trailing comma and space from actual_Labels
     actual_Labels = actual_Labels.strip(", ")
 
     earnedValue_List = []
     earnedValue_Labels = ""
-    for date in burndown_data.keys():
-        if sum(earnedValue_List) > 0 and burndown_data[date]["Earned Value"] == 0:
+    for date in burnDown_data.keys():
+        if sum(earnedValue_List) > 0 and burnDown_data[date]["Earned Value"] == 0:
             # assume that the earned value for this period has not been entered and should not be plotted
             pass
         else:
-            earnedValue_List.append(max_budget - burndown_data[date]["Earned Value"])
+            earnedValue_List.append(max_budget - burnDown_data[date]["Earned Value"])
             earnedValue_Labels += (
-                f"{max_budget - burndown_data[date]['Earned Value']}, "
+                f"{max_budget - burnDown_data[date]['Earned Value']}, "
             )
 
     # remove trailing comma and space from earnedValue_Labels
@@ -727,7 +727,7 @@ def notePart_SupportingDocumentation(
             for document in selectedNotes:
                 i += 1
                 newNotePart += (
-                    f"**{document.subId}** {document.date} \n\n {document.noteBody}\n\n"
+                    f"**{document.subId}** *{document.title}* \n\n <div style=\"margin-left: 6em;\">{document.noteBody}\n\n</div>"
                 )
                 if i < len(selectedNotes):
                     newNotePart += """\n\n<div style="break-after: page;"></div>\n\n"""

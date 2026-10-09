@@ -60,7 +60,7 @@ diagramPage += f"""
 diagramPage += f"""
 ## Burndown Chart  
 
-{myProjects.diagram_Burndown(selectedProject)}
+{myProjects.diagram_BurnDown(selectedProject)}
 
 """
 

@@ -75,7 +75,7 @@ if not os.path.exists(csvFilePath):
     print(f"""{myTerminal.ERROR}CSV file not found at {csvFilePath}.{myTerminal.RESET}
         \nUse the project-edit_data command to create or update the CSV file.{myTerminal.RESET}""")
 else:
-    # Read the CSV file into a burndown dictionary
+    # Read the CSV file into a burnDown dictionary
     csvData = myTools.read_csv_to_dict(csvFilePath)
     if len(csvData) == 0:
         print(f"{myTerminal.WARNING}No data found in '{csvFileName}' CSV file.{myTerminal.RESET}")
@@ -116,7 +116,7 @@ if not os.path.exists(csvFilePath):
     print(f"""{myTerminal.ERROR}CSV file not found at {csvFilePath}.{myTerminal.RESET}
         \nUse the project-edit_data command to create or update the CSV file.{myTerminal.RESET}""")
 else:
-    # Read the CSV file into a burndown dictionary
+    # Read the CSV file into a burnDown dictionary
     csvData = myTools.read_csv_to_dict(csvFilePath)
     if len(csvData) == 0:
         print(f"{myTerminal.WARNING}No data found in '{csvFileName}' CSV file.{myTerminal.RESET}")
@@ -142,7 +142,7 @@ else:
 
 
 # deal with burn down
-burnDownVisualization = myProjects.diagram_Burndown(selectedProject)
+burnDownVisualization = myProjects.diagram_BurnDown(selectedProject)
 
 success, newNoteBody = myNotes.replace_text_between_tags(
     "BurnDown", hubNote.noteBody, burnDownVisualization
