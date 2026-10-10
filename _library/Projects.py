@@ -1363,6 +1363,67 @@ def get_ProjectConfig_as_dict(projectName: str) -> dict:
     return myTools.get_ProjectConfig_as_dict(projectName)
 
 
+def get_tasks_from_project_notes(project_notes: list) -> list[dict]:
+    """
+    Accepts a list of NoteData objects (typically from get_Notes_from_Project() or similar)
+    and returns a flat list of dictionary items representing each task/action item found.
+
+    The notes are first sorted by note.plannedDate (if present) or note.date (as fallback).
+    Each dictionary contains:
+        - noteid: str (the note's unique ID)
+        - task: str (the task text/description)
+        - AssignedTo: str (person assigned, or empty string)
+        - complete: bool (True if marked as completed with [x])
+        - plannedDate: str (from the note)
+        - notefile: str (name of the note file)
+        - notepath: str (full path to the note file)
+        - notetitle: str (title of the note that contains the task)
+        - estimatedEffort: str (value pulled from "Estimated Effort" in the note body)
+
+    This mirrors the logic used in get-actionItems.py for parsing action items.
+    """
+    from . import Notes as myNotes
+    from . import Tools as myTools
+    import re
+
+    # Sort notes: use plannedDate if available, otherwise fall back to note.date
+    sorted_notes = sorted(
+        project_notes,
+        key=lambda note: note.plannedDate if getattr(note, "plannedDate", "") else note.date
+    )
+
+    task_list = []
+
+    for note in sorted_notes:
+        if not hasattr(note, "actionItems") or not note.actionItems:
+            continue
+
+        for action_item in note.actionItems:
+            # Use the ActionItem's own parsing (which already handles [ ] vs [x], owner, description, etc.)
+            task_text = action_item.Description.strip() if hasattr(action_item, "Description") else action_item.taskString.strip()
+            assigned_to = action_item.Owner.strip() if hasattr(action_item, "Owner") else ""
+            is_complete = getattr(action_item, "Completed", False) or "[x]" in getattr(action_item, "taskString", "").lower()
+
+            # Pull Estimated Effort from the note body (same pattern used in loadTaskFromNote)
+            estimated_effort = myTools.get_stringValue_from_noteBody(
+                "Estimated Effort", note.noteBody
+            )
+
+            task_list.append({
+                "noteid": note.id,
+                "task": task_text,
+                "AssignedTo": assigned_to,
+                "complete": is_complete,
+                "plannedDate": getattr(note, "plannedDate", ""),
+                "notefile": getattr(note, "fileName", ""),
+                "notepath": getattr(note, "filePath", ""),
+                "notetitle": getattr(note, "title", ""),
+                "estimatedEffort": estimated_effort
+            })
+
+    return task_list
+
+
 def __test__():
 
     selectedProjectName = myInputs.select_project_name()

@@ -489,18 +489,25 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
 
     body = get_note_body(noteContent)
     backLinks = get_note_backlinks(noteContent)
-    hasActionItems = True if "[ ]" in body else False
+    if "[ ]" in body or "[x]" in body:
+        hasActionItems = True
+    else:
+        hasActionItems = False
+    
     actionItems = []
     actionItemsWithComments = {}
-    for actionItemString in re.findall(
-        r"\[ \](.*)", body
-    ):  # Find all action items in the note body
+    for actionMatch in re.finditer(r"\[([ x])\]\s*(.*)", body):
+        marker = actionMatch.group(1)
+        actionItemString = actionMatch.group(2).strip()
+        if not actionItemString:
+            continue
+
         # Extract details that follow the action item until the next "- [" or blank line
-        action_item_pattern = re.escape(actionItemString)
+        action_item_pattern = re.escape(f"[{marker}] {actionItemString}")
         actionItemComment = ""
 
         # Find the position of this action item in the body
-        match = re.search(rf"\[ \]\s?{action_item_pattern}", body)
+        match = re.search(rf"\[{re.escape(marker)}\]\s?{re.escape(actionItemString)}", body)
         if match:
             start_pos = match.end()
             remaining_text = body[start_pos:]
@@ -527,7 +534,7 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
         # get the line number of the action item in the note body for reference
         actionItemRow = 0
         for line in body.splitlines():
-            if f"[ ] {actionItemString.strip()}" in line.strip():
+            if f"[{marker}] {actionItemString.strip()}" in line.strip():
                 # actionItemRow will be front matter rows + the line number of the action item in the body
                 actionItemRow = (
                     len(frontMatter.splitlines())
@@ -541,7 +548,7 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
             title,
             notePathAndFile,
             project,
-            f"[ ] {actionItemString.strip()}",
+            f"[{marker}] {actionItemString.strip()}",
             actionItemRow,
             actionItemComment,
         )
