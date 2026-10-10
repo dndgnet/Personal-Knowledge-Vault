@@ -323,4 +323,5 @@ for sectionNoteType in myProjects.projectNoteTypesWhereThereCanBeOnlyOne:
 if silentMode or myInputs.ask_yes_no_from_user("Publish to Stakeholders?", default=False):
     myTerminal.executePythonScript("""project-syncStakeholders.py""", selectedProject)
 
-myTools.open_note_in_editor(hubNote.filePath)
+if not silentMode:
+    myTools.open_note_in_editor(hubNote.filePath)

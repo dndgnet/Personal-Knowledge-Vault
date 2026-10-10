@@ -150,6 +150,7 @@ with open(outputPathOutstanding, "w", encoding="utf-8") as f:
 
 print(f"{myTerminal.SUCCESS}Outstanding task list saved to: {outputPathOutstanding}{myTerminal.RESET}")
 
-# Open the generated files
-myTools.open_note_in_editor(outputPathAll)
-myTools.open_note_in_editor(outputPathOutstanding)
+if not silentMode:
+    # Open the generated files
+    myTools.open_note_in_editor(outputPathAll)
+    myTools.open_note_in_editor(outputPathOutstanding)
