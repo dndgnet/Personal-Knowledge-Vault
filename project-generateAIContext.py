@@ -193,11 +193,18 @@ for note in orderedNotes:
 """
     
 # Save to user's Downloads folder as "AI Context <Project Name>.md"
-downloads_path = myPreferences.path_to_ai_context_files()
 safe_project_name = "".join(c if c.isalnum() or c in " _-" else "_" for c in selectedProject).strip()
 context_filename = f"AI Context {safe_project_name}.md"
-contextFilePath = os.path.join(downloads_path, context_filename)
 
+#if the AI context file does not already exist in copilot onedrive path, put the file in the downloads folder
+if not os.path.exists(myPreferences.path_to_ai_context_files()):
+    downloads_path = myPreferences.attachmentPickUp_path()
+    print(f"{myTerminal.INFORMATION}AI Context file not found in Copilot OneDrive path. Using Downloads folder.{myTerminal.RESET}")
+    print("\tYou will need to manually upload for the first sync, once the file exists in OneDrive this statement will automatically overwrite and update it.")
+else:
+    downloads_path = myPreferences.path_to_ai_context_files()
+
+contextFilePath = os.path.join(downloads_path, context_filename)
 print(f"{myTerminal.INFORMATION}Saving to AI Context Files: {context_filename}{myTerminal.RESET}")
 
 success = myTools.write_text_to_file(contextFilePath, contextContent)
