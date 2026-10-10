@@ -294,9 +294,9 @@ sendCount = 0
 retrieveCount = 0
 print("Starting send process...")
 for note in projectNotes:
-    if note.author != myPreferences.author_name():
-        # print(f"{myTerminal.INFORMATION}Skipping note '{note.fileName}' (authored by {note.author}){myTerminal.RESET}")
-        continue
+    # if note.author != myPreferences.author_name():
+    #     # print(f"{myTerminal.INFORMATION}Skipping note '{note.fileName}' (authored by {note.author}){myTerminal.RESET}")
+    #     continue
 
     if note.shareWithStakeholders is False:
         # print(f"{myTerminal.INFORMATION}Skipping note '{note.fileName}' (not marked for sharing with stakeholders){myTerminal.RESET}")
