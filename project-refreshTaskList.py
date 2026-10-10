@@ -85,20 +85,26 @@ shareWithStakeholders: Yes
 """
 
 for t in tasks:
+    taskString = "\n"
     if t.get("complete"):
         taskString = "- [x] "
     else:
         taskString = "- [ ] "
 
-    taskString += t["task"]
+    taskString += f"**{t['task']}**"
+
+    taskString += f"\n- [open](<{t.get('notefile', t.get('notepath', ''))}>)\n"
 
     if t.get("AssignedTo"):
-        taskString += f"\n\t- Assigned to: {t['AssignedTo']}"
+        taskString += f"\n- Assigned to: {t['AssignedTo']}\n"
 
     if t.get("estimatedEffort"):
-        taskString += f"\n\t- Estimated Effort: {t['estimatedEffort']}"
+        taskString += f"\n- Estimated Effort: {t['estimatedEffort']}\n"
 
-    taskString += f"\n\t- [open](<{t.get('notefile', t.get('notepath', ''))}>)\n"
+    if t.get("comment"):
+        taskString += f"<div style=\"margin-left: 6em;\">{t['comment']}</div>\n\n"
+    else:
+        taskString += "\n"
 
     content += taskString + "\n\n"
 

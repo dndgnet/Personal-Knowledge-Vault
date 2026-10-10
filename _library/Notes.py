@@ -516,10 +516,10 @@ def get_Note_from_path(notePath: str, noteFileName: str) -> NoteData:
                 if len(remaining_text.splitlines()) > 1
                 else ""
             )
-            if "<comment>" in nextLine:
-                # Extract comment from <comment></comment> tags if present
+            if "<comment>" in nextLine or "<comments>" in nextLine:
+                # Extract comment from <comment> or <comments> tags (user sometimes uses plural)
                 comment_match = re.search(
-                    r"<comment>(.*?)</comment>", remaining_text, re.DOTALL
+                    r"<comments?>(.*?)</comments?>", remaining_text, re.DOTALL
                 )
                 actionItemComment = (
                     comment_match.group(1).strip() if comment_match else ""

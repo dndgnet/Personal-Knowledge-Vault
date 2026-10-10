@@ -1379,6 +1379,7 @@ def get_tasks_from_project_notes(project_notes: list) -> list[dict]:
         - notepath: str (full path to the note file)
         - notetitle: str (title of the note that contains the task)
         - estimatedEffort: str (value pulled from "Estimated Effort" in the note body)
+        - comment: str (any comment found in <comment> tags on the next line after the task)
 
     This mirrors the logic used in get-actionItems.py for parsing action items.
     """
@@ -1409,6 +1410,14 @@ def get_tasks_from_project_notes(project_notes: list) -> list[dict]:
             task_text = action_item.Description.strip() if hasattr(action_item, "Description") else action_item.taskString.strip()
             assigned_to = action_item.Owner.strip() if hasattr(action_item, "Owner") else ""
             is_complete = getattr(action_item, "Completed", False) or "[x]" in getattr(action_item, "taskString", "").lower()
+            comment = getattr(action_item, "Comment", "").strip()
+
+            # Fallback: check the note's actionItemsWithComments dict using the task text as key
+            if not comment and hasattr(note, "actionItemsWithComments"):
+                comment = note.actionItemsWithComments.get(task_text, "")
+                if not comment:
+                    # Also try the raw taskString as key (sometimes the key includes the checkbox)
+                    comment = note.actionItemsWithComments.get(action_item.taskString.strip(), "")
 
             # Pull Estimated Effort from the note body (same pattern used in loadTaskFromNote)
             estimated_effort = myTools.get_stringValue_from_noteBody(
@@ -1424,7 +1433,8 @@ def get_tasks_from_project_notes(project_notes: list) -> list[dict]:
                 "notefile": getattr(note, "fileName", ""),
                 "notepath": getattr(note, "filePath", ""),
                 "notetitle": getattr(note, "title", ""),
-                "estimatedEffort": estimated_effort
+                "estimatedEffort": estimated_effort,
+                "comment": comment
             })
 
     return task_list
