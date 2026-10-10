@@ -1378,6 +1378,7 @@ def get_tasks_from_project_notes(project_notes: list) -> list[dict]:
         - notefile: str (name of the note file)
         - notepath: str (full path to the note file)
         - notetitle: str (title of the note that contains the task)
+        - parenttitle: str (title of the parent note that contains this task note)
         - estimatedEffort: str (value pulled from "Estimated Effort" in the note body)
         - comment: str (any comment found in <comment> tags on the next line after the task)
 
@@ -1433,6 +1434,7 @@ def get_tasks_from_project_notes(project_notes: list) -> list[dict]:
                 "notefile": getattr(note, "fileName", ""),
                 "notepath": getattr(note, "filePath", ""),
                 "notetitle": getattr(note, "title", ""),
+                "parenttitle": getattr(note, "parentTitle", "") or getattr(note, "title", ""),
                 "estimatedEffort": estimated_effort,
                 "comment": comment
             })

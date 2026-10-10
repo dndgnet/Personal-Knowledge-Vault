@@ -65,7 +65,7 @@ author = myPreferences.author_name()
 total_tasks = len(tasks)
 outstanding = sum(1 for t in tasks if not t.get("complete", False))
 
-content = f"""---
+contentAllTasks = f"""---
 title: {selectedProject} Tasks
 type: Task List
 created: {timestamp}
@@ -84,16 +84,38 @@ shareWithStakeholders: Yes
 
 """
 
+contentOutstandingTasks = f"""---
+title: {selectedProject} Outstanding Tasks
+type: Task List
+created: {timestamp}
+start date: {timestamp}
+retention: Short
+project: {selectedProject}
+author: {author}
+private: No
+shareWithStakeholders: Yes
+---
+
+# {selectedProject} Outstanding Tasks
+
+**Generated**: {timestamp}
+**Outstanding tasks**: {outstanding} 
+
+"""
+complete=False 
+
 for t in tasks:
     taskString = "\n"
     if t.get("complete"):
         taskString = "- [x] "
+        complete=True
     else:
         taskString = "- [ ] "
+        complete=False
 
     taskString += f"**{t['task']}**"
 
-    taskString += f"\n- [open](<{t.get('notefile', t.get('notepath', ''))}>)\n"
+    taskString += f"\n- [Open](<{t.get('notefile', t.get('notepath', ''))}>) {t.get('parenttitle', '')}\n"
 
     if t.get("AssignedTo"):
         taskString += f"\n- Assigned to: {t['AssignedTo']}\n"
@@ -106,18 +128,28 @@ for t in tasks:
     else:
         taskString += "\n"
 
-    content += taskString + "\n\n"
+    if not complete:
+        contentOutstandingTasks += taskString + """\n<div style="margin-left: 6em;">\n\n---\n\n</div>\n\n"""
+
+    contentAllTasks += taskString + """\n<div style="margin-left: 6em;">\n\n---\n\n</div>\n\n"""
 
 # Save to project folder
 projectPath = os.path.join(myPreferences.root_projects(), selectedProject)
-outputPath = os.path.join(projectPath, "Project Tasks.md")
+outputPathAll = os.path.join(projectPath, "Project Tasks.md")
+outputPathOutstanding = os.path.join(projectPath, "Outstanding Project Tasks.md")
 
 os.makedirs(projectPath, exist_ok=True)
 
-with open(outputPath, "w", encoding="utf-8") as f:
-    f.write(content)
+with open(outputPathAll, "w", encoding="utf-8") as f:
+    f.write(contentAllTasks)
 
-print(f"{myTerminal.SUCCESS}Task list saved to: {outputPath}{myTerminal.RESET}")
+print(f"{myTerminal.SUCCESS}Task list saved to: {outputPathAll}{myTerminal.RESET}")
 
-# Open the generated file
-myTools.open_note_in_editor(outputPath)
+with open(outputPathOutstanding, "w", encoding="utf-8") as f:
+    f.write(contentOutstandingTasks)
+
+print(f"{myTerminal.SUCCESS}Outstanding task list saved to: {outputPathOutstanding}{myTerminal.RESET}")
+
+# Open the generated files
+myTools.open_note_in_editor(outputPathAll)
+myTools.open_note_in_editor(outputPathOutstanding)
