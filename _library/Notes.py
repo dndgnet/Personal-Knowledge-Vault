@@ -606,7 +606,6 @@ def get_Notes_as_list(
                     not file.startswith(".")
                     and not file.startswith("_")
                     and file.endswith(".md")
-                    and not file == "Project Brief.md"
                     and not file == "Project Tasks.md"
                     and not file == "Outstanding Project Tasks.md"
                 ):  # Skip hidden files and non markdown files
