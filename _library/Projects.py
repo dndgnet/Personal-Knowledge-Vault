@@ -1386,9 +1386,15 @@ def get_tasks_from_project_notes(project_notes: list) -> list[dict]:
     from . import Tools as myTools
     import re
 
+    # Filter out Project Brief and Task List notes (they should not appear in the task list)
+    filtered_notes = [
+        note for note in project_notes
+        if not (note.title.lower().endswith("brief") or note.title.lower().endswith("task list"))
+    ]
+
     # Sort notes: use plannedDate if available, otherwise fall back to note.date
     sorted_notes = sorted(
-        project_notes,
+        filtered_notes,
         key=lambda note: note.plannedDate if getattr(note, "plannedDate", "") else note.date
     )
 
