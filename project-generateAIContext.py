@@ -197,7 +197,7 @@ safe_project_name = "".join(c if c.isalnum() or c in " _-" else "_" for c in sel
 context_filename = f"AI Context {safe_project_name}.md"
 
 #if the AI context file does not already exist in copilot onedrive path, put the file in the downloads folder
-if not os.path.exists(myPreferences.path_to_ai_context_files()):
+if not os.path.exists(os.path.join(myPreferences.path_to_ai_context_files(), safe_project_name)):
     downloads_path = myPreferences.attachmentPickUp_path()
     print(f"{myTerminal.INFORMATION}AI Context file not found in Copilot OneDrive path. Using Downloads folder.{myTerminal.RESET}")
     print("\tYou will need to manually upload for the first sync, once the file exists in OneDrive this statement will automatically overwrite and update it.")
