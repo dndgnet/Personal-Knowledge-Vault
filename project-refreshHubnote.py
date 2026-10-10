@@ -43,6 +43,7 @@ if selectedProject is None or selectedProject == "":
     selectedProject = myInputs.select_project_name(False, False)
 
 myTerminal.executePythonScript("""project-refreshMilestones.py""", selectedProject)
+myTerminal.executePythonScript("""project-refreshTaskList.py""", selectedProject)
 
 if selectedProject is None or selectedProject == "":
     print(f"{myTerminal.WARNING}No project selected.{myTerminal.RESET}")
@@ -318,5 +319,8 @@ for sectionNoteType in myProjects.projectNoteTypesWhereThereCanBeOnlyOne:
             print(
                 f"{myTerminal.WARNING}'{sectionNoteType}' tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}"
             )
+
+if myInputs.ask_yes_no_from_user("Publish to Stakeholders?", default=False):
+    myTerminal.executePythonScript("""project-syncStakeholders.py""", selectedProject)
 
 myTools.open_note_in_editor(hubNote.filePath)

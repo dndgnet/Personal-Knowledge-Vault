@@ -53,7 +53,7 @@ tasks = myProjects.get_tasks_from_project_notes(projectNotes)
 
 if not tasks:
     print(f"{myTerminal.WARNING}No tasks found for project '{selectedProject}'.{myTerminal.RESET}")
-    exit(1)
+    
 
 print(f"{myTerminal.SUCCESS}Found {len(tasks)} task(s).{myTerminal.RESET}")
 
