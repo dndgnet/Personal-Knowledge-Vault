@@ -25,10 +25,10 @@ if not myNotes.dump_notes_to_json(
     exit(-1)
 
 # retrieve the dictionary of all notes from AllNotes.json
-allNotes = []
-allNotes = myNotes.load_notes_from_json(
-    file_path=os.path.join(myPreferences.root_pkv(), "AllNotes.json")
-)
+# allNotes = []
+# allNotes = myNotes.load_notes_from_json(
+#     file_path=os.path.join(myPreferences.root_pkv(), "AllNotes.json")
+# )
 
 print(f"{len(allNotes)} notes loaded, start providing search criteria.")
 print("")

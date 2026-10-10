@@ -9,9 +9,9 @@ import sys
 
 # build a dictionary of all notes in the root_pkv directory
 allNotes = myTools.get_Notes_as_list(myPreferences.root_pkv(),includePrivateNotes=True, includeArchivedProjects=True)
-if not myNotes.dump_notes_to_json(notes=allNotes, file_path=os.path.join(myPreferences.root_pkv(), "AllNotes.json"), indent=4):
-    print(f"{myTerminal.ERROR}Failed to create AllNotes.json.{myTerminal.RESET}")
-    exit(-1)
+# if not myNotes.dump_notes_to_json(notes=allNotes, file_path=os.path.join(myPreferences.root_pkv(), "AllNotes.json"), indent=4):
+#     print(f"{myTerminal.ERROR}Failed to create AllNotes.json.{myTerminal.RESET}")
+#     exit(-1)
 
 #retrieve the dictionary of all notes from AllNotes.json
 allNotes = []

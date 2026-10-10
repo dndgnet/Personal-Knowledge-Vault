@@ -11,13 +11,14 @@ from _library import Terminal as myTerminal
 from _library import Tools as myTools
 
 myTerminal.clearTerminal()
-
+silentMode = False
 selectedProject = ""
 if len(sys.argv) > 1:
     for arg in sys.argv[1:]:
         selectedProject += arg + " "
     selectedProject = selectedProject.strip()
     print(f"Selected project from arguments: '{selectedProject}'")
+    silentMode = True
     
     # Check if the provided project name exists in known projects
     known_projects = myTools.get_pkv_projects()
@@ -25,6 +26,7 @@ if len(sys.argv) > 1:
         print(f"{myTerminal.WARNING}Project '{selectedProject}' not found in known projects.{myTerminal.RESET}")
         print("Will prompt user to select a valid project.")
         selectedProject = ""  # clear so code below prompts the user
+        silentMode = False
     else:
         print(f"{myTerminal.SUCCESS}Valid known project: {selectedProject}{myTerminal.RESET}")
 
@@ -205,7 +207,8 @@ if success:
     print(f"   - {len(orderedNotes)} notes included")
     if executiveSummaryNote:
         print(f"   - Executive summary placed at top")
-    myTools.open_note_in_editor(contextFilePath)
+    if not silentMode:
+        myTools.open_note_in_editor(contextFilePath)
 else:
     print(f"{myTerminal.ERROR}Failed to write AI Context File.{myTerminal.RESET}")
     sys.exit(1)
