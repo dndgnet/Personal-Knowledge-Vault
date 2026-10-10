@@ -1389,7 +1389,7 @@ def get_tasks_from_project_notes(project_notes: list) -> list[dict]:
     # Filter out Project Brief and Task List notes (they should not appear in the task list)
     filtered_notes = [
         note for note in project_notes
-        if not (note.title.lower().endswith("brief") or note.title.lower().endswith("task list"))
+        if not (note.fileName.lower().endswith("project brief.md") or note.fileName.lower().endswith("project tasks.md"))
     ]
 
     # Sort notes: use plannedDate if available, otherwise fall back to note.date

@@ -320,7 +320,7 @@ for sectionNoteType in myProjects.projectNoteTypesWhereThereCanBeOnlyOne:
                 f"{myTerminal.WARNING}'{sectionNoteType}' tags not found in hub note for project '{selectedProject}'.{myTerminal.RESET}"
             )
 
-if myInputs.ask_yes_no_from_user("Publish to Stakeholders?", default=False):
+if silentMode or myInputs.ask_yes_no_from_user("Publish to Stakeholders?", default=False):
     myTerminal.executePythonScript("""project-syncStakeholders.py""", selectedProject)
 
 myTools.open_note_in_editor(hubNote.filePath)

@@ -104,7 +104,7 @@ for t in tasks:
 
 # Save to project folder
 projectPath = os.path.join(myPreferences.root_projects(), selectedProject)
-outputPath = os.path.join(projectPath, "ProjectTask.md")
+outputPath = os.path.join(projectPath, "Project Tasks.md")
 
 os.makedirs(projectPath, exist_ok=True)
 
