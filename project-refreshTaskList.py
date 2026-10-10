@@ -72,7 +72,7 @@ created: {timestamp}
 start date: {timestamp}
 retention: Short
 project: {selectedProject}
-author: {author}
+author: automatic
 private: No
 shareWithStakeholders: Yes
 ---
@@ -91,7 +91,7 @@ created: {timestamp}
 start date: {timestamp}
 retention: Short
 project: {selectedProject}
-author: {author}
+author: automatic
 private: No
 shareWithStakeholders: Yes
 ---
