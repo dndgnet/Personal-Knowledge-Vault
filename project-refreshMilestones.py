@@ -83,6 +83,17 @@ for note in projectNotes:
     if note.isMilestone:
         plannedIsDate, plannedDate = myTools.datetime_fromString(note.plannedDate)
         actualIsDate, actualDate = myTools.datetime_fromString(note.actualDate)
+
+        # Determine duration for Gantt chart: use Estimated Effort from note body if present (for tasks), otherwise default to 1d
+        effort = "1d"
+        if note.type.lower() in ("task", "project-task"):
+            effort_value = myTools.get_stringValue_from_noteBody("Estimated Effort", note.noteBody)
+            if effort_value and effort_value.strip():
+                # Convert "2 days", "3d", "5 day" etc. to mermaid duration format (e.g. 2d)
+                num = "".join(filter(str.isdigit, effort_value))
+                if num:
+                    effort = f"{num}d"
+
         if plannedIsDate:
             plannedCounter += 1
             table += f"|{note.title}|{myTools.format_datetimeAsPreferred_Date_String(plannedDate)}|{myTools.format_datetimeAsPreferred_Date_String(actualDate) if actualIsDate else ''}|\n"
@@ -97,7 +108,7 @@ for note in projectNotes:
                 style = "crit"
                 actualAndPlannedAreTheSame = False
 
-            plannedString += f"\t{myTools.letters_and_numbers_only(note.title)} : {style}, p{plannedCounter}, {myTools.format_datetimeAsPreferred_Date_String(plannedDate)}, 1d\n"
+            plannedString += f"\t{myTools.letters_and_numbers_only(note.title)} : {style}, p{plannedCounter}, {myTools.format_datetimeAsPreferred_Date_String(plannedDate)}, {effort}\n"
         if actualIsDate:
             style = "milestone"
             if actualDate <= plannedDate:
@@ -105,7 +116,7 @@ for note in projectNotes:
             else:
                 style = "done"
 
-            actualString += f"\t{myTools.letters_and_numbers_only(note.title)} : {style}, a{plannedCounter}, {myTools.format_datetimeAsPreferred_Date_String(actualDate)}, 1d\n"
+            actualString += f"\t{myTools.letters_and_numbers_only(note.title)} : {style}, a{plannedCounter}, {myTools.format_datetimeAsPreferred_Date_String(actualDate)}, {effort}\n"
 
 if plannedCounter == 0:
     print(f"{myTerminal.WARNING}No planned dates found for milestone notes in project '{selectedProject}'.{myTerminal.RESET}")
