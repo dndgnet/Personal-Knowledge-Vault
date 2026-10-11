@@ -124,7 +124,7 @@ for t in tasks:
         taskString += f"\n- Estimated Effort: {t['estimatedEffort']}\n"
 
     if t.get("comment"):
-        taskString += f"<div style=\"margin-left: 6em;\">{t['comment']}</div>\n\n"
+        taskString += f"<div style=\"margin-left: 6em;\">\n{t['comment']}\n</div>\n\n"
     else:
         taskString += "\n"
 
