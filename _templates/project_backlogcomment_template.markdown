@@ -12,6 +12,7 @@ keywords:
 project: [Project Name]
 author: [CommentAuthor]
 private: No
+addToAIContext: Yes
 shareWithStakeholders: No
 isMilestone: [isMilestone]
 plannedDate: [plannedDate]

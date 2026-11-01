@@ -136,8 +136,11 @@ def replace_images_with_data_urls(note_body: str, project_name: str) -> str:
 # Load all notes for the project (exclude private notes)
 allNotes = myNotes.get_Notes_from_Project(selectedProject)
 
+allNotes = [note for note in allNotes if note.addToAIContext != False]
+
 # Filter out private notes (note.private == True)
 nonPrivateNotes = [note for note in allNotes if not note.private]
+
 
 if not nonPrivateNotes:
     print(f"{myTerminal.WARNING}No non-private notes found for project '{selectedProject}'.{myTerminal.RESET}")

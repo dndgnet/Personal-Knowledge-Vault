@@ -13,7 +13,8 @@ keywords:
 project: [Project Name]
 author: [Author]
 private: No
-shareWithStakeholders: Yes  
+addToAIContext: Yes
+shareWithStakeholders: Yes
 ---
 
 <!--
