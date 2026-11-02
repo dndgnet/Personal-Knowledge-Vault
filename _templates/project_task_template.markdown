@@ -29,38 +29,18 @@ actualDate: [actualDate]
 Not Started, In-progress, Testing, Complete, Cancelled
 -->
 
-**Planned Start**: [plannedStart]
-
-**Actual Start**: [actualStart]
-
-**Planned End**: [plannedEnd]
-
-**Actual End**: [actualEnd]
-
 **Estimated Effort**: [effort in days]
 <!-- hidden hints
 effort in days
 -->
 
-**Percent Complete**:
-<!-- hidden hints
-estimate percent complete as a number
--->
 
-
-**Actual Effort**:
-
-**Assigned to**: [Assigned To]
-
-
-## Task 
-
-[CHECKBOX_UNCHECKED] [Title]
+[CHECKBOX_UNCHECKED] [Assigned To] [Due Date]:[Title]
 <comments>
 
-[Task Detail]
 
 </comments>
 
 ## Notes
 
+[Task Detail]
