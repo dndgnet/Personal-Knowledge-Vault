@@ -4,7 +4,7 @@ Collect inputs from users for specific tasks.
 
 #from pandas import options
 
-from attr import has
+#from attr import has
 
 from . import Preferences as myPreferences
 from . import Tools as myTools
