@@ -21,7 +21,19 @@ selectedProject = myInputs.select_project_name(showNewProjectOption=False, showN
 
 if selectedProject == "":
     print("No project selected, exiting.")
-    exit()
+
+selectedProjects = []
+
+if selectedProject == "":
+    for filename in sorted(os.listdir(myPreferences.root_projects())):
+        if os.path.isdir(os.path.join(myPreferences.root_projects(), filename)):
+            projectConfig = myProjects.get_ProjectConfig_as_dict(filename)
+            projectName = projectConfig.get("ProjectName", "")
+            projectSharePointRowId = int(projectConfig.get("TeamSharePointBackLogListRowID", 0))
+            if projectSharePointRowId > 0:
+                selectedProjects.append(projectName)
+else:
+    selectedProjects.append(selectedProject)
 
 
 temporarySharePointListCommentsPath = myPreferences.temporarySharePointListCommentsPath()
@@ -33,54 +45,56 @@ if temporarySharePointListCommentsPath == "":
 if not os.path.exists(temporarySharePointListCommentsPath):
     os.makedirs(temporarySharePointListCommentsPath)
 
-projectConfig = myProjects.get_ProjectConfig_as_dict(selectedProject)
 
-teamSharePointBackLogListRowID = int(projectConfig.get("TeamSharePointBackLogListRowID", 0))
+for selectedProject in selectedProjects:
+    projectConfig = myProjects.get_ProjectConfig_as_dict(selectedProject)
+
+    teamSharePointBackLogListRowID = int(projectConfig.get("TeamSharePointBackLogListRowID", 0))
 
 
-if teamSharePointBackLogListRowID == 0:
-    print(f"Project '{selectedProject}' does not have a valid TeamSharePointBackLogListRowID configured. Please update the project configuration.")
-    exit()       
+    if teamSharePointBackLogListRowID == 0:
+        print(f"Project '{selectedProject}' does not have a valid TeamSharePointBackLogListRowID configured. Please update the project configuration.")
+        exit()       
 
-#read the sharepoint list comments into a dictionary 
-dictSharePointListComments = {}
+    #read the sharepoint list comments into a dictionary 
+    dictSharePointListComments = {}
 
-with open(temporarySharePointListCommentsPath, mode='r', newline='', encoding='utf-8') as csvFile:
-    reader = csv.DictReader(csvFile)
-    for row in reader:
-        key = len(dictSharePointListComments)
-        dictSharePointListComments[key] = row
+    with open(temporarySharePointListCommentsPath, mode='r', newline='', encoding='utf-8') as csvFile:
+        reader = csv.DictReader(csvFile)
+        for row in reader:
+            key = len(dictSharePointListComments)
+            dictSharePointListComments[key] = row
 
-templateName = "project_backlogcomment_template.markdown"
+    templateName = "project_backlogcomment_template.markdown"
 
-for key,value in dictSharePointListComments.items():
-    #Value keys are "DownloadDate","ID","Title","CommentAuthor","CommentDate","CommentBody"
-    if int(value.get("ID", 0)) == teamSharePointBackLogListRowID:
-        id = value.get("CommentDate","") + "_BLComment_" + value.get("CommentAuthor","").split(" ")[0]
-        CommentAuthor = value.get("CommentAuthor","")
-        CommentDate = value.get("CommentDate","")
-        CommentBody = value.get("CommentBody","")   
-        mergeData = {
-                "id": id,
-                "CommentAuthor": CommentAuthor,
-                "CommentBody": CommentBody,
-                "Project Name": selectedProject,
-                "isMilestone": "No"
-            }
+    for key,value in dictSharePointListComments.items():
+        #Value keys are "DownloadDate","ID","Title","CommentAuthor","CommentDate","CommentBody"
+        if int(value.get("ID", 0)) == teamSharePointBackLogListRowID:
+            id = value.get("CommentDate","") + "_BLComment_" + value.get("CommentAuthor","").split(" ")[0]
+            CommentAuthor = value.get("CommentAuthor","")
+            CommentDate = value.get("CommentDate","")
+            CommentBody = value.get("CommentBody","")   
+            mergeData = {
+                    "id": id,
+                    "CommentAuthor": CommentAuthor,
+                    "CommentBody": CommentBody,
+                    "Project Name": selectedProject,
+                    "isMilestone": "No"
+                }
 
-        isDate,suggestedDatetime = myTools.datetime_fromString(CommentDate)
-        if isDate is False:
-            suggestedDatetime = datetime.now()
+            isDate,suggestedDatetime = myTools.datetime_fromString(CommentDate)
+            if isDate is False:
+                suggestedDatetime = datetime.now()
 
-        output_path, note_Content, uniqueIdentifier = myNotes.make_note_from_template(
-            selectedProjectName=selectedProject,
-            selectedTemplateName=templateName,
-            suggestedDateTime=suggestedDatetime,
-            mergeData=mergeData,
-            suggestedTitle="Backlog Comment: " + CommentAuthor + " - " + CommentDate)
+            output_path, note_Content, uniqueIdentifier = myNotes.make_note_from_template(
+                selectedProjectName=selectedProject,
+                selectedTemplateName=templateName,
+                suggestedDateTime=suggestedDatetime,
+                mergeData=mergeData,
+                suggestedTitle="Backlog Comment " + CommentAuthor + " - " + CommentDate)
 
-        print (f"\tCreated note for Backlog Comment by '{CommentAuthor}' on '{CommentDate}' at '{output_path}'.")
+            print (f"\tCreated note for Backlog Comment by '{CommentAuthor}' on '{CommentDate}' at '{output_path}'.")
 
-        # myTools.open_vault()
-        # myTools.open_note_in_editor(output_path)
+            # myTools.open_vault()
+            # myTools.open_note_in_editor(output_path)
         
