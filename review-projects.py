@@ -58,7 +58,7 @@ for projectName in projects.keys():
         
         print(f"Project path does not exist: {projectPath}")
 
-summaryPath = os.path.join(myPreferences.root_pkv(), f"{myPreferences.os_user_name} WeeklyProjectReview.md")
+summaryPath = os.path.join(myPreferences.root_pkv(), f"{myPreferences.os_user_name()} WeeklyProjectReview.md")
 
 myNotes.write_Note_to_path(summaryPath, weeklyReview)
 myTools.open_vault()
