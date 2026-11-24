@@ -809,6 +809,8 @@ def get_Note_with_ActionItems(target_dir: str) -> list[NoteData]:
     for note in get_Notes_as_list(target_dir):
         if note.fileName.lower().startswith("ai context"):
             continue
+        if note.frontMatter == "":
+            continue
         if "[ ]" in note.noteBody and "hub" not in note.type and note.type != "":
             filteredNotes.append(note)
 
